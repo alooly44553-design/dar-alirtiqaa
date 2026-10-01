@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>مراكز دار الارتقاء الفكري — الإدارة والتحكم الذكي</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:#f5f7fb;color:#172033}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f5f7fb}button,input,textarea{font:inherit}
+button{border:0;border-radius:11px;padding:10px 14px;cursor:pointer;background:#13233f;color:#fff}button:hover:not(:disabled){transform:translateY(-1px)}button:disabled{opacity:.6;cursor:not-allowed}button.secondary{background:#e2e8f0;color:#172033}
+.top{position:sticky;top:0;z-index:10;padding:18px 20px;background:#13233f;color:#fff;box-shadow:0 4px 18px #0f172a1f}.top h1{margin:0;font-size:22px}.top p{margin:5px 0 0;color:#cbd5e1;font-size:13px}
+.wrap{width:min(1100px,calc(100% - 32px));margin:auto;padding:18px 0 35px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:16px;box-shadow:0 4px 16px #0f172a0d}.card h2{margin:0 0 12px;font-size:16px}.full{grid-column:1/-1}
+.muted{color:#64748b;font-size:13px}.small{font-size:12px;line-height:1.6}.dangerText{color:#991b1b}.successText{color:#166534}.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.between{justify-content:space-between}
+.badge{display:inline-block;border-radius:999px;padding:4px 9px;font-size:12px;background:#e2e8f0;color:#334155;white-space:nowrap}.ok{background:#dcfce7;color:#166534}.warn{background:#fef3c7;color:#92400e}.danger{background:#fee2e2;color:#991b1b}.info{background:#dbeafe;color:#1d4ed8}
+.list{display:grid;gap:8px}.item{padding:10px;border:1px solid #e5e7eb;border-radius:11px;background:#fafafa}.item strong{display:block;margin-bottom:4px;line-height:1.5}
+textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px;padding:11px;resize:vertical;outline:none}input{outline:none}textarea:focus,input:focus{border-color:#64748b;box-shadow:0 0 0 3px #64748b1f}
+.login{width:min(420px,calc(100% - 32px));margin:10vh auto}.login input{width:100%;padding:11px;margin:7px 0;border:1px solid #cbd5e1;border-radius:10px}.notice{margin-bottom:14px;padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0}
+#app,#login{display:none}
+</style>
+</head>
+<body>
+<header class="top"><h1>مراكز دار الارتقاء الفكري</h1><p>نظام الإدارة والتحكم الذكي — الإدارة البشرية أولًا، والذكاء الاصطناعي تحت الإشراف</p></header>
+
+<section id="login" class="login card">
+<h2>دخول الإدارة</h2><p class="muted">هذا الدخول مخصص لحسابات الإدارة المعتمدة فقط.</p>
+<input id="email" type="email" placeholder="البريد الإلكتروني" autocomplete="username" inputmode="email">
+<input id="password" type="password" placeholder="كلمة المرور" autocomplete="current-password">
+<div class="row" style="margin-top:8px"><button id="loginBtn" type="button">دخول</button></div>
+<p id="loginMsg" class="small dangerText" aria-live="polite"></p>
+</section>
+
+<main id="app" class="wrap">
+<div class="row between" style="margin-bottom:14px"><div><strong id="who"></strong><span class="badge ok" style="margin-right:7px">إدارة</span></div><button id="logout" class="secondary" type="button">تسجيل الخروج</button></div>
+<div id="globalMsg" class="small notice" style="display:none" aria-live="polite"></div>
+<div class="grid">
+<section class="card"><h2>حالة المراكز</h2><div id="centers" class="list"><span class="muted">جارٍ التحميل...</span></div></section>
+<section class="card"><h2>المشرف الذكي</h2><p class="muted">يتابع التشغيل التعليمي ويرفع الاستثناءات والتقارير، ولا يتجاوز صلاحيات الإدارة.</p><div id="supervisor" class="item"><span class="muted">جارٍ التحميل...</span></div></section>
+<section class="card"><h2>المعلم الذكي</h2><p class="muted">إعداد الدروس والتمارين والتقييم والمتابعة التعليمية ضمن المهام المصرح بها.</p><div id="teacher" class="item"><span class="muted">جارٍ التحميل...</span></div></section>
+<section class="card full"><h2>أمر إداري</h2><textarea id="command" maxlength="5000" placeholder="اكتب الأمر بالعربية، مثال: جهّز تقرير متابعة الحضور لهذا الأسبوع"></textarea><div class="row" style="margin-top:9px"><button id="send" type="button">إرسال الأمر</button><span id="sendMsg" class="muted" aria-live="polite"></span></div></section>
+<section class="card"><h2>الأوامر التي تنتظر الموافقة</h2><div id="pending" class="list"><span class="muted">جارٍ التحميل...</span></div></section>
+<section class="card"><h2>المهام الذكية</h2><div id="tasks" class="list"><span class="muted">جارٍ التحميل...</span></div></section>
+<section class="card full"><h2>سجل النشاط</h2><div id="logs" class="list"><span class="muted">جارٍ التحميل...</span></div></section>
+</div>
+</main>
+
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+const SUPABASE_URL="https://oisfclsgcjofxzeraqpb.supabase.co";
+const SUPABASE_KEY="sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk";
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY); const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const fmt=v=>{if(!v)return"—";const d=new Date(v);return Number.isNaN(d.getTime())?esc(v):d.toLocaleString("ar",{dateStyle:"medium",timeStyle:"short"})};
+const statusLabel=v=>({active:"نشط",inactive:"غير نشط",pending:"معلّق",waiting_approval:"بانتظار الموافقة",approved:"تمت الموافقة",rejected:"مرفوض",queued:"في قائمة التنفيذ",running:"قيد التنفيذ",completed:"مكتمل",failed:"فشل",cancelled:"ملغي"}[String(v||"").toLowerCase()]||String(v||"غير محدد"));
+const statusClass=v=>{v=String(v||"").toLowerCase();if(["active","approved","completed"].includes(v))return"ok";if(["pending","waiting_approval","queued","running"].includes(v))return"warn";if(["rejected","failed","cancelled","inactive"].includes(v))return"danger";return"info"};
+const globalMsg=(msg,type="info")=>{const el=$("globalMsg");if(!msg){el.style.display="none";el.textContent="";return}el.style.display="block";el.className="small notice "+(type==="error"?"dangerText":type==="success"?"successText":"");el.textContent=msg};
+const getSession=async()=>{const{data,error}=await sb.auth.getSession();if(error){console.error(error);return null}return data?.session||null};
+const setView=logged=>{$("login").style.display=logged?"none":"block";$('app').style.display=logged?"block":"none"};
+function renderAgent(id,a){$(id).innerHTML=a?`<strong>${esc(a.name)}</strong><div class="row" style="margin-top:5px"><span class="badge ok">نشط</span><span class="badge">${esc(a.autonomy_level||"supervised")}</span></div><div class="small" style="margin-top:6px">${esc(a.system_role||"")}</div>`:'<span class="muted">غير متاح حاليًا.</span>'}
+function render(rows,id,empty,fn){$(id).innerHTML=rows?.length?rows.map(fn).join(""):`<span class="muted">${empty}</span>`}
+async function load(){
+ const session=await getSession(); if(!session?.user){setView(false);return} setView(true); $("who").textContent=session.user.email||"حساب الإدارة";
+ const [c,a,t,cmd,logs]=await Promise.all([
+  sb.from("centers").select("id,name,status,created_at").order("created_at",{ascending:false}),
+  sb.from("ai_agents").select("id,name,role,is_active,system_role,autonomy_level").eq("is_active",true).order("role"),
+  sb.from("ai_tasks").select("id,title,status,task_type,created_at").order("created_at",{ascending:false}).limit(8),
+  sb.from("management_commands").select("id,command,command_type,priority,status,requires_approval,created_at,approval_note").in("status",["pending","waiting_approval"]).order("created_at",{ascending:false}).limit(10),
+  sb.from("ai_activity_log").select("id,action,details,created_at").order("created_at",{ascending:false}).limit(10)
+ ]);
+ const failed=[["المراكز",c.error],["الوكلاء",a.error],["المهام",t.error],["الأوامر",cmd.error],["السجل",logs.error]].filter(x=>x[1]);
+ if(failed.length){console.error(failed);globalMsg("تعذر تحميل بعض بيانات اللوحة: "+failed.map(x=>x[0]).join("، "),"error")}else globalMsg("");
+ render(c.data,"centers","لا توجد مراكز مسجلة بعد.",x=>`<div class="item"><strong>${esc(x.name)}</strong><span class="badge ${statusClass(x.status)}">${esc(statusLabel(x.status))}</span></div>`);
+ const agents=a.data||[]; renderAgent("supervisor",agents.find(x=>x.role==="supervisor")); renderAgent("teacher",agents.find(x=>x.role==="teacher"));
+ render(t.data,"tasks","لا توجد مهام ذكية بعد.",x=>`<div class="item"><strong>${esc(x.title||"مهمة بدون عنوان")}</strong><div class="row"><span class="badge ${statusClass(x.status)}">${esc(statusLabel(x.status))}</span>${x.task_type?`<span class="badge">${esc(x.task_type)}</span>`:""}</div><div class="small muted" style="margin-top:5px">${fmt(x.created_at)}</div></div>`);
+ render(cmd.data,"pending","لا توجد أوامر معلقة.",x=>`<div class="item"><strong>${esc(x.command)}</strong><div class="row"><span class="badge warn">${esc(statusLabel(x.status))}</span><span class="badge">الأولوية: ${esc(x.priority||"normal")}</span></div><div class="small muted" style="margin-top:5px">${fmt(x.created_at)}</div>${x.approval_note?`<div class="small" style="margin-top:5px">الملاحظة: ${esc(x.approval_note)}</div>`:""}<div class="row" style="margin-top:8px"><button data-approve="${esc(x.id)}" type="button">موافقة</button><button data-reject="${esc(x.id)}" type="button" class="secondary">رفض</button></div></div>`);
+ render(logs.data,"logs","لا يوجد نشاط مسجل بعد.",x=>{let d="";try{d=typeof x.details==="string"?x.details:JSON.stringify(x.details||{})}catch{}return`<div class="item"><strong>${esc(x.action||"نشاط")}</strong><div class="small">${esc(d)}</div><div class="small muted" style="margin-top:5px">${fmt(x.created_at)}</div></div>`});
+}
+$("loginBtn").onclick=async()=>{ $("loginMsg").textContent="";const email=$("email").value.trim(),password=$("password").value;if(!email||!password){$("loginMsg").textContent="يرجى إدخال البريد الإلكتروني وكلمة المرور.";return} $("loginBtn").disabled=true;$("loginBtn").textContent="جارٍ الدخول...";const{error}=await sb.auth.signInWithPassword({email,password});$("loginBtn").disabled=false;$("loginBtn").textContent="دخول";if(error){$("loginMsg").textContent=error.message;return}await load()};
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
+$("logout").onclick=async()=>{ $("logout").disabled=true;const{error}=await sb.auth.signOut();$("logout").disabled=false;if(error){globalMsg("تعذر تسجيل الخروج: "+error.message,"error");return}await load()};
+$("send").onclick=async()=>{const command=$("command").value.trim();if(!command){$("sendMsg").className="small dangerText";$("sendMsg").textContent="اكتب الأمر أولًا.";return}$("send").disabled=true;$("sendMsg").className="small muted";$("sendMsg").textContent="جارٍ حفظ الأمر...";const{data:{user},error:userError}=await sb.auth.getUser();if(userError||!user){$("send").disabled=false;$("sendMsg").className="small dangerText";$("sendMsg").textContent="انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.";return}const{error}=await sb.from("management_commands").insert({issued_by:user.id,command,command_type:"general",priority:"normal",requires_approval:true,status:"pending",requested_payload:{source:"admin_dashboard"}});$("send").disabled=false;if(error){console.error(error);$("sendMsg").className="small dangerText";$("sendMsg").textContent="تعذر إرسال الأمر: "+error.message;return}$("command").value="";$("sendMsg").className="small successText";$("sendMsg").textContent="تم تسجيل الأمر بنجاح، وسيظهر ضمن الأوامر المعلقة.";await load()};
+$("pending").addEventListener("click",async e=>{const approve=e.target.closest("[data-approve]"),reject=e.target.closest("[data-reject]"),btn=approve||reject;if(!btn)return;const id=btn.dataset.approve||btn.dataset.reject,isApprove=!!approve,note=window.prompt(isApprove?"ملاحظة الموافقة (اختيارية):":"سبب الرفض (اختياري):");if(note===null)return;btn.disabled=true;const{error}=await sb.rpc(isApprove?"approve_management_command":"reject_management_command",{p_command_id:id,p_note:note.trim()||null});if(error){console.error(error);alert((isApprove?"تعذر تنفيذ الموافقة: ":"تعذر تنفيذ الرفض: ")+error.message);btn.disabled=false;return}await load()});
+let timer=null;function autoRefresh(){if(timer)clearInterval(timer);timer=setInterval(async()=>{if((await getSession())?.user)await load()},30000)}
+sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();
+</script>
+</body>
+</html>
