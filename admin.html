@@ -34,6 +34,15 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <main id="app" class="wrap">
 <div class="row between" style="margin-bottom:14px"><div><strong id="who"></strong><span class="badge ok" style="margin-right:7px">إدارة</span></div><button id="logout" class="secondary" type="button">تسجيل الخروج</button></div>
 <div id="globalMsg" class="small notice" style="display:none" aria-live="polite"></div>
+<section class="card full" style="margin-bottom:14px">
+<h2>مركز التدقيق الشامل والمستمر 🔎🛡️</h2>
+<p class="muted">تدقيق موحد للإدارة والتعليم والتربية والأنشطة والفعاليات والذكاء الاصطناعي والمراسلات والشكاوى والتسويق والإعلانات والنشر والسجلات والمستندات والخطط والمالية والموارد البشرية والتقنية. الفحوص الحساسة تبقى تحت اعتماد الإدارة.</p>
+<div class="grid" style="margin-top:10px">
+  <div><div id="auditSummary" class="item">جارٍ تحميل حالة التدقيق...</div></div>
+  <div><button id="runAudit" type="button">تشغيل تدقيق الآن</button><div id="auditMsg" class="small muted" style="margin-top:8px"></div></div>
+</div>
+<div id="auditFindings" class="list" style="margin-top:10px"></div>
+</section>
 <div class="grid">
 <section class="card"><h2>حالة المراكز</h2><div id="centers" class="list"><span class="muted">جارٍ التحميل...</span></div></section>
 <section class="card"><h2>المشرف الذكي</h2><p class="muted">يتابع التشغيل التعليمي ويرفع الاستثناءات والتقارير، ولا يتجاوز صلاحيات الإدارة.</p><div id="supervisor" class="item"><span class="muted">جارٍ التحميل...</span></div></section>
@@ -284,7 +293,7 @@ $("logout").onclick=async()=>{ $("logout").disabled=true;const{error}=await sb.a
 $("send").onclick=async()=>{const command=$("command").value.trim();if(!command){$("sendMsg").className="small dangerText";$("sendMsg").textContent="اكتب الأمر أولًا.";return}$("send").disabled=true;$("sendMsg").className="small muted";$("sendMsg").textContent="جارٍ حفظ الأمر...";const{data:{user},error:userError}=await sb.auth.getUser();if(userError||!user){$("send").disabled=false;$("sendMsg").className="small dangerText";$("sendMsg").textContent="انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.";return}const{error}=await sb.from("management_commands").insert({issued_by:user.id,command,command_type:"general",priority:"normal",requires_approval:true,status:"pending",requested_payload:{source:"admin_dashboard"}});$("send").disabled=false;if(error){console.error(error);$("sendMsg").className="small dangerText";$("sendMsg").textContent="تعذر إرسال الأمر: "+error.message;return}$("command").value="";$("sendMsg").className="small successText";$("sendMsg").textContent="تم تسجيل الأمر بنجاح، وسيظهر ضمن الأوامر المعلقة.";await load()};
 $("pending").addEventListener("click",async e=>{const approve=e.target.closest("[data-approve]"),reject=e.target.closest("[data-reject]"),btn=approve||reject;if(!btn)return;const id=btn.dataset.approve||btn.dataset.reject,isApprove=!!approve,note=window.prompt(isApprove?"ملاحظة الموافقة (اختيارية):":"سبب الرفض (اختياري):");if(note===null)return;btn.disabled=true;const{error}=await sb.rpc(isApprove?"approve_management_command":"reject_management_command",{p_command_id:id,p_note:note.trim()||null});if(error){console.error(error);alert((isApprove?"تعذر تنفيذ الموافقة: ":"تعذر تنفيذ الرفض: ")+error.message);btn.disabled=false;return}await load()});
 let timer=null;function autoRefresh(){if(timer)clearInterval(timer);timer=setInterval(async()=>{if((await getSession())?.user)await load()},30000)}
-sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();
+sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();
 document.getElementById("linkPlanInitiative")?.addEventListener("click",async()=>{const plan_id=document.getElementById("linkInitiativePlan").value,id=document.getElementById("linkInitiative").value;if(!plan_id||!id)return;const{error}=await sb.from("development_initiatives").update({plan_id}).eq("id",id);document.getElementById("operationalMsg").textContent=error?"تعذر الربط: "+error.message:"تم ربط البرنامج بالخطة.";await loadOperationalChain()});
 document.getElementById("addOperationalActivity")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("activityInitiative").value,title=document.getElementById("activityTitle").value.trim(),activity_date=document.getElementById("activityDate").value,session_start=document.getElementById("activityStart").value||null,session_end=document.getElementById("activityEnd").value||null,responsible_staff_id=document.getElementById("activityStaff").value||null,classroom_id=document.getElementById("activityClassroom").value||null,delivery_mode=document.getElementById("activityMode").value,objectives=document.getElementById("activityObjectives").value.trim();if(!initiative_id||!title||!activity_date){document.getElementById("operationalMsg").textContent="أكمل البرنامج وعنوان الجلسة والتاريخ.";return}const{error}=await sb.from("initiative_activities").insert({initiative_id,title,activity_date,session_start,session_end,responsible_staff_id,classroom_id,delivery_mode,objectives:objectives||null,status:"planned"});document.getElementById("operationalMsg").textContent=error?"تعذر إضافة الجلسة: "+error.message:"تمت إضافة الجلسة إلى التقويم.";if(!error)document.getElementById("activityTitle").value="";await loadOperationalChain()});
 document.getElementById("addInitiativeEnrollment")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("enrollInitiative").value,learner_id=document.getElementById("enrollInitiativeLearner").value;if(!initiative_id||!learner_id)return;const{error}=await sb.from("initiative_enrollments").insert({initiative_id,learner_id,status:"active"});document.getElementById("operationalMsg").textContent=error?"تعذر التسجيل: "+error.message:"تم تسجيل الطالب في البرنامج.";await loadOperationalChain()});
@@ -294,6 +303,25 @@ document.getElementById("addActivityEvaluation")?.addEventListener("click",async
 document.getElementById("addActivityOutcome")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("outcomeInitiative").value,participants_count=Number(document.getElementById("outcomeParticipants").value)||0,completion_rate=Number(document.getElementById("outcomeCompletion").value)||null,achievement_rate=Number(document.getElementById("outcomeAchievement").value)||null,recommendations=document.getElementById("outcomeNotes").value.trim();if(!initiative_id)return;const{error}=await sb.from("activity_outcomes").insert({initiative_id,participants_count,completion_rate,achievement_rate,educational_impact:recommendations||null,behavioral_impact:recommendations||null,skills_gained:recommendations||null,recommendations:recommendations||null,status:"draft"});document.getElementById("operationalMsg").textContent=error?"تعذر حفظ الأثر: "+error.message:"تم حفظ تقرير الأثر والتوصيات.";});
 
 
+async function loadAuditDashboard(){
+ const summary=document.getElementById("auditSummary"),box=document.getElementById("auditFindings");if(!summary)return;
+ const [runs,findings,checks]=await Promise.all([
+  sb.from("audit_runs").select("id,run_type,status,total_checks,passed_checks,failed_checks,warning_checks,started_at,completed_at,summary").order("started_at",{ascending:false}).limit(1),
+  sb.from("audit_findings").select("id,status,severity,title,details,created_at").order("created_at",{ascending:false}).limit(12),
+  sb.from("audit_checks").select("id,name,frequency,active").eq("active",true)
+ ]);
+ const r=(runs.data||[])[0], f=findings.data||[];
+ summary.innerHTML=r
+ ? '<strong>آخر تدقيق: '+escapeHtml(r.run_type||"")+'</strong><div class="small">الحالة: '+escapeHtml(r.status||"")+' · إجمالي الفحوص: '+r.total_checks+' · ناجح آليًا: '+r.passed_checks+' · إخفاقات: '+r.failed_checks+' · تنبيهات: '+r.warning_checks+'</div><div class="small">'+escapeHtml(r.summary||"")+'</div>'
+ : '<span class="muted">لم يبدأ تدقيق بعد.</span>';
+ box.innerHTML=f.map(x=>'<div class="item"><strong>'+escapeHtml(x.title||"")+'</strong><span class="badge '+(x.status==="open"?"danger":x.status==="pending_review"?"warn":"ok")+'">'+escapeHtml(x.status||"")+'</span> <span class="badge">'+escapeHtml(x.severity||"")+'</span><div class="small">'+escapeHtml(x.details||"")+'</div></div>').join("")||'<span class="muted">لا توجد نتائج تدقيق مسجلة.</span>';
+}
+document.getElementById("runAudit")?.addEventListener("click",async()=>{
+ const btn=document.getElementById("runAudit"),msg=document.getElementById("auditMsg");btn.disabled=true;msg.className="small muted";msg.textContent="جارٍ تشغيل التدقيق الشامل...";
+ const {data,error}=await sb.rpc("run_management_audit",{p_run_type:"manual"});
+ if(error){msg.className="small dangerText";msg.textContent="تعذر تشغيل التدقيق: "+error.message;btn.disabled=false;return}
+ msg.className="small successText";msg.textContent="تم تشغيل التدقيق وتسجيل نتائجه.";btn.disabled=false;await loadAuditDashboard();
+});
 async function loadOperationalChain(){
  const [p,i,a,l,s,c]=await Promise.all([
   sb.from("activity_plans").select("id,plan_name,plan_year,term_name").order("created_at",{ascending:false}),
