@@ -62,15 +62,15 @@ function render(rows,id,empty,fn){$(id).innerHTML=rows?.length?rows.map(fn).join
 async function load(){
  const session=await getSession(); if(!session?.user){setView(false);return} setView(true); $("who").textContent=session.user.email||"حساب الإدارة";
  const [c,a,t,cmd,logs]=await Promise.all([
-  sb.from("centers").select("id,name,status,created_at").order("created_at",{ascending:false}),
+  sb.from("centers").select("id,name,is_active,created_at").order("created_at",{ascending:false}),
   sb.from("ai_agents").select("id,name,role,is_active,system_role,autonomy_level").eq("is_active",true).order("role"),
   sb.from("ai_tasks").select("id,title,status,task_type,created_at").order("created_at",{ascending:false}).limit(8),
-  sb.from("management_commands").select("id,command,command_type,priority,status,requires_approval,created_at,approval_note").in("status",["pending","waiting_approval"]).order("created_at",{ascending:false}).limit(10),
+  sb.from("management_commands").select("id,command,command_type,priority,status,requires_approval,created_at,approval_note").eq("status","pending").order("created_at",{ascending:false}).limit(10),
   sb.from("ai_activity_log").select("id,action,details,created_at").order("created_at",{ascending:false}).limit(10)
  ]);
  const failed=[["المراكز",c.error],["الوكلاء",a.error],["المهام",t.error],["الأوامر",cmd.error],["السجل",logs.error]].filter(x=>x[1]);
  if(failed.length){console.error(failed);globalMsg("تعذر تحميل بعض بيانات اللوحة: "+failed.map(x=>x[0]).join("، "),"error")}else globalMsg("");
- render(c.data,"centers","لا توجد مراكز مسجلة بعد.",x=>`<div class="item"><strong>${esc(x.name)}</strong><span class="badge ${statusClass(x.status)}">${esc(statusLabel(x.status))}</span></div>`);
+ render(c.data,"centers","لا توجد مراكز مسجلة بعد.",x=>`<div class="item"><strong>${esc(x.name)}</strong><span class="badge ${statusClass(x.is_active?"active":"inactive")}">${esc(statusLabel(x.is_active?"active":"inactive"))}</span></div>`);
  const agents=a.data||[]; renderAgent("supervisor",agents.find(x=>x.role==="supervisor")); renderAgent("teacher",agents.find(x=>x.role==="teacher"));
  render(t.data,"tasks","لا توجد مهام ذكية بعد.",x=>`<div class="item"><strong>${esc(x.title||"مهمة بدون عنوان")}</strong><div class="row"><span class="badge ${statusClass(x.status)}">${esc(statusLabel(x.status))}</span>${x.task_type?`<span class="badge">${esc(x.task_type)}</span>`:""}</div><div class="small muted" style="margin-top:5px">${fmt(x.created_at)}</div></div>`);
  render(cmd.data,"pending","لا توجد أوامر معلقة.",x=>`<div class="item"><strong>${esc(x.command)}</strong><div class="row"><span class="badge warn">${esc(statusLabel(x.status))}</span><span class="badge">الأولوية: ${esc(x.priority||"normal")}</span></div><div class="small muted" style="margin-top:5px">${fmt(x.created_at)}</div>${x.approval_note?`<div class="small" style="margin-top:5px">الملاحظة: ${esc(x.approval_note)}</div>`:""}<div class="row" style="margin-top:8px"><button data-approve="${esc(x.id)}" type="button">موافقة</button><button data-reject="${esc(x.id)}" type="button" class="secondary">رفض</button></div></div>`);
