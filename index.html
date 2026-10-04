@@ -82,30 +82,6 @@ footer{text-align:center;padding:32px 20px;color:var(--muted);font-size:13px}
 </div>
 </section>
 
-<section id="registration" style="margin-top:55px">
-<div class="section-title"><h2>طلب الالتحاق والتسجيل</h2><p>استمارة موحدة لبيانات الطلاب والطالبات فقط، ثم تراجع الإدارة الطلب وتوثق قبول التسجيل.</p></div>
-<div class="card" style="max-width:900px;margin:auto">
-<form id="registrationForm" class="grid" style="grid-template-columns:repeat(2,1fr)">
-<div><label>اسم الطالب/الطالبة *</label><input id="regName" required maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>الجنس *</label><select id="regGender" required style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"><option value="">اختر</option><option value="male">طالب</option><option value="female">طالبة</option></select></div>
-<div><label>تاريخ الميلاد</label><input id="regDob" type="date" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>الجنسية</label><input id="regNationality" maxlength="100" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>نوع الهوية/الوثيقة</label><input id="regIdentityType" maxlength="100" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>رقم الهوية/الوثيقة</label><input id="regIdentityNumber" maxlength="100" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>رقم الهاتف</label><input id="regPhone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>البريد الإلكتروني</label><input id="regEmail" type="email" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>اسم ولي الأمر</label><input id="regGuardian" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>صلة القرابة</label><input id="regRelation" maxlength="100" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>هاتف ولي الأمر</label><input id="regGuardianPhone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div><label>العنوان</label><input id="regAddress" maxlength="300" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div style="grid-column:1/-1"><label>التعليم السابق</label><input id="regPrevious" maxlength="300" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
-<div style="grid-column:1/-1"><label>ملاحظات أو بيانات إضافية</label><textarea id="regNotes" maxlength="2000" style="width:100%;min-height:100px;padding:11px;border:1px solid var(--line);border-radius:10px"></textarea></div>
-<div style="grid-column:1/-1"><label style="display:flex;gap:8px;align-items:flex-start"><input id="regConsent" type="checkbox" required style="margin-top:5px"><span>أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.</span></label></div>
-<div style="grid-column:1/-1" class="actions"><button class="btn primary" type="submit">إرسال طلب التسجيل</button><span id="regMsg" style="color:var(--muted)"></span></div>
-</form>
-</div>
-</section>
-
 <section id="live-data" style="margin-top:55px">
 <div class="section-title"><h2>المراكز والبرامج المتاحة</h2><p id="data-status">جاري تحميل البيانات من المنصة…</p></div>
 <div id="centers-list" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"></div>
@@ -142,7 +118,7 @@ function renderField(f){
 function openService(service){
  serviceTitle.textContent=service.service_name+' — '+service.registration_method_label;
  serviceDesc.textContent=service.description||"";
- serviceForm.innerHTML='<div><label>الاسم *</label><input data-key="applicant_name" required maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>رقم التواصل</label><input data-key="applicant_phone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>البريد الإلكتروني</label><input data-key="applicant_email" type="email" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>'+((service.form_fields||[]).filter(f=>!["applicant_name","applicant_phone","applicant_email"].includes(f.key)).map(renderField).join(""))+'<div style="grid-column:1/-1"><label style="display:flex;gap:8px;align-items:flex-start"><input id="serviceConsent" type="checkbox" required style="margin-top:5px"><span>'+escapeHtml(service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.")+'</span></label></div><div style="grid-column:1/-1" class="actions"><button class="btn primary" type="submit">إرسال '+escapeHtml(service.registration_method_label)+'</button><span id="serviceMsg" style="color:var(--muted)"></span></div>';
+ serviceForm.innerHTML=((service.service_code==="student_registration")?'<div><label>اسم الطالب/الطالبة *</label><input data-key="student_name" required maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>رقم الهاتف</label><input data-key="phone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>البريد الإلكتروني</label><input data-key="email" type="email" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>': '<div><label>الاسم *</label><input data-key="applicant_name" required maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>رقم التواصل</label><input data-key="applicant_phone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>البريد الإلكتروني</label><input data-key="applicant_email" type="email" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>')+((service.form_fields||[]).filter(f=>!["applicant_name","applicant_phone","applicant_email","student_name","phone","email"].includes(f.key)).map(renderField).join(""))+'<div style="grid-column:1/-1"><label style="display:flex;gap:8px;align-items:flex-start"><input id="serviceConsent" type="checkbox" required style="margin-top:5px"><span>'+escapeHtml(service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.")+'</span></label></div><div style="grid-column:1/-1" class="actions"><button class="btn primary" type="submit">إرسال '+escapeHtml(service.registration_method_label)+'</button><span id="serviceMsg" style="color:var(--muted)"></span></div>';
  serviceForm.dataset.serviceCode=service.service_code;
  serviceWrap.style.display="block";
  serviceWrap.scrollIntoView({behavior:"smooth",block:"start"});
