@@ -234,7 +234,7 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL="https://oisfclsgcjofxzeraqpb.supabase.co";
 const SUPABASE_KEY="sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk";
-const sb=createClient(SUPABASE_URL,SUPABASE_KEY); const $=id=>document.getElementById(id);
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY); window.sb=sb; const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 const fmt=v=>{if(!v)return"—";const d=new Date(v);return Number.isNaN(d.getTime())?esc(v):d.toLocaleString("ar",{dateStyle:"medium",timeStyle:"short"})};
 const statusLabel=v=>({active:"نشط",inactive:"غير نشط",pending:"معلّق",waiting_approval:"بانتظار الموافقة",approved:"تمت الموافقة",rejected:"مرفوض",queued:"في قائمة التنفيذ",running:"قيد التنفيذ",completed:"مكتمل",failed:"فشل",cancelled:"ملغي"}[String(v||"").toLowerCase()]||String(v||"غير محدد"));
