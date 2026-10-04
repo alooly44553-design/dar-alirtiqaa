@@ -43,6 +43,17 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 </div>
 <div id="auditFindings" class="list" style="margin-top:10px"></div>
 </section>
+<section class="card full" id="globalOperationsCard">
+<h2>🎛️ مركز التشغيل العالمي</h2>
+<p class="muted">لوحة موحدة لحالة الوحدات والصلاحيات والوكلاء الذكيين والأوامر والموافقات والمهام والإشراف والأمن والاستمرارية.</p>
+<div id="globalOperationsSummary" class="grid" style="margin-top:10px"></div>
+<div class="grid" style="margin-top:10px">
+<div><h3 style="font-size:14px">الأدوار والصلاحيات</h3><div id="globalRoles" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
+<div><h3 style="font-size:14px">الموافقات والأوامر</h3><div id="globalApprovals" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
+<div><h3 style="font-size:14px">الوحدات والوكلاء</h3><div id="globalAgents" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
+</div>
+<div id="globalOperationsMsg" class="small muted" style="margin-top:8px"></div>
+</section>
 <div class="grid">
 <section class="card"><h2>حالة المراكز</h2><div id="centers" class="list"><span class="muted">جارٍ التحميل...</span></div></section>
 <section class="card"><h2>المشرف الذكي</h2><p class="muted">يتابع التشغيل التعليمي ويرفع الاستثناءات والتقارير، ولا يتجاوز صلاحيات الإدارة.</p><div id="supervisor" class="item"><span class="muted">جارٍ التحميل...</span></div></section>
@@ -364,8 +375,31 @@ $("password").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").cl
 $("logout").onclick=async()=>{ $("logout").disabled=true;const{error}=await sb.auth.signOut();$("logout").disabled=false;if(error){globalMsg("تعذر تسجيل الخروج: "+error.message,"error");return}await load()};
 $("send").onclick=async()=>{const command=$("command").value.trim();if(!command){$("sendMsg").className="small dangerText";$("sendMsg").textContent="اكتب الأمر أولًا.";return}$("send").disabled=true;$("sendMsg").className="small muted";$("sendMsg").textContent="جارٍ حفظ الأمر...";const{data:{user},error:userError}=await sb.auth.getUser();if(userError||!user){$("send").disabled=false;$("sendMsg").className="small dangerText";$("sendMsg").textContent="انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.";return}const{error}=await sb.from("management_commands").insert({issued_by:user.id,command,command_type:"general",priority:"normal",requires_approval:true,status:"pending",requested_payload:{source:"admin_dashboard"}});$("send").disabled=false;if(error){console.error(error);$("sendMsg").className="small dangerText";$("sendMsg").textContent="تعذر إرسال الأمر: "+error.message;return}$("command").value="";$("sendMsg").className="small successText";$("sendMsg").textContent="تم تسجيل الأمر بنجاح، وسيظهر ضمن الأوامر المعلقة.";await load()};
 $("pending").addEventListener("click",async e=>{const approve=e.target.closest("[data-approve]"),reject=e.target.closest("[data-reject]"),btn=approve||reject;if(!btn)return;const id=btn.dataset.approve||btn.dataset.reject,isApprove=!!approve,note=window.prompt(isApprove?"ملاحظة الموافقة (اختيارية):":"سبب الرفض (اختياري):");if(note===null)return;btn.disabled=true;const{error}=await sb.rpc(isApprove?"approve_management_command":"reject_management_command",{p_command_id:id,p_note:note.trim()||null});if(error){console.error(error);alert((isApprove?"تعذر تنفيذ الموافقة: ":"تعذر تنفيذ الرفض: ")+error.message);btn.disabled=false;return}await load()});
+async function loadGlobalOperations(){
+ const msg=$("globalOperationsMsg");
+ const [ov,roles,mods,agents,approvals]=await Promise.all([
+  sb.from("edu_global_operations_overview").select("*").single(),
+  sb.from("edu_control_roles").select("role_code,role_name_ar,role_type,authority_level,approval_required_default").eq("is_active",true).order("authority_level",{ascending:false}),
+  sb.from("edu_platform_modules").select("module_code,module_name_ar,scope,enabled").eq("enabled",true).order("module_name_ar"),
+  sb.from("ai_agents").select("id,name,role,is_active,autonomy_level").eq("is_active",true).order("name"),
+  sb.from("agent_approvals").select("id,command_id,requested_action,risk_level,status,created_at").in("status",["pending","requested","awaiting_approval"]).order("created_at",{ascending:false}).limit(8)
+ ]);
+ const err=ov.error||roles.error||mods.error||agents.error||approvals.error;
+ if(err){msg.className="small dangerText";msg.textContent="تعذر تحميل مركز التشغيل: "+err.message;return}
+ const o=ov.data||{};
+ const cards=[
+  ["الوحدات النشطة",o.enabled_modules,"ok"],["الأدوار النشطة",o.active_roles,"info"],["الوكلاء الذكيون",o.active_ai_agents,"ok"],
+  ["أوامر معلقة",o.pending_commands,"warn"],["موافقات معلقة",o.pending_approvals,"warn"],["مهام ذكية نشطة",o.active_ai_tasks,"info"],
+  ["بنود الإشراف",o.supervision_items,"info"],["تنبيهات أمنية",o.open_security_events,o.open_security_events?"danger":"ok"],["تحذيرات الاستمرارية",o.continuity_warnings,o.continuity_warnings?"warn":"ok"]
+ ];
+ $("globalOperationsSummary").innerHTML=cards.map(x=>'<div class="item"><div class="small muted">'+esc(x[0])+'</div><strong style="font-size:22px">'+Number(x[1]||0)+'</strong><span class="badge '+x[2]+'" style="margin-right:6px">'+(x[2]==="danger"?"يحتاج إجراء":x[2]==="warn"?"متابعة":"مستقر")+'</span></div>').join('');
+ $("globalRoles").innerHTML=(roles.data||[]).map(x=>'<div class="item"><strong>'+esc(x.role_name_ar)+'</strong><div class="small">'+esc(x.role_code)+' · مستوى الصلاحية '+x.authority_level+' · '+(x.approval_required_default?"اعتماد افتراضي":"بدون اعتماد افتراضي")+'</div></div>').join('')||'<span class="muted">لا توجد أدوار.</span>';
+ $("globalApprovals").innerHTML=(approvals.data||[]).map(x=>'<div class="item"><strong>'+esc(x.requested_action)+'</strong><div class="row"><span class="badge '+statusClass(x.status)+'">'+esc(statusLabel(x.status))+'</span><span class="badge">المخاطر: '+esc(x.risk_level)+'</span></div><div class="small muted">'+fmt(x.created_at)+'</div></div>').join('')||'<span class="muted">لا توجد موافقات معلقة.</span>';
+ $("globalAgents").innerHTML=(agents.data||[]).slice(0,12).map(x=>'<div class="item"><strong>'+esc(x.name)+'</strong><div class="row"><span class="badge ok">نشط</span><span class="badge">'+esc(x.autonomy_level||"supervised")+'</span></div></div>').join('')||'<span class="muted">لا توجد وكلاء نشطون.</span>';
+ msg.className="small successText";msg.textContent="تم تحديث مركز التشغيل من قاعدة البيانات المركزية.";
+}
 let timer=null;function autoRefresh(){if(timer)clearInterval(timer);timer=setInterval(async()=>{if((await getSession())?.user)await load()},30000)}
-sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();loadServiceFeesAdmin();
+sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();loadServiceFeesAdmin();loadGlobalOperations();
 document.getElementById("linkPlanInitiative")?.addEventListener("click",async()=>{const plan_id=document.getElementById("linkInitiativePlan").value,id=document.getElementById("linkInitiative").value;if(!plan_id||!id)return;const{error}=await sb.from("development_initiatives").update({plan_id}).eq("id",id);document.getElementById("operationalMsg").textContent=error?"تعذر الربط: "+error.message:"تم ربط البرنامج بالخطة.";await loadOperationalChain()});
 document.getElementById("addOperationalActivity")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("activityInitiative").value,title=document.getElementById("activityTitle").value.trim(),activity_date=document.getElementById("activityDate").value,session_start=document.getElementById("activityStart").value||null,session_end=document.getElementById("activityEnd").value||null,responsible_staff_id=document.getElementById("activityStaff").value||null,classroom_id=document.getElementById("activityClassroom").value||null,delivery_mode=document.getElementById("activityMode").value,objectives=document.getElementById("activityObjectives").value.trim();if(!initiative_id||!title||!activity_date){document.getElementById("operationalMsg").textContent="أكمل البرنامج وعنوان الجلسة والتاريخ.";return}const{error}=await sb.from("initiative_activities").insert({initiative_id,title,activity_date,session_start,session_end,responsible_staff_id,classroom_id,delivery_mode,objectives:objectives||null,status:"planned"});document.getElementById("operationalMsg").textContent=error?"تعذر إضافة الجلسة: "+error.message:"تمت إضافة الجلسة إلى التقويم.";if(!error)document.getElementById("activityTitle").value="";await loadOperationalChain()});
 document.getElementById("addInitiativeEnrollment")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("enrollInitiative").value,learner_id=document.getElementById("enrollInitiativeLearner").value;if(!initiative_id||!learner_id)return;const{error}=await sb.from("initiative_enrollments").insert({initiative_id,learner_id,status:"active"});document.getElementById("operationalMsg").textContent=error?"تعذر التسجيل: "+error.message:"تم تسجيل الطالب في البرنامج.";await loadOperationalChain()});
