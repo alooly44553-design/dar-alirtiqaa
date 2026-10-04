@@ -233,7 +233,7 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
  },200);
 })();
 </script>
-<section class="card full"><h2>قوى التسويق الإلكتروني والاستقبال الذكي 🚀📣💬</h2>
+<section class="card full"><h2>قوى التسويق الإلكتروني والاستقبال الذكي 🚀📣💬</h2><p class="muted">القنوات الرسمية المرتبطة بالنظام تظهر كرابط مباشر، بينما القنوات المخططة تبقى تحت إدارة واعتماد الإدارة.</p>
 <p class="muted">منظومة مستمرة مخصصة للتسويق، التصميم، الفيديو، النشر، النمو الدولي، استقبال الاستفسارات والردود، وإدارة المجتمعات والقنوات. جميع الأعمال الحساسة أو النشر النهائي تبقى تحت اعتماد الإدارة.</p>
 <div class="grid">
 <div><h3 style="font-size:14px">قوى التسويق والتصميم</h3><div id="marketingForceList" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
@@ -483,7 +483,7 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
   const [agents,ops,channels,inq]=await Promise.all([
    window.sb.from("ai_agents").select("id,name,system_role,capabilities,is_active,autonomy_level").eq("is_active",true),
    window.sb.from("marketing_operations").select("id,name,operation_type,target_audiences,channels,content_formats,languages,approval_required,is_active").eq("is_active",true).order("created_at",{ascending:false}),
-   window.sb.from("social_community_channels").select("id,channel_name,platform,community_type,target_audience,region,language,status").order("created_at",{ascending:false}),
+   window.sb.from("social_community_channels").select("id,channel_name,platform,community_type,target_audience,region,language,status,channel_url").order("created_at",{ascending:false}),
    window.sb.from("inquiry_response_queue").select("id,platform,status,priority,received_at").order("received_at",{ascending:false}).limit(20)
   ]);
   const ae=agents.data||[],mo=ops.data||[],ch=channels.data||[],iq=inq.data||[];
@@ -493,7 +493,7 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
   document.getElementById("marketingForceList").innerHTML=ae.filter(a=>marketing.includes(a.system_role)).map(agentCard).join("")||'<span class="muted">لا توجد قوى تسويق.</span>';
   document.getElementById("supportForceList").innerHTML=ae.filter(a=>support.includes(a.system_role)).map(agentCard).join("")||'<span class="muted">لا توجد قوى استقبال.</span>';
   document.getElementById("marketingOpsList").innerHTML=mo.map(x=>'<div class="item"><strong>'+esc2(x.name)+'</strong><div class="small">'+esc2(x.operation_type)+' · '+(x.approval_required?"تحت اعتماد الإدارة":"تشغيل مباشر")+'</div></div>').join("")||'<span class="muted">لا توجد عمليات.</span>';
-  document.getElementById("communityChannelsList").innerHTML=ch.map(x=>'<div class="item"><strong>'+esc2(x.channel_name)+'</strong><div class="small">'+esc2(x.platform)+' · '+esc2(x.region||"")+' · '+esc2(x.status)+'</div></div>').join("")||'<span class="muted">لا توجد قنوات.</span>';
+  document.getElementById("communityChannelsList").innerHTML=ch.map(x=>'<div class="item"><strong>'+esc2(x.channel_name)+'</strong><div class="small">'+esc2(x.platform)+' · '+esc2(x.region||"")+' · '+esc2(x.status)+'</div>'+(x.channel_url?'<div class="small" style="margin-top:6px"><a href="'+esc2(x.channel_url)+'" target="_blank" rel="noopener noreferrer">فتح القناة/الصفحة ↗</a></div>':'')+'</div>').join("")||'<span class="muted">لا توجد قنوات.</span>';
  },200);
 })();
 </script>
