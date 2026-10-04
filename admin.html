@@ -255,11 +255,14 @@ const statusLabel=v=>({active:"نشط",inactive:"غير نشط",pending:"معل�
 const statusClass=v=>{v=String(v||"").toLowerCase();if(["active","approved","completed"].includes(v))return"ok";if(["pending","waiting_approval","queued","running"].includes(v))return"warn";if(["rejected","failed","cancelled","inactive"].includes(v))return"danger";return"info"};
 const globalMsg=(msg,type="info")=>{const el=$("globalMsg");if(!msg){el.style.display="none";el.textContent="";return}el.style.display="block";el.className="small notice "+(type==="error"?"dangerText":type==="success"?"successText":"");el.textContent=msg};
 const getSession=async()=>{const{data,error}=await sb.auth.getSession();if(error){console.error(error);return null}return data?.session||null};
+const isAdmin=async()=>{const{data,error}=await sb.rpc("is_center_management_admin");if(error){console.error(error);return false}return data===true};
 const setView=logged=>{$("login").style.display=logged?"none":"block";$('app').style.display=logged?"block":"none"};
 function renderAgent(id,a){$(id).innerHTML=a?`<strong>${esc(a.name)}</strong><div class="row" style="margin-top:5px"><span class="badge ok">نشط</span><span class="badge">${esc(a.autonomy_level||"supervised")}</span></div><div class="small" style="margin-top:6px">${esc(a.system_role||"")}</div>`:'<span class="muted">غير متاح حاليًا.</span>'}
 function render(rows,id,empty,fn){$(id).innerHTML=rows?.length?rows.map(fn).join(""):`<span class="muted">${empty}</span>`}
 async function load(){
- const session=await getSession(); if(!session?.user){setView(false);return} setView(true); $("who").textContent=session.user.email||"حساب الإدارة";
+ const session=await getSession(); if(!session?.user){setView(false);return}
+ const admin=await isAdmin(); if(!admin){await sb.auth.signOut();setView(false);$("loginMsg").textContent="هذا الحساب غير مصرح له بدخول لوحة الإدارة.";return}
+ setView(true); $("who").textContent=session.user.email||"حساب الإدارة";
  const [c,a,t,cmd,logs,l,e,p,su,cl,at,st,dep,sc,prg,rec,msgs,ev,acc,tx,fees,ass,res,aiq,sta,initiatives]=await Promise.all([
   sb.from("centers").select("id,name,is_active,created_at").order("created_at",{ascending:false}),
   sb.from("ai_agents").select("id,name,role,is_active,system_role,autonomy_level").eq("is_active",true).order("role"),
