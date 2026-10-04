@@ -193,6 +193,41 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <section class="card"><h2>المهام الذكية</h2><div id="tasks" class="list"><span class="muted">جارٍ التحميل...</span></div></section>
 <section class="card full"><h2>سجل النشاط</h2><div id="logs" class="list"><span class="muted">جارٍ التحميل...</span></div></section>
 </div>
+<section id="service-submissions" class="panel">
+<h2>طلبات الخدمات والمجالات — متابعة واعتماد 📋</h2>
+<p>كل خدمة لها نموذجها وطريقة تسجيلها الخاصة. هنا تظهر الطلبات مجمعة مع معرفة الخدمة وطريقة التسجيل وحالة المراجعة والتوثيق.</p>
+<div class="toolbar"><button id="refreshServiceSubmissions">تحديث الطلبات</button><span id="serviceSubmissionsMsg"></span></div>
+<div id="serviceSubmissionsList"></div>
+</section>
+<script>
+(async function(){
+ const waitForSb=setInterval(async()=>{
+  if(!window.sb)return;
+  clearInterval(waitForSb);
+  const list=document.getElementById("serviceSubmissionsList"),msg=document.getElementById("serviceSubmissionsMsg");
+  async function load(){
+   msg.textContent="جارٍ تحميل الطلبات…";
+   const {data,error}=await window.sb.from("service_submissions").select("id,submission_number,applicant_name,applicant_phone,applicant_email,submission_data,consent_given,status,management_note,documented,document_reference,created_at,service_catalog(service_name,service_category,registration_method_label)").order("created_at",{ascending:false}).limit(100);
+   if(error){msg.textContent="تعذر تحميل طلبات الخدمات.";return;}
+   list.innerHTML=(data||[]).map(x=>{
+    const s=x.service_catalog||{}; const d=x.submission_data||{};
+    const fields=Object.entries(d).filter(([k])=>k!=="consent_given").map(([k,v])=>'<div><strong>'+k+':</strong> '+String(v??"")+'</div>').join("");
+    return '<article class="card" style="margin:12px 0"><h3>'+String(s.service_name||"خدمة")+' — '+x.submission_number+'</h3><p>'+String(x.applicant_name||"")+' | '+String(x.applicant_phone||"")+' | '+String(x.applicant_email||"")+'</p><p><strong>طريقة التسجيل:</strong> '+String(s.registration_method_label||"")+' | <strong>الحالة:</strong> '+String(x.status||"")+'</p><details><summary>بيانات الطلب</summary>'+fields+'</details><div class="toolbar" style="margin-top:10px"><button data-action="accept" data-id="'+x.id+'">اعتماد</button><button data-action="reject" data-id="'+x.id+'">رفض</button><button data-action="document" data-id="'+x.id+'">توثيق</button></div></article>';
+   }).join("")||"<p>لا توجد طلبات خدمات حتى الآن.</p>";
+   msg.textContent="تم تحديث الطلبات.";
+   list.querySelectorAll("button[data-action]").forEach(b=>b.onclick=async()=>{
+    const action=b.dataset.action,id=b.dataset.id;
+    const note=prompt(action==="document"?"مرجع/ملاحظة التوثيق:":"ملاحظة الإدارة (اختياري):")||null;
+    const update=action==="accept"?{status:"accepted",management_note:note}:action==="reject"?{status:"rejected",management_note:note}:{documented:true,documented_at:new Date().toISOString(),document_reference:note};
+    const {error}=await window.sb.from("service_submissions").update(update).eq("id",id);
+    if(error)alert("تعذر تنفيذ الإجراء."); else load();
+   });
+  }
+  document.getElementById("refreshServiceSubmissions").onclick=load;
+  load();
+ },200);
+})();
+</script>
 </main>
 
 <script type="module">
