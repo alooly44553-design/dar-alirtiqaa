@@ -129,7 +129,7 @@ function renderAgent(id,a){$(id).innerHTML=a?`<strong>${esc(a.name)}</strong><di
 function render(rows,id,empty,fn){$(id).innerHTML=rows?.length?rows.map(fn).join(""):`<span class="muted">${empty}</span>`}
 async function load(){
  const session=await getSession(); if(!session?.user){setView(false);return} setView(true); $("who").textContent=session.user.email||"حساب الإدارة";
- const [c,a,t,cmd,logs,l,e,p,su,cl,at,st,dep,sc,prg,rec,msgs,ev,acc,tx,fees]=await Promise.all([
+ const [c,a,t,cmd,logs,l,e,p,su,cl,at,st,dep,sc,prg,rec,msgs,ev,acc,tx,fees,ass,res,aiq]=await Promise.all([
   sb.from("centers").select("id,name,is_active,created_at").order("created_at",{ascending:false}),
   sb.from("ai_agents").select("id,name,role,is_active,system_role,autonomy_level").eq("is_active",true).order("role"),
   sb.from("ai_tasks").select("id,title,status,task_type,created_at").order("created_at",{ascending:false}).limit(8),
@@ -155,7 +155,7 @@ async function load(){
   sb.from("results").select("id,assessment_id,learner_id,enrollment_id,score,grade,evaluation_level,notes,ai_feedback,ai_review_status,ai_reviewed_at,created_at").order("created_at",{ascending:false}).limit(100),
   sb.from("ai_supervision_queue").select("id,center_id,ai_agent_id,target_table,target_id,supervision_type,title,priority,status,findings,recommendation,reminder_at,reviewed_at,created_at").order("created_at",{ascending:false}).limit(50)
  ]);
- const failed=[["المراكز",c.error],["الوكلاء",a.error],["المهام",t.error],["الأوامر",cmd.error],["السجل",logs.error],["الطلاب",l.error],["التسجيلات",e.error],["البرامج",p.error],["المعلمون",st.error],["الأقسام",dep.error],["الجداول",sc.error]].filter(x=>x[1]);
+ const failed=[["المراكز",c.error],["الوكلاء",a.error],["المهام",t.error],["الأوامر",cmd.error],["السجل",logs.error],["الطلاب",l.error],["التسجيلات",e.error],["البرامج",p.error],["المعلمون",st.error],["الأقسام",dep.error],["الجداول",sc.error],["التقييمات",ass.error],["النتائج",res.error],["الإشراف الذكي",aiq.error]].filter(x=>x[1]);
  if(failed.length){console.error(failed);globalMsg("تعذر تحميل بعض بيانات اللوحة: "+failed.map(x=>x[0]).join("، "),"error")}else globalMsg("");
  render(c.data,"centers","لا توجد مراكز مسجلة بعد.",x=>`<div class="item"><strong>${esc(x.name)}</strong><span class="badge ${statusClass(x.is_active?"active":"inactive")}">${esc(statusLabel(x.is_active?"active":"inactive"))}</span></div>`);
  const agents=a.data||[]; renderAgent("supervisor",agents.find(x=>x.role==="supervisor")); renderAgent("teacher",agents.find(x=>x.role==="teacher"));
