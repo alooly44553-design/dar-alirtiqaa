@@ -72,6 +72,31 @@ footer{text-align:center;padding:32px 20px;color:var(--muted);font-size:13px}
 <div><h2>الإدارة الذكية في قلب المنصة</h2><p>أوامر إدارية، موافقات، مهام للذكاء الاصطناعي وسجل نشاط — مع بقاء القرار النهائي بيد الإدارة المخولة.</p></div>
 <a class="btn primary" href="admin.html">فتح لوحة الإدارة</a>
 </section>
+
+<section id="registration" style="margin-top:55px">
+<div class="section-title"><h2>طلب الالتحاق والتسجيل</h2><p>استمارة موحدة لبيانات الطلاب والطالبات فقط، ثم تراجع الإدارة الطلب وتوثق قبول التسجيل.</p></div>
+<div class="card" style="max-width:900px;margin:auto">
+<form id="registrationForm" class="grid" style="grid-template-columns:repeat(2,1fr)">
+<div><label>اسم الطالب/الطالبة *</label><input id="regName" required maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>الجنس *</label><select id="regGender" required style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"><option value="">اختر</option><option value="male">طالب</option><option value="female">طالبة</option></select></div>
+<div><label>تاريخ الميلاد</label><input id="regDob" type="date" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>الجنسية</label><input id="regNationality" maxlength="100" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>نوع الهوية/الوثيقة</label><input id="regIdentityType" maxlength="100" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>رقم الهوية/الوثيقة</label><input id="regIdentityNumber" maxlength="100" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>رقم الهاتف</label><input id="regPhone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>البريد الإلكتروني</label><input id="regEmail" type="email" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>اسم ولي الأمر</label><input id="regGuardian" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>صلة القرابة</label><input id="regRelation" maxlength="100" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>هاتف ولي الأمر</label><input id="regGuardianPhone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div><label>العنوان</label><input id="regAddress" maxlength="300" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div style="grid-column:1/-1"><label>التعليم السابق</label><input id="regPrevious" maxlength="300" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>
+<div style="grid-column:1/-1"><label>ملاحظات أو بيانات إضافية</label><textarea id="regNotes" maxlength="2000" style="width:100%;min-height:100px;padding:11px;border:1px solid var(--line);border-radius:10px"></textarea></div>
+<div style="grid-column:1/-1"><label style="display:flex;gap:8px;align-items:flex-start"><input id="regConsent" type="checkbox" required style="margin-top:5px"><span>أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.</span></label></div>
+<div style="grid-column:1/-1" class="actions"><button class="btn primary" type="submit">إرسال طلب التسجيل</button><span id="regMsg" style="color:var(--muted)"></span></div>
+</form>
+</div>
+</section>
+
 <section id="live-data" style="margin-top:55px">
 <div class="section-title"><h2>المراكز والبرامج المتاحة</h2><p id="data-status">جاري تحميل البيانات من المنصة…</p></div>
 <div id="centers-list" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"></div>
@@ -96,6 +121,32 @@ async function loadLiveData(){
  listEl.innerHTML=centers.map(x=>`<article class="card"><div class="icon">🏫</div><h3>${escapeHtml(x.name)}</h3><p>${escapeHtml(x.description||"مركز تعليمي تابع لمدارس دار الارتقاء الفكري.")}</p>${x.address?`<p style="margin-top:10px">📍 ${escapeHtml(x.address)}</p>`:""}${x.phone?`<p style="margin-top:6px">📞 ${escapeHtml(x.phone)}</p>`:""}</article>`).join("");
  programsEl.innerHTML=programs.length?`<div style="grid-column:1/-1;margin-top:12px"><h2>البرامج التعليمية</h2></div>${programs.map(p=>`<article class="path"><strong>📘 ${escapeHtml(p.name)}</strong><p>${escapeHtml(p.description||"برنامج تعليمي متاح في المنصة.")}</p>${p.start_date?`<small>البداية: ${escapeHtml(p.start_date)}</small>`:""}</article>`).join("")}`:"";
 }
+const registrationForm=document.getElementById("registrationForm");
+registrationForm?.addEventListener("submit",async e=>{
+ e.preventDefault();
+ const msg=document.getElementById("regMsg"); msg.textContent="جارٍ إرسال الطلب…";
+ const payload={
+  student_name:document.getElementById("regName").value.trim(),
+  gender:document.getElementById("regGender").value,
+  date_of_birth:document.getElementById("regDob").value||null,
+  nationality:document.getElementById("regNationality").value.trim()||null,
+  identity_type:document.getElementById("regIdentityType").value.trim()||null,
+  identity_number:document.getElementById("regIdentityNumber").value.trim()||null,
+  phone:document.getElementById("regPhone").value.trim()||null,
+  email:document.getElementById("regEmail").value.trim()||null,
+  guardian_name:document.getElementById("regGuardian").value.trim()||null,
+  guardian_relationship:document.getElementById("regRelation").value.trim()||null,
+  guardian_phone:document.getElementById("regGuardianPhone").value.trim()||null,
+  address:document.getElementById("regAddress").value.trim()||null,
+  previous_education:document.getElementById("regPrevious").value.trim()||null,
+  notes:document.getElementById("regNotes").value.trim()||null
+ };
+ const {data,error}=await sb.from("student_registrations").insert(payload).select("registration_number").single();
+ if(error){msg.textContent="تعذر إرسال الطلب حاليًا. يرجى المحاولة مرة أخرى.";return}
+ msg.textContent="تم استلام الطلب. رقم التسجيل: "+data.registration_number;
+ registrationForm.reset();
+});
+
 loadLiveData();
 </script>
 </body>
