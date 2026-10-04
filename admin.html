@@ -233,6 +233,15 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
  },200);
 })();
 </script>
+<section class="card full"><h2>قوى التسويق الإلكتروني والاستقبال الذكي 🚀📣💬</h2>
+<p class="muted">منظومة مستمرة مخصصة للتسويق، التصميم، الفيديو، النشر، النمو الدولي، استقبال الاستفسارات والردود، وإدارة المجتمعات والقنوات. جميع الأعمال الحساسة أو النشر النهائي تبقى تحت اعتماد الإدارة.</p>
+<div class="grid">
+<div><h3 style="font-size:14px">قوى التسويق والتصميم</h3><div id="marketingForceList" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
+<div><h3 style="font-size:14px">قوى الاستفسارات والتواصل</h3><div id="supportForceList" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
+<div><h3 style="font-size:14px">خطة العمليات التسويقية</h3><div id="marketingOpsList" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
+<div><h3 style="font-size:14px">القنوات والمجتمعات</h3><div id="communityChannelsList" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
+</div>
+</section>
 </main>
 
 <script type="module">
@@ -464,6 +473,29 @@ async function loadAIStaffRoster(){
 }
 async function loadOperationalPlans(){const box=document.getElementById("planList"),sum=document.getElementById("planSummary");if(!box)return;const{data,error}=await sb.from("activity_plans").select("*").order("created_at",{ascending:false});if(error){box.innerHTML='<div class="item dangerText">تعذر تحميل الخطط: '+error.message+'</div>';return}sum.textContent='إجمالي الخطط التشغيلية: '+(data?.length||0);box.innerHTML=(data||[]).map(x=>'<div class="item"><strong>'+escapeHtml(x.plan_name)+'</strong><span class="badge info">'+escapeHtml(x.term_name||'سنوية')+'</span> <span class="badge">'+escapeHtml(x.status||'draft')+'</span><div class="small">السنة: '+x.plan_year+' · '+escapeHtml(x.delivery_mode||'both')+' · '+escapeHtml(x.start_date||'')+' → '+escapeHtml(x.end_date||'')+'</div></div>').join('')||'<span class="muted">لا توجد خطط بعد.</span>'}
 document.getElementById("addPlan")?.addEventListener("click",async()=>{const plan_name=document.getElementById("planName").value.trim(),plan_year=Number(document.getElementById("planYear").value),term_name=document.getElementById("planTerm").value.trim(),start_date=document.getElementById("planStart").value||null,end_date=document.getElementById("planEnd").value||null,delivery_mode=document.getElementById("planMode").value,objectives=document.getElementById("planObjectives").value.trim();if(!plan_name||!plan_year){document.getElementById("planMsg").className="small dangerText";document.getElementById("planMsg").textContent="أدخل اسم الخطة والسنة.";return}const{error}=await sb.from("activity_plans").insert({plan_name,plan_year,term_name:term_name||null,start_date,end_date,delivery_mode,objectives:objectives||null,status:"planned"});if(error){document.getElementById("planMsg").className="small dangerText";document.getElementById("planMsg").textContent="تعذر حفظ الخطة: "+error.message;return}document.getElementById("planName").value="";document.getElementById("planObjectives").value="";document.getElementById("planMsg").className="small successText";document.getElementById("planMsg").textContent="تم حفظ الخطة التشغيلية.";await loadOperationalPlans()});
+</script>
+<script>
+(async function(){
+ const timer=setInterval(async()=>{
+  if(!window.sb)return;
+  clearInterval(timer);
+  const esc2=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const [agents,ops,channels,inq]=await Promise.all([
+   window.sb.from("ai_agents").select("id,name,system_role,capabilities,is_active,autonomy_level").eq("is_active",true),
+   window.sb.from("marketing_operations").select("id,name,operation_type,target_audiences,channels,content_formats,languages,approval_required,is_active").eq("is_active",true).order("created_at",{ascending:false}),
+   window.sb.from("social_community_channels").select("id,channel_name,platform,community_type,target_audience,region,language,status").order("created_at",{ascending:false}),
+   window.sb.from("inquiry_response_queue").select("id,platform,status,priority,received_at").order("received_at",{ascending:false}).limit(20)
+  ]);
+  const ae=agents.data||[],mo=ops.data||[],ch=channels.data||[],iq=inq.data||[];
+  const marketing=["marketing_lead","creative_design","video_motion","social_distribution","growth_analytics"];
+  const support=["inquiry_manager","social_support","communications_coordinator","community_manager","reputation_feedback"];
+  const agentCard=a=>'<div class="item"><strong>'+esc2(a.name)+'</strong><div class="small">'+esc2(a.system_role)+' · '+esc2(a.autonomy_level||"supervised")+' · '+(a.is_active?"نشط":"متوقف")+'</div></div>';
+  document.getElementById("marketingForceList").innerHTML=ae.filter(a=>marketing.includes(a.system_role)).map(agentCard).join("")||'<span class="muted">لا توجد قوى تسويق.</span>';
+  document.getElementById("supportForceList").innerHTML=ae.filter(a=>support.includes(a.system_role)).map(agentCard).join("")||'<span class="muted">لا توجد قوى استقبال.</span>';
+  document.getElementById("marketingOpsList").innerHTML=mo.map(x=>'<div class="item"><strong>'+esc2(x.name)+'</strong><div class="small">'+esc2(x.operation_type)+' · '+(x.approval_required?"تحت اعتماد الإدارة":"تشغيل مباشر")+'</div></div>').join("")||'<span class="muted">لا توجد عمليات.</span>';
+  document.getElementById("communityChannelsList").innerHTML=ch.map(x=>'<div class="item"><strong>'+esc2(x.channel_name)+'</strong><div class="small">'+esc2(x.platform)+' · '+esc2(x.region||"")+' · '+esc2(x.status)+'</div></div>').join("")||'<span class="muted">لا توجد قنوات.</span>';
+ },200);
+})();
 </script>
 </body>
 </html>
