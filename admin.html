@@ -242,7 +242,7 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <div><h3 style="font-size:14px">القنوات والمجتمعات</h3><div id="communityChannelsList" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
 </div>
 </section>
-</main>
+<section class="card full" style="margin-top:14px"><h2>💰 الرسوم والفواتير والتقسيط والخصومات</h2><div class="grid"><div class="item"><strong id="financeCount">—</strong><div class="muted">عدد الفواتير</div></div><div class="item"><strong id="financeDue">—</strong><div class="muted">إجمالي المستحق</div></div><div class="item"><strong id="financePaid">—</strong><div class="muted">إجمالي المدفوع</div></div><div class="item"><strong id="financeRemaining">—</strong><div class="muted">إجمالي المتبقي</div></div></div><div id="financeAdminList" class="list" style="margin-top:10px"></div></section></main>
 
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
@@ -541,5 +541,5 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
  },200);
 })();
 </script>
-</body>
+<script>setTimeout(async()=>{if(!window.sb)return;const r=await window.sb.from("edu_invoices").select("id,invoice_number,description,learner_id,net_amount,status,due_date,installment_no,installment_count").order("due_date",{ascending:true}).limit(100);const rows=r.data||[];const paidMap={};for(const x of rows)paidMap[x.id]=0;const p=await window.sb.from("edu_invoice_payments").select("invoice_id,amount").in("invoice_id",rows.map(x=>x.id).length?rows.map(x=>x.id):["00000000-0000-0000-0000-000000000000"]);for(const x of (p.data||[]))paidMap[x.invoice_id]=(paidMap[x.invoice_id]||0)+Number(x.amount||0);const due=rows.reduce((n,x)=>n+Number(x.net_amount||0),0),paid=Object.values(paidMap).reduce((n,x)=>n+x,0);document.getElementById("financeCount").textContent=rows.length;document.getElementById("financeDue").textContent=due.toFixed(2)+" SAR";document.getElementById("financePaid").textContent=paid.toFixed(2)+" SAR";document.getElementById("financeRemaining").textContent=(due-paid).toFixed(2)+" SAR";document.getElementById("financeAdminList").innerHTML=rows.slice(0,20).map(x=>"<div class=\"item\"><strong>"+x.invoice_number+"</strong><div class=\"small\">"+x.description+" · "+x.net_amount+" SAR · "+x.status+" · القسط "+(x.installment_no||1)+"/"+(x.installment_count||1)+" · استحقاق "+x.due_date+"</div></div>").join("")||"<span class=\"muted\">لا توجد فواتير.</span>"},800);</script></body>
 </html>
