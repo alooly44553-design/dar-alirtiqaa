@@ -55,6 +55,26 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <div><h3 style="font-size:14px">رسالة ولي الأمر</h3><select id="messageLearner" style="width:100%;padding:10px;margin:5px 0"></select><select id="messageType" style="width:100%;padding:10px;margin:5px 0"><option value="attendance">حضور/غياب</option><option value="progress">مستوى وتطور</option><option value="activity">نشاط وفعالية</option><option value="complaint">شكوى/ملاحظة</option><option value="improvement">تحسين ومتابعة</option><option value="event">حفلة/مناسبة/رحلة</option><option value="payment">رسوم ودفعات</option></select><select id="messageChannel" style="width:100%;padding:10px;margin:5px 0"><option value="sms">SMS</option><option value="email">بريد إلكتروني</option><option value="whatsapp">واتساب</option><option value="portal">بوابة</option></select><textarea id="messageBody" placeholder="نص الرسالة" style="width:100%;padding:10px;margin:5px 0"></textarea><button id="addMessage" type="button">حفظ للمراجعة والموافقة</button></div>
 <div><h3 style="font-size:14px">فعالية / رحلة / مناسبة</h3><input id="eventTitle" placeholder="اسم الفعالية" style="width:100%;padding:10px;margin:5px 0"><select id="eventType" style="width:100%;padding:10px;margin:5px 0"><option value="party">حفلة</option><option value="occasion">مناسبة</option><option value="trip">رحلة</option><option value="activity">نشاط</option><option value="meeting">اجتماع</option><option value="competition">مسابقة</option><option value="seminar">ندوة</option><option value="other">أخرى</option></select><input id="eventDate" type="datetime-local" style="width:100%;padding:10px;margin:5px 0"><input id="eventLocation" placeholder="المكان" style="width:100%;padding:10px;margin:5px 0"><button id="addEvent" type="button">حفظ الفعالية</button></div>
 </div><div id="recordsMsg" class="small muted" style="margin-top:8px"></div><div id="recordsList" class="list" style="margin-top:10px"></div></section>
+
+<section class="card full"><h2>استمارات تسجيل الطلاب والطالبات — البيانات والاعتماد والتوثيق 📋</h2>
+<p class="muted">هذه الاستمارة لا تحدد مركزًا أو برنامجًا أو تخصصًا. وظيفتها جمع بيانات الطالب/الطالبة فقط، ثم اعتماد الإدارة وتوثيق قبول التسجيل.</p>
+<div class="grid">
+<div><h3 style="font-size:14px">إضافة سجل تسجيل</h3>
+<input id="regAdminName" placeholder="اسم الطالب/الطالبة" style="width:100%;padding:10px;margin:5px 0">
+<select id="regAdminGender" style="width:100%;padding:10px;margin:5px 0"><option value="">الجنس</option><option value="male">طالب</option><option value="female">طالبة</option></select>
+<input id="regAdminDob" type="date" style="width:100%;padding:10px;margin:5px 0">
+<input id="regAdminNationality" placeholder="الجنسية" style="width:100%;padding:10px;margin:5px 0">
+<input id="regAdminPhone" placeholder="الهاتف" style="width:100%;padding:10px;margin:5px 0">
+<input id="regAdminGuardian" placeholder="ولي الأمر" style="width:100%;padding:10px;margin:5px 0">
+<input id="regAdminGuardianPhone" placeholder="هاتف ولي الأمر" style="width:100%;padding:10px;margin:5px 0">
+<textarea id="regAdminNotes" placeholder="ملاحظات وبيانات إضافية" style="width:100%;padding:10px;margin:5px 0"></textarea>
+<button id="addRegistration" type="button">حفظ سجل التسجيل</button>
+</div>
+<div><h3 style="font-size:14px">السجلات</h3><div id="registrationsSummary" class="item">جارٍ التحميل...</div><div id="registrationsList" class="list" style="margin-top:10px"></div></div>
+</div>
+<div id="registrationMsg" class="small muted" style="margin-top:8px"></div>
+</section>
+
 <section class="card full"><h2>الدرجات والتقييمات والنتائج 🔥</h2>
 <p class="muted">ربط التقييمات بالبرامج والمواد، والنتائج بالطلاب والتسجيلات، مع احتساب التقدير تلقائيًا وإدخال النتيجة في طابور المراجعة الذكية.</p>
 <div class="grid" style="margin-top:10px">
@@ -302,6 +322,32 @@ document.getElementById("addActivityBudget")?.addEventListener("click",async()=>
 document.getElementById("addActivityEvaluation")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("evaluationInitiative").value,learner_id=document.getElementById("evaluationLearner").value,rating=Number(document.getElementById("evaluationRating").value),feedback=document.getElementById("evaluationFeedback").value.trim();if(!initiative_id||!learner_id||!(rating>=0))return;const{error}=await sb.from("activity_evaluations").upsert({initiative_id,learner_id,rating,feedback:feedback||null,learning_gain:feedback||null},{onConflict:"initiative_id,learner_id"});document.getElementById("operationalMsg").textContent=error?"تعذر حفظ التقييم: "+error.message:"تم حفظ تقييم المتعلم.";});
 document.getElementById("addActivityOutcome")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("outcomeInitiative").value,participants_count=Number(document.getElementById("outcomeParticipants").value)||0,completion_rate=Number(document.getElementById("outcomeCompletion").value)||null,achievement_rate=Number(document.getElementById("outcomeAchievement").value)||null,recommendations=document.getElementById("outcomeNotes").value.trim();if(!initiative_id)return;const{error}=await sb.from("activity_outcomes").insert({initiative_id,participants_count,completion_rate,achievement_rate,educational_impact:recommendations||null,behavioral_impact:recommendations||null,skills_gained:recommendations||null,recommendations:recommendations||null,status:"draft"});document.getElementById("operationalMsg").textContent=error?"تعذر حفظ الأثر: "+error.message:"تم حفظ تقرير الأثر والتوصيات.";});
 
+
+async function loadRegistrations(){
+ const box=document.getElementById("registrationsList"),sum=document.getElementById("registrationsSummary"); if(!box)return;
+ const {data,error}=await sb.from("student_registrations").select("id,registration_number,student_name,gender,date_of_birth,nationality,phone,guardian_name,guardian_phone,approval_status,approved_at,approval_note,documented,documented_at,document_reference,created_at").order("created_at",{ascending:false}).limit(50);
+ if(error){box.innerHTML='<div class="item dangerText">تعذر تحميل سجلات التسجيل: '+escapeHtml(error.message)+'</div>';return}
+ const rows=data||[]; if(sum)sum.textContent="إجمالي السجلات المعروضة: "+rows.length;
+ box.innerHTML=rows.map(x=>'<div class="item"><strong>'+escapeHtml(x.student_name)+' — '+escapeHtml(x.registration_number)+'</strong><div class="small">الجنس: '+(x.gender==="female"?"طالبة":"طالب")+' · الهاتف: '+escapeHtml(x.phone||"غير مسجل")+' · ولي الأمر: '+escapeHtml(x.guardian_name||"غير مسجل")+'</div><div class="small">الحالة: <span class="badge '+(x.approval_status==="approved"?"ok":x.approval_status==="rejected"?"danger":"warn")+'">'+escapeHtml(x.approval_status)+'</span> · التوثيق: '+(x.documented?"موثق":"غير موثق")+'</div><div class="row" style="margin-top:7px"><button type="button" data-reg-approve="'+x.id+'">اعتماد</button><button type="button" class="secondary" data-reg-reject="'+x.id+'">رفض</button><button type="button" class="secondary" data-reg-doc="'+x.id+'">'+(x.documented?"تحديث التوثيق":"توثيق قبول التسجيل")+'</button></div></div>').join("")||'<span class="muted">لا توجد سجلات تسجيل.</span>';
+}
+document.getElementById("addRegistration")?.addEventListener("click",async()=>{
+ const student_name=document.getElementById("regAdminName").value.trim(),gender=document.getElementById("regAdminGender").value;
+ if(!student_name||!gender){document.getElementById("registrationMsg").textContent="أدخل الاسم والجنس.";return}
+ const {error}=await sb.from("student_registrations").insert({student_name,gender,date_of_birth:document.getElementById("regAdminDob").value||null,nationality:document.getElementById("regAdminNationality").value.trim()||null,phone:document.getElementById("regAdminPhone").value.trim()||null,guardian_name:document.getElementById("regAdminGuardian").value.trim()||null,guardian_phone:document.getElementById("regAdminGuardianPhone").value.trim()||null,notes:document.getElementById("regAdminNotes").value.trim()||null});
+ const m=document.getElementById("registrationMsg");m.className=error?"small dangerText":"small successText";m.textContent=error?"تعذر حفظ السجل: "+error.message:"تم حفظ سجل التسجيل.";if(!error){document.getElementById("regAdminName").value="";document.getElementById("regAdminNotes").value="";await loadRegistrations()}
+});
+document.getElementById("registrationsList")?.addEventListener("click",async e=>{
+ const b=e.target.closest("button");if(!b)return;const id=b.dataset.regApprove||b.dataset.regReject||b.dataset.regDoc;if(!id)return;
+ let patch={};
+ if(b.dataset.regApprove!==undefined)patch={approval_status:"approved",approved_at:new Date().toISOString()};
+ else if(b.dataset.regReject!==undefined)patch={approval_status:"rejected",approved_at:null};
+ else patch={documented:true,documented_at:new Date().toISOString(),document_reference:window.prompt("مرجع/ملاحظة التوثيق (اختياري):")||null};
+ const {data:{user}}=await sb.auth.getUser();if(!user)return;
+ if(patch.approval_status)patch.approved_by=user.id;
+ else if(patch.documented)patch.documented_by=user.id;
+ const {error}=await sb.from("student_registrations").update(patch).eq("id",id);
+ const m=document.getElementById("registrationMsg");m.className=error?"small dangerText":"small successText";m.textContent=error?"تعذر تحديث السجل: "+error.message:"تم تحديث سجل التسجيل.";await loadRegistrations();
+});
 
 async function loadAuditDashboard(){
  const summary=document.getElementById("auditSummary"),box=document.getElementById("auditFindings");if(!summary)return;
