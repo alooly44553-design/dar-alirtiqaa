@@ -29,7 +29,7 @@ footer{text-align:center;padding:32px 20px;color:var(--muted);font-size:13px}
 <header>
 <nav>
 <div class="logo">🎓 مدارس دار الارتقاء الفكري</div>
-<div class="navlinks"><a href="#features">المزايا</a><a href="#pathways">المسارات</a><a href="admin.html">الإدارة</a></div>
+<div class="navlinks"><a href="#features">المزايا</a><a href="#services">الخدمات والتسجيل</a><a href="#pathways">المسارات</a><a href="admin.html">الإدارة</a></div>
 </nav>
 <section class="hero">
 <div>
@@ -71,6 +71,15 @@ footer{text-align:center;padding:32px 20px;color:var(--muted);font-size:13px}
 <section class="cta">
 <div><h2>الإدارة الذكية في قلب المنصة</h2><p>أوامر إدارية، موافقات، مهام للذكاء الاصطناعي وسجل نشاط — مع بقاء القرار النهائي بيد الإدارة المخولة.</p></div>
 <a class="btn primary" href="admin.html">فتح لوحة الإدارة</a>
+</section>
+
+<section id="services" style="margin-top:55px">
+<div class="section-title"><h2>الخدمات والمجالات — لكل خدمة استمارتها وطريقة تسجيلها</h2><p>لا توجد استمارة واحدة لجميع الخدمات. اختر المجال لتظهر بياناته وإجراء التسجيل الخاص به.</p></div>
+<div id="services-list" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))"></div>
+<div id="service-form-wrap" class="card" style="max-width:900px;margin:25px auto;display:none">
+<h3 id="service-form-title"></h3><p id="service-form-description" style="color:var(--muted);line-height:1.8"></p>
+<form id="serviceForm" class="grid" style="grid-template-columns:repeat(2,1fr)"></form>
+</div>
 </section>
 
 <section id="registration" style="margin-top:55px">
@@ -121,6 +130,43 @@ async function loadLiveData(){
  listEl.innerHTML=centers.map(x=>`<article class="card"><div class="icon">🏫</div><h3>${escapeHtml(x.name)}</h3><p>${escapeHtml(x.description||"مركز تعليمي تابع لمدارس دار الارتقاء الفكري.")}</p>${x.address?`<p style="margin-top:10px">📍 ${escapeHtml(x.address)}</p>`:""}${x.phone?`<p style="margin-top:6px">📞 ${escapeHtml(x.phone)}</p>`:""}</article>`).join("");
  programsEl.innerHTML=programs.length?`<div style="grid-column:1/-1;margin-top:12px"><h2>البرامج التعليمية</h2></div>${programs.map(p=>`<article class="path"><strong>📘 ${escapeHtml(p.name)}</strong><p>${escapeHtml(p.description||"برنامج تعليمي متاح في المنصة.")}</p>${p.start_date?`<small>البداية: ${escapeHtml(p.start_date)}</small>`:""}</article>`).join("")}`:"";
 }
+const servicesList=document.getElementById("services-list"),serviceWrap=document.getElementById("service-form-wrap"),serviceTitle=document.getElementById("service-form-title"),serviceDesc=document.getElementById("service-form-description"),serviceForm=document.getElementById("serviceForm");
+let serviceDefinitions=[];
+function renderField(f){
+ const req=f.required?"required":"";
+ const star=f.required?" *":"";
+ if(f.type==="select") return '<div><label>'+escapeHtml(f.label)+star+'</label><select data-key="'+escapeHtml(f.key)+'" '+req+' style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"><option value="">اختر</option>'+((f.options||[]).map(o=>'<option value="'+escapeHtml(o.value)+'">'+escapeHtml(o.label)+'</option>').join(""))+'</select></div>';
+ if(f.type==="textarea") return '<div style="grid-column:1/-1"><label>'+escapeHtml(f.label)+star+'</label><textarea data-key="'+escapeHtml(f.key)+'" '+req+' maxlength="3000" style="width:100%;min-height:100px;padding:11px;border:1px solid var(--line);border-radius:10px"></textarea></div>';
+ return '<div><label>'+escapeHtml(f.label)+star+'</label><input data-key="'+escapeHtml(f.key)+'" type="'+escapeHtml(f.type||"text")+'" '+req+' maxlength="500" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>';
+}
+function openService(service){
+ serviceTitle.textContent=service.service_name+' — '+service.registration_method_label;
+ serviceDesc.textContent=service.description||"";
+ serviceForm.innerHTML='<div><label>الاسم *</label><input data-key="applicant_name" required maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>رقم التواصل</label><input data-key="applicant_phone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>البريد الإلكتروني</label><input data-key="applicant_email" type="email" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>'+((service.form_fields||[]).filter(f=>!["applicant_name","applicant_phone","applicant_email"].includes(f.key)).map(renderField).join(""))+'<div style="grid-column:1/-1"><label style="display:flex;gap:8px;align-items:flex-start"><input id="serviceConsent" type="checkbox" required style="margin-top:5px"><span>'+escapeHtml(service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.")+'</span></label></div><div style="grid-column:1/-1" class="actions"><button class="btn primary" type="submit">إرسال '+escapeHtml(service.registration_method_label)+'</button><span id="serviceMsg" style="color:var(--muted)"></span></div>';
+ serviceForm.dataset.serviceCode=service.service_code;
+ serviceWrap.style.display="block";
+ serviceWrap.scrollIntoView({behavior:"smooth",block:"start"});
+}
+async function loadServices(){
+ const {data,error}=await sb.from("service_catalog").select("service_code,service_name,service_category,description,registration_method,registration_method_label,form_fields,consent_text,display_order").eq("is_active",true).order("display_order",{ascending:true});
+ if(error){servicesList.innerHTML='<div class="card">تعذر تحميل الخدمات حاليًا.</div>';return;}
+ serviceDefinitions=data||[];
+ servicesList.innerHTML=serviceDefinitions.map((s,i)=>'<article class="card"><div class="icon">📋</div><h3>'+escapeHtml(s.service_name)+'</h3><p>'+escapeHtml(s.description||"")+'</p><p style="margin-top:10px"><strong>طريقة التسجيل:</strong> '+escapeHtml(s.registration_method_label)+'</p><button class="btn primary" type="button" data-service-index="'+i+'" style="margin-top:14px">فتح الاستمارة</button></article>').join("");
+ servicesList.querySelectorAll("[data-service-index]").forEach(b=>b.addEventListener("click",()=>openService(serviceDefinitions[Number(b.dataset.serviceIndex)])));
+}
+serviceForm?.addEventListener("submit",async e=>{
+ e.preventDefault();
+ const msg=document.getElementById("serviceMsg"); msg.textContent="جارٍ إرسال الطلب…";
+ const data={};
+ serviceForm.querySelectorAll("[data-key]").forEach(el=>{data[el.dataset.key]=el.value.trim?el.value.trim():el.value});
+ data.consent_given=document.getElementById("serviceConsent").checked;
+ const {data:result,error}=await sb.rpc("submit_service_request",{p_service_code:serviceForm.dataset.serviceCode,p_data:data});
+ if(error){msg.textContent=error.message==="CONSENT_REQUIRED"?"يجب الموافقة قبل الإرسال.":"تعذر إرسال الطلب حاليًا. يرجى المحاولة مرة أخرى.";return}
+ msg.textContent="تم استلام الطلب بنجاح. رقم الطلب: "+result;
+ serviceForm.reset();
+});
+loadServices();
+
 const registrationForm=document.getElementById("registrationForm");
 registrationForm?.addEventListener("submit",async e=>{
  e.preventDefault();
