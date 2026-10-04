@@ -47,6 +47,31 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <h2>🎛️ مركز التشغيل العالمي</h2>
 <p class="muted">لوحة موحدة لحالة الوحدات والصلاحيات والوكلاء الذكيين والأوامر والموافقات والمهام والإشراف والأمن والاستمرارية.</p>
 <div id="globalOperationsSummary" class="grid" style="margin-top:10px"></div>
+<div class="card" style="margin-top:12px;background:#f8fafc">
+<h3 style="font-size:14px;margin-top:0">🧭 إصدار أمر تشغيلي</h3>
+<div class="grid">
+<div>
+<label class="small muted">نوع الأمر</label>
+<select id="globalCommandType" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin:5px 0">
+<option value="read">قراءة واسترجاع البيانات — تنفيذ مباشر</option>
+<option value="draft">إعداد مسودة أو مقترح — تنفيذ مباشر</option>
+<option value="routine_update">تحديث تشغيلي — يحتاج اعتماد المدير</option>
+<option value="send_message">إرسال رسالة — يحتاج اعتماد المدير</option>
+<option value="publish">النشر العام — يحتاج اعتماد المدير</option>
+<option value="financial_commitment">التزام مالي — يحتاج اعتماد المدير</option>
+<option value="legal_action">إجراء قانوني — اعتماد شخصين</option>
+<option value="delete">حذف — اعتماد شخصين</option>
+</select>
+<textarea id="globalCommandText" placeholder="اكتب الأمر الذي تريد من المنظومة تنفيذه أو تجهيزه..." style="min-height:90px"></textarea>
+<button id="submitGlobalCommand" type="button" style="margin-top:7px">إرسال الأمر</button>
+</div>
+<div class="item">
+<strong>قاعدة القرار</strong>
+<div class="small" style="margin-top:6px">المدير الإداري هو صاحب القرار. الأوامر منخفضة المخاطر يمكن تنفيذها مباشرة، أما العمليات الحساسة فتدخل طابور الاعتماد. الإجراءات القانونية والحذف محمية بقاعدة اعتماد شخصين.</div>
+<div id="globalCommandMsg" class="small muted" style="margin-top:8px"></div>
+</div>
+</div>
+</div>
 <div class="grid" style="margin-top:10px">
 <div><h3 style="font-size:14px">الأدوار والصلاحيات</h3><div id="globalRoles" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
 <div><h3 style="font-size:14px">الموافقات والأوامر</h3><div id="globalApprovals" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
@@ -394,10 +419,37 @@ async function loadGlobalOperations(){
  ];
  $("globalOperationsSummary").innerHTML=cards.map(x=>'<div class="item"><div class="small muted">'+esc(x[0])+'</div><strong style="font-size:22px">'+Number(x[1]||0)+'</strong><span class="badge '+x[2]+'" style="margin-right:6px">'+(x[2]==="danger"?"يحتاج إجراء":x[2]==="warn"?"متابعة":"مستقر")+'</span></div>').join('');
  $("globalRoles").innerHTML=(roles.data||[]).map(x=>'<div class="item"><strong>'+esc(x.role_name_ar)+'</strong><div class="small">'+esc(x.role_code)+' · مستوى الصلاحية '+x.authority_level+' · '+(x.approval_required_default?"اعتماد افتراضي":"بدون اعتماد افتراضي")+'</div></div>').join('')||'<span class="muted">لا توجد أدوار.</span>';
- $("globalApprovals").innerHTML=(approvals.data||[]).map(x=>'<div class="item"><strong>'+esc(x.requested_action)+'</strong><div class="row"><span class="badge '+statusClass(x.status)+'">'+esc(statusLabel(x.status))+'</span><span class="badge">المخاطر: '+esc(x.risk_level)+'</span></div><div class="small muted">'+fmt(x.created_at)+'</div></div>').join('')||'<span class="muted">لا توجد موافقات معلقة.</span>';
+ $("globalApprovals").innerHTML=(approvals.data||[]).map(x=>'<div class="item"><strong>'+esc(x.requested_action)+'</strong><div class="row"><span class="badge '+statusClass(x.status)+'">'+esc(statusLabel(x.status))+'</span><span class="badge">المخاطر: '+esc(x.risk_level)+'</span></div><div class="small muted">'+fmt(x.created_at)+'</div><div class="row" style="margin-top:7px"><button type="button" data-global-approve="'+x.command_id+'">اعتماد</button><button type="button" class="secondary" data-global-reject="'+x.command_id+'">رفض</button></div></div>').join('')||'<span class="muted">لا توجد موافقات معلقة.</span>';
  $("globalAgents").innerHTML=(agents.data||[]).slice(0,12).map(x=>'<div class="item"><strong>'+esc(x.name)+'</strong><div class="row"><span class="badge ok">نشط</span><span class="badge">'+esc(x.autonomy_level||"supervised")+'</span></div></div>').join('')||'<span class="muted">لا توجد وكلاء نشطون.</span>';
  msg.className="small successText";msg.textContent="تم تحديث مركز التشغيل من قاعدة البيانات المركزية.";
 }
+document.getElementById("submitGlobalCommand")?.addEventListener("click",async()=>{
+ const btn=document.getElementById("submitGlobalCommand"),box=document.getElementById("globalCommandMsg");
+ const type=document.getElementById("globalCommandType").value,textValue=document.getElementById("globalCommandText").value.trim();
+ if(!textValue){box.className="small dangerText";box.textContent="اكتب الأمر أولًا.";return}
+ btn.disabled=true;box.className="small muted";box.textContent="جارٍ تسجيل الأمر وتطبيق قاعدة الصلاحيات...";
+ const {data,error}=await sb.rpc("submit_global_operation_command",{p_command_text:textValue,p_command_type:type});
+ btn.disabled=false;
+ if(error){box.className="small dangerText";box.textContent="تعذر تسجيل الأمر: "+error.message;return}
+ document.getElementById("globalCommandText").value="";
+ box.className="small successText";
+ box.textContent=(type==="read"||type==="draft")?"تم تسجيل الأمر ضمن التنفيذ المسموح به.":"تم تسجيل الأمر وإرساله إلى طابور اعتماد المدير.";
+ await loadGlobalOperations();
+});
+document.getElementById("globalApprovals")?.addEventListener("click",async e=>{
+ const b=e.target.closest("button[data-global-approve],button[data-global-reject]");if(!b)return;
+ const commandId=b.dataset.globalApprove||b.dataset.globalReject;
+ const approve=b.dataset.globalApprove!==undefined;
+ const note=window.prompt(approve?"ملاحظة الاعتماد (اختياري):":"سبب الرفض (اختياري):")||null;
+ b.disabled=true;
+ const {data,error}=await sb.rpc("decide_agent_command",{p_command_id:commandId,p_approve:approve,p_note:note});
+ b.disabled=false;
+ const box=document.getElementById("globalOperationsMsg");
+ if(error){box.className="small dangerText";box.textContent="تعذر اتخاذ القرار: "+error.message;return}
+ box.className="small successText";
+ box.textContent=approve?"تم اعتماد الأمر وتسجيل القرار باسم المدير الإداري.":"تم رفض الأمر وتسجيل القرار باسم المدير الإداري.";
+ await loadGlobalOperations();
+});
 let timer=null;function autoRefresh(){if(timer)clearInterval(timer);timer=setInterval(async()=>{if((await getSession())?.user)await load()},30000)}
 sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();loadServiceFeesAdmin();loadGlobalOperations();
 document.getElementById("linkPlanInitiative")?.addEventListener("click",async()=>{const plan_id=document.getElementById("linkInitiativePlan").value,id=document.getElementById("linkInitiative").value;if(!plan_id||!id)return;const{error}=await sb.from("development_initiatives").update({plan_id}).eq("id",id);document.getElementById("operationalMsg").textContent=error?"تعذر الربط: "+error.message:"تم ربط البرنامج بالخطة.";await loadOperationalChain()});
