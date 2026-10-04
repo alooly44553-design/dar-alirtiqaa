@@ -72,8 +72,27 @@ footer{text-align:center;padding:32px 20px;color:var(--muted);font-size:13px}
 <div><h2>الإدارة الذكية في قلب المنصة</h2><p>أوامر إدارية، موافقات، مهام للذكاء الاصطناعي وسجل نشاط — مع بقاء القرار النهائي بيد الإدارة المخولة.</p></div>
 <a class="btn primary" href="admin.html">فتح لوحة الإدارة</a>
 </section>
+<section id="live-data" style="margin-top:55px">
+<div class="section-title"><h2>المراكز والبرامج المتاحة</h2><p id="data-status">جاري تحميل البيانات من المنصة…</p></div>
+<div id="centers-list" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"></div>
+</section>
 </main>
 
 <footer>© 2026 مدارس دار الارتقاء الفكري — منصة تعليمية ذكية</footer>
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZ8_8nczw_KWK6H4bk");
+const statusEl=document.getElementById("data-status");
+const listEl=document.getElementById("centers-list");
+async function loadLiveData(){
+  const {data,error}=await sb.from("centers").select("id,name,description,phone,email,address,is_active").eq("is_active",true).order("created_at",{ascending:true});
+  if(error){statusEl.textContent="تعذر تحميل بيانات المراكز حاليًا."; return;}
+  if(!data?.length){statusEl.textContent="سيتم عرض المراكز والبرامج هنا عند إضافتها إلى النظام."; return;}
+  statusEl.textContent="بيانات محدثة مباشرة من قاعدة بيانات المنصة.";
+  listEl.innerHTML=data.map(x=>`<article class="card"><div class="icon">🏫</div><h3>${escapeHtml(x.name)}</h3><p>${escapeHtml(x.description||"مركز تعليمي تابع لمدارس دار الارتقاء الفكري.")}</p>${x.address?`<p style="margin-top:10px">📍 ${escapeHtml(x.address)}</p>`:""}${x.phone?`<p style="margin-top:6px">📞 ${escapeHtml(x.phone)}</p>`:""}</article>`).join("");
+}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
+loadLiveData();
+</script>
 </body>
 </html>
