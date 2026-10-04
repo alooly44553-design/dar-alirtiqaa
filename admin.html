@@ -75,6 +75,11 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <div id="registrationMsg" class="small muted" style="margin-top:8px"></div>
 </section>
 
+<section class="card full"><h2>رسوم الخدمات وطرق التسجيل 💳📋</h2>
+<p class="muted">كل مجال له استمارة مستقلة وطريقة تسجيل مستقلة، ويمكن للإدارة تحديد رسوم فتح الملف والتسجيل والقبول وتحديد المستوى ومعادلة الشهادة والرسوم العمومية وغيرها لكل خدمة على حدة. لا يتم افتراض مبالغ من النظام.</p>
+<div id="serviceFeesAdmin" class="list"><span class="muted">جارٍ تحميل الخدمات والرسوم...</span></div>
+<div id="serviceFeesMsg" class="small muted" style="margin-top:8px"></div>
+</section>
 <section class="card full"><h2>الدرجات والتقييمات والنتائج 🔥</h2>
 <p class="muted">ربط التقييمات بالبرامج والمواد، والنتائج بالطلاب والتسجيلات، مع احتساب التقدير تلقائيًا وإدخال النتيجة في طابور المراجعة الذكية.</p>
 <div class="grid" style="margin-top:10px">
@@ -348,7 +353,7 @@ $("logout").onclick=async()=>{ $("logout").disabled=true;const{error}=await sb.a
 $("send").onclick=async()=>{const command=$("command").value.trim();if(!command){$("sendMsg").className="small dangerText";$("sendMsg").textContent="اكتب الأمر أولًا.";return}$("send").disabled=true;$("sendMsg").className="small muted";$("sendMsg").textContent="جارٍ حفظ الأمر...";const{data:{user},error:userError}=await sb.auth.getUser();if(userError||!user){$("send").disabled=false;$("sendMsg").className="small dangerText";$("sendMsg").textContent="انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.";return}const{error}=await sb.from("management_commands").insert({issued_by:user.id,command,command_type:"general",priority:"normal",requires_approval:true,status:"pending",requested_payload:{source:"admin_dashboard"}});$("send").disabled=false;if(error){console.error(error);$("sendMsg").className="small dangerText";$("sendMsg").textContent="تعذر إرسال الأمر: "+error.message;return}$("command").value="";$("sendMsg").className="small successText";$("sendMsg").textContent="تم تسجيل الأمر بنجاح، وسيظهر ضمن الأوامر المعلقة.";await load()};
 $("pending").addEventListener("click",async e=>{const approve=e.target.closest("[data-approve]"),reject=e.target.closest("[data-reject]"),btn=approve||reject;if(!btn)return;const id=btn.dataset.approve||btn.dataset.reject,isApprove=!!approve,note=window.prompt(isApprove?"ملاحظة الموافقة (اختيارية):":"سبب الرفض (اختياري):");if(note===null)return;btn.disabled=true;const{error}=await sb.rpc(isApprove?"approve_management_command":"reject_management_command",{p_command_id:id,p_note:note.trim()||null});if(error){console.error(error);alert((isApprove?"تعذر تنفيذ الموافقة: ":"تعذر تنفيذ الرفض: ")+error.message);btn.disabled=false;return}await load()});
 let timer=null;function autoRefresh(){if(timer)clearInterval(timer);timer=setInterval(async()=>{if((await getSession())?.user)await load()},30000)}
-sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();
+sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();loadServiceFeesAdmin();
 document.getElementById("linkPlanInitiative")?.addEventListener("click",async()=>{const plan_id=document.getElementById("linkInitiativePlan").value,id=document.getElementById("linkInitiative").value;if(!plan_id||!id)return;const{error}=await sb.from("development_initiatives").update({plan_id}).eq("id",id);document.getElementById("operationalMsg").textContent=error?"تعذر الربط: "+error.message:"تم ربط البرنامج بالخطة.";await loadOperationalChain()});
 document.getElementById("addOperationalActivity")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("activityInitiative").value,title=document.getElementById("activityTitle").value.trim(),activity_date=document.getElementById("activityDate").value,session_start=document.getElementById("activityStart").value||null,session_end=document.getElementById("activityEnd").value||null,responsible_staff_id=document.getElementById("activityStaff").value||null,classroom_id=document.getElementById("activityClassroom").value||null,delivery_mode=document.getElementById("activityMode").value,objectives=document.getElementById("activityObjectives").value.trim();if(!initiative_id||!title||!activity_date){document.getElementById("operationalMsg").textContent="أكمل البرنامج وعنوان الجلسة والتاريخ.";return}const{error}=await sb.from("initiative_activities").insert({initiative_id,title,activity_date,session_start,session_end,responsible_staff_id,classroom_id,delivery_mode,objectives:objectives||null,status:"planned"});document.getElementById("operationalMsg").textContent=error?"تعذر إضافة الجلسة: "+error.message:"تمت إضافة الجلسة إلى التقويم.";if(!error)document.getElementById("activityTitle").value="";await loadOperationalChain()});
 document.getElementById("addInitiativeEnrollment")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("enrollInitiative").value,learner_id=document.getElementById("enrollInitiativeLearner").value;if(!initiative_id||!learner_id)return;const{error}=await sb.from("initiative_enrollments").insert({initiative_id,learner_id,status:"active"});document.getElementById("operationalMsg").textContent=error?"تعذر التسجيل: "+error.message:"تم تسجيل الطالب في البرنامج.";await loadOperationalChain()});
@@ -358,6 +363,33 @@ document.getElementById("addActivityEvaluation")?.addEventListener("click",async
 document.getElementById("addActivityOutcome")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("outcomeInitiative").value,participants_count=Number(document.getElementById("outcomeParticipants").value)||0,completion_rate=Number(document.getElementById("outcomeCompletion").value)||null,achievement_rate=Number(document.getElementById("outcomeAchievement").value)||null,recommendations=document.getElementById("outcomeNotes").value.trim();if(!initiative_id)return;const{error}=await sb.from("activity_outcomes").insert({initiative_id,participants_count,completion_rate,achievement_rate,educational_impact:recommendations||null,behavioral_impact:recommendations||null,skills_gained:recommendations||null,recommendations:recommendations||null,status:"draft"});document.getElementById("operationalMsg").textContent=error?"تعذر حفظ الأثر: "+error.message:"تم حفظ تقرير الأثر والتوصيات.";});
 
 
+async function loadServiceFeesAdmin(){
+ const box=document.getElementById("serviceFeesAdmin"); if(!box)return;
+ const [sr,fr]=await Promise.all([
+  sb.from("service_catalog").select("id,service_code,service_name,registration_method_label").eq("is_active",true).order("display_order",{ascending:true}),
+  sb.from("service_fee_items").select("id,service_id,fee_code,fee_name,description,amount,currency,calculation_method,is_required,payment_stage,is_active").order("display_order",{ascending:true})
+ ]);
+ if(sr.error||fr.error){box.innerHTML='<div class="item dangerText">تعذر تحميل الرسوم: '+escapeHtml((sr.error||fr.error).message)+'</div>';return}
+ const services=sr.data||[],fees=fr.data||[];
+ box.innerHTML=services.map(s=>{
+  const rows=fees.filter(f=>f.service_id===s.id);
+  return '<div class="item"><strong>'+escapeHtml(s.service_name)+'</strong><div class="small">'+escapeHtml(s.registration_method_label||"")+'</div><div class="list" style="margin-top:8px">'+rows.map(f=>'<div style="padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff"><div class="row between"><strong>'+escapeHtml(f.fee_name)+'</strong><span class="badge '+(f.is_required?"warn":"info")+'">'+(f.is_required?"أساسية":"حسب الحاجة")+'</span></div><div class="grid" style="margin-top:7px"><input data-fee-amount="'+f.id+'" type="number" min="0" step="0.01" value="'+(f.amount??"")+'" placeholder="المبلغ"><input data-fee-currency="'+f.id+'" value="'+escapeHtml(f.currency||"SAR")+'" placeholder="العملة"><select data-fee-required="'+f.id+'"><option value="true" '+(f.is_required?"selected":"")+'>رسوم مطلوبة</option><option value="false" '+(!f.is_required?"selected":"")+'>تطبق حسب الحاجة</option></select><button type="button" data-fee-save="'+f.id+'">حفظ الرسوم</button></div><div class="small muted" style="margin-top:5px">'+escapeHtml(f.description||"")+' · مرحلة الدفع: '+escapeHtml(f.payment_stage||"")+'</div></div>').join("")+'</div></div>';
+ }).join("")||'<span class="muted">لا توجد خدمات نشطة.</span>';
+}
+document.getElementById("serviceFeesAdmin")?.addEventListener("click",async e=>{
+ const b=e.target.closest("[data-fee-save]");if(!b)return;
+ const id=b.dataset.feeSave;
+ const amountEl=document.querySelector("[data-fee-amount='"+id+"']");
+ const currencyEl=document.querySelector("[data-fee-currency='"+id+"']");
+ const requiredEl=document.querySelector("[data-fee-required='"+id+"']");
+ const amount=amountEl.value.trim()===""?null:Number(amountEl.value);
+ if(amount!==null&&(!Number.isFinite(amount)||amount<0)){document.getElementById("serviceFeesMsg").className="small dangerText";document.getElementById("serviceFeesMsg").textContent="أدخل مبلغًا صحيحًا.";return}
+ b.disabled=true;
+ const {error}=await sb.from("service_fee_items").update({amount,currency:currencyEl.value.trim()||"SAR",is_required:requiredEl.value==="true"}).eq("id",id);
+ b.disabled=false;
+ const m=document.getElementById("serviceFeesMsg");m.className=error?"small dangerText":"small successText";m.textContent=error?"تعذر حفظ الرسوم: "+error.message:"تم تحديث رسوم الخدمة.";
+ if(!error)await loadServiceFeesAdmin();
+});
 async function loadRegistrations(){
  const box=document.getElementById("registrationsList"),sum=document.getElementById("registrationsSummary"); if(!box)return;
  const {data,error}=await sb.from("student_registrations").select("id,registration_number,student_name,gender,date_of_birth,nationality,phone,guardian_name,guardian_phone,approval_status,approved_at,approval_note,documented,documented_at,document_reference,created_at").order("created_at",{ascending:false}).limit(50);
