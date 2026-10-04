@@ -141,9 +141,9 @@ registrationForm?.addEventListener("submit",async e=>{
   previous_education:document.getElementById("regPrevious").value.trim()||null,
   notes:document.getElementById("regNotes").value.trim()||null
  };
- const {data,error}=await sb.from("student_registrations").insert(payload).select("registration_number").single();
+ const {data,error}=await sb.rpc("submit_student_registration",{p_data:payload});
  if(error){msg.textContent="تعذر إرسال الطلب حاليًا. يرجى المحاولة مرة أخرى.";return}
- msg.textContent="تم استلام الطلب. رقم التسجيل: "+data.registration_number;
+ msg.textContent="تم استلام الطلب بنجاح. رقم التسجيل: "+data;
  registrationForm.reset();
 });
 
