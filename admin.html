@@ -477,7 +477,17 @@ async function loadAIStaffRoster(){
 async function loadOperationalPlans(){const box=document.getElementById("planList"),sum=document.getElementById("planSummary");if(!box)return;const{data,error}=await sb.from("activity_plans").select("*").order("created_at",{ascending:false});if(error){box.innerHTML='<div class="item dangerText">تعذر تحميل الخطط: '+error.message+'</div>';return}sum.textContent='إجمالي الخطط التشغيلية: '+(data?.length||0);box.innerHTML=(data||[]).map(x=>'<div class="item"><strong>'+escapeHtml(x.plan_name)+'</strong><span class="badge info">'+escapeHtml(x.term_name||'سنوية')+'</span> <span class="badge">'+escapeHtml(x.status||'draft')+'</span><div class="small">السنة: '+x.plan_year+' · '+escapeHtml(x.delivery_mode||'both')+' · '+escapeHtml(x.start_date||'')+' → '+escapeHtml(x.end_date||'')+'</div></div>').join('')||'<span class="muted">لا توجد خطط بعد.</span>'}
 document.getElementById("addPlan")?.addEventListener("click",async()=>{const plan_name=document.getElementById("planName").value.trim(),plan_year=Number(document.getElementById("planYear").value),term_name=document.getElementById("planTerm").value.trim(),start_date=document.getElementById("planStart").value||null,end_date=document.getElementById("planEnd").value||null,delivery_mode=document.getElementById("planMode").value,objectives=document.getElementById("planObjectives").value.trim();if(!plan_name||!plan_year){document.getElementById("planMsg").className="small dangerText";document.getElementById("planMsg").textContent="أدخل اسم الخطة والسنة.";return}const{error}=await sb.from("activity_plans").insert({plan_name,plan_year,term_name:term_name||null,start_date,end_date,delivery_mode,objectives:objectives||null,status:"planned"});if(error){document.getElementById("planMsg").className="small dangerText";document.getElementById("planMsg").textContent="تعذر حفظ الخطة: "+error.message;return}document.getElementById("planName").value="";document.getElementById("planObjectives").value="";document.getElementById("planMsg").className="small successText";document.getElementById("planMsg").textContent="تم حفظ الخطة التشغيلية.";await loadOperationalPlans()});
 </script>
-<script>
+<section id="advanced-schedules" class="panel">
+<h2>الجداول الزمنية المتقدمة — التعليم العام والجامعي والتدريب والتعلم الإلكتروني 🗓️</h2>
+<p class="muted">قالب الإدارة يدعم 30 خانة أسبوعية للتعليم العام، وجداول أعضاء الطاقم، والأنشطة والفعاليات، والبرامج الجامعية والمهنية، والتعلم الإلكتروني.</p>
+<div class="grid">
+<div class="card"><h3>التعليم العام</h3><div class="small">5 أيام × 6 حصص = 30 خانة أسبوعية</div><div id="eduScheduleSummary" class="list" style="margin-top:8px"><span class="muted">جارٍ التحميل...</span></div></div>
+<div class="card"><h3>الطاقم التعليمي</h3><div class="small">الهدف التشغيلي الافتراضي: 30 خانة لكل عضو، مع حفظ المرجع النظامي بشكل منفصل.</div><div id="eduStaffLoadSummary" class="list" style="margin-top:8px"><span class="muted">جارٍ التحميل...</span></div></div>
+<div class="card"><h3>البرامج الأخرى</h3><div id="eduOtherScheduleSummary" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
+</div>
+<div class="card full" style="margin-top:14px"><h3>قالب الحصص الأسبوعي — 30 حصة</h3><div id="edu30SlotGrid" class="grid"></div></div>
+<div class="card full" style="margin-top:14px"><h3>توزيع الطاقم التعليمي المطلوب</h3><div id="eduRoleTemplates" class="list"></div></div>
+</section><script>
 (async function(){
  const timer=setInterval(async()=>{
   if(!window.sb)return;
@@ -497,6 +507,37 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
   document.getElementById("supportForceList").innerHTML=ae.filter(a=>support.includes(a.system_role)).map(agentCard).join("")||'<span class="muted">لا توجد قوى استقبال.</span>';
   document.getElementById("marketingOpsList").innerHTML=mo.map(x=>'<div class="item"><strong>'+esc2(x.name)+'</strong><div class="small">'+esc2(x.operation_type)+' · '+(x.approval_required?"تحت اعتماد الإدارة":"تشغيل مباشر")+'</div></div>').join("")||'<span class="muted">لا توجد عمليات.</span>';
   document.getElementById("communityChannelsList").innerHTML=ch.map(x=>'<div class="item"><strong>'+esc2(x.channel_name)+'</strong><div class="small">'+esc2(x.platform)+' · '+esc2(x.region||"")+' · '+esc2(x.status)+'</div>'+(x.channel_url?'<div class="small" style="margin-top:6px"><a href="'+esc2(x.channel_url)+'" target="_blank" rel="noopener noreferrer">فتح القناة/الصفحة ↗</a></div>':'')+'</div>').join("")||'<span class="muted">لا توجد قنوات.</span>';
+ },200);
+})();
+</script>
+<script>
+(async function(){
+ const timer=setInterval(async()=>{
+  if(!window.sb)return; clearInterval(timer);
+  const e=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const [settings,periods,roles,staff,uni,voc,events,courses]=await Promise.all([
+   window.sb.from("edu_schedule_settings").select("weekly_periods,school_days_per_week,periods_per_day,default_lesson_minutes,source_reference").eq("academic_year","platform-default").eq("term","all").maybeSingle(),
+   window.sb.from("edu_schedule_periods").select("day_of_week,period_number,start_time,end_time,period_type").eq("is_active",true).order("day_of_week").order("period_number"),
+   window.sb.from("edu_staffing_role_templates").select("role_name_ar,grade_scope,expected_weekly_slots,regulatory_reference_slots,is_homeroom").eq("is_active",true).order("id"),
+   window.sb.from("edu_staff_weekly_load").select("id,staff_id,target_slots,regulatory_reference_slots,academic_year,term"),
+   window.sb.from("edu_university_schedule").select("id").limit(1000),
+   window.sb.from("edu_vocational_schedule").select("id").limit(1000),
+   window.sb.from("edu_activities_events").select("id").limit(1000),
+   window.sb.from("edu_elearning_schedule").select("id").limit(1000)
+  ]);
+  const set=settings.data||{weekly_periods:30,school_days_per_week:5,periods_per_day:6,default_lesson_minutes:45};
+  const ps=periods.data||[],rs=roles.data||[],sl=staff.data||[];
+  document.getElementById("eduScheduleSummary").innerHTML='<div class="item"><strong>'+set.weekly_periods+' حصة أسبوعيًا</strong><div class="small">'+set.school_days_per_week+' أيام × '+set.periods_per_day+' حصص · '+set.default_lesson_minutes+' دقيقة للحصة</div></div>';
+  document.getElementById("eduStaffLoadSummary").innerHTML='<div class="item"><strong>'+sl.length+' أعضاء لديهم سجل نصاب</strong><div class="small">الهدف الافتراضي المحفوظ لكل عضو: 30 خانة أسبوعية.</div></div>';
+  document.getElementById("eduOtherScheduleSummary").innerHTML=[
+   '<div class="item">الجامعي: '+((uni.data||[]).length)+' جلسة</div>',
+   '<div class="item">المهني والتقني: '+((voc.data||[]).length)+' جلسة</div>',
+   '<div class="item">الأنشطة والفعاليات: '+((events.data||[]).length)+' فعالية</div>',
+   '<div class="item">التعلم الإلكتروني: '+((courses.data||[]).length)+' جلسة</div>'
+  ].join("");
+  const days=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
+  document.getElementById("edu30SlotGrid").innerHTML=ps.map(p=>'<div class="item"><strong>'+days[p.day_of_week]+' — الحصة '+p.period_number+'</strong><div class="small">'+String(p.start_time).slice(0,5)+' → '+String(p.end_time).slice(0,5)+'</div></div>').join("");
+  document.getElementById("eduRoleTemplates").innerHTML=rs.map(r=>'<div class="item"><strong>'+e(r.role_name_ar)+'</strong><div class="small">'+e(r.grade_scope||"")+' · الهدف '+r.expected_weekly_slots+' · المرجع النظامي المخزن: '+(r.regulatory_reference_slots??"غير محدد")+'</div></div>').join("")||'<span class="muted">لا توجد قوالب.</span>';
  },200);
 })();
 </script>
