@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300">
+<rect width="420" height="300" fill="none"/>
+<path d="M45 132Q210 48 375 132L360 225Q210 170 60 225Z" fill="#0f7b83"/>
+<path d="M72 160Q210 100 348 160L337 248Q210 190 83 248Z" fill="#0d477c"/>
+<circle cx="210" cy="48" r="28" fill="#0b4d91"/>
+<path d="M210 76L148 136L210 192L272 136Z" fill="#0b4d91"/>
+<path d="M112 92Q145 54 190 50M308 92Q275 54 230 50" fill="none" stroke="#c89b2c" stroke-width="14" stroke-linecap="round"/>
+<path d="M210 10l7 18 19 2-14 13 4 19-16-9-16 9 4-19-14-13 19-2z" fill="#c89b2c"/>
+<text x="210" y="286" text-anchor="middle" font-family="Arial,Tahoma,sans-serif" font-size="25" font-weight="700" fill="#0d477c">مدارس دار الارتقاء الفكري</text>
+</svg>
