@@ -11,19 +11,55 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - run: npm install
       - run: mkdir -p www && cp index.html admin.html app.webmanifest www/
       - run: npx cap add android
       - run: npx cap sync android
+
+      # اختبار Debug
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
+
+      # إنشاء نسخة Release موقعة للاختبار.
+      # مفتاح التوقيع هنا مؤقت لهذه النسخة؛ الإصدار التجاري النهائي سيستخدم مفتاحًا دائمًا محفوظًا كـ GitHub Secret.
+      - name: Build and sign Release APK
+        shell: bash
+        run: |
+          set -e
+          cd android
+          ./gradlew assembleRelease
+          KEYSTORE_PASS="$(openssl rand -hex 32)"
+          keytool -genkeypair -v \
+            -keystore dar-alirtiqaa-test.jks \
+            -storepass "$KEYSTORE_PASS" \
+            -keypass "$KEYSTORE_PASS" \
+            -alias dar-alirtiqaa-test \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Dar Al Irtiqaa,O=Dar Al Irtiqaa,C=YE"
+          BUILD_TOOLS="$(ls -1d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
+          "$BUILD_TOOLS/zipalign" -p 4 \
+            app/build/outputs/apk/release/app-release-unsigned.apk \
+            app-release-aligned.apk
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks dar-alirtiqaa-test.jks \
+            --ks-pass "pass:$KEYSTORE_PASS" \
+            --key-pass "pass:$KEYSTORE_PASS" \
+            --out app-release-signed.apk \
+            app-release-aligned.apk
+          "$BUILD_TOOLS/apksigner" verify --verbose app-release-signed.apk
+
       - uses: actions/upload-artifact@v4
         with:
-          name: dar-alirtiqaa-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: dar-alirtiqaa-apks
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app-release-signed.apk
