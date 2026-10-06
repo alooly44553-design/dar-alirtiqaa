@@ -7,5 +7,14 @@
   "display": "standalone",
   "background_color": "#f6f8fc",
   "theme_color": "#10213d",
-  "description": "منظومة تعليمية ذكية متكاملة للمدارس والمراكز والتعليم الإلكتروني والتعليم العالي والتدريب المهني."
+  "description": "منظومة تعليمية ذكية متكاملة للمدارس والمراكز والتعليم الإلكتروني والتعليم العالي والتدريب المهني.",
+  "version": "1.0.1",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
