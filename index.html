@@ -4,178 +4,221 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="app.webmanifest">
-<meta name="theme-color" content="#10213d">
-<meta name="description" content="مدارس دار الارتقاء الفكري — منصة تعليمية ذكية تجمع الطالب وولي الأمر والمعلم والإدارة">
-<title>مدارس دار الارتقاء الفكري</title>
+<meta name="theme-color" content="#082f57">
+<meta name="description" content="منظومة مدارس / مراكز دار الارتقاء الفكري للتعليم العام والعالي والتدريب التقني والمهني.">
+<title>منظومة مدارس / مراكز دار الارتقاء الفكري</title>
 <style>
-:root{--navy:#10213d;--blue:#2563eb;--bg:#f6f8fc;--text:#172033;--muted:#64748b;--line:#e5e7eb;--white:#fff}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial;background:var(--bg);color:var(--text)}
-header{background:linear-gradient(135deg,#10213d,#1e40af);color:#fff;position:relative;overflow:hidden}
-nav{max-width:1180px;margin:auto;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:18px}
-.logo{font-weight:800;font-size:18px}.navlinks{display:flex;gap:18px;flex-wrap:wrap}.navlinks a{color:#fff;text-decoration:none;opacity:.9;font-size:14px}
-.hero{max-width:1180px;margin:auto;padding:72px 20px 86px;display:grid;grid-template-columns:1.35fr .65fr;gap:35px;align-items:center}
-.badge{display:inline-block;background:#ffffff1c;border:1px solid #ffffff35;border-radius:999px;padding:8px 13px;font-size:13px}
-h1{font-size:clamp(36px,6vw,64px);line-height:1.12;margin:18px 0}.hero p{font-size:18px;line-height:2;color:#dbeafe;max-width:720px}
-.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}.btn{display:inline-block;text-decoration:none;padding:13px 19px;border-radius:13px;font-weight:700}.primary{background:#fff;color:var(--navy)}.secondary{border:1px solid #ffffff55;color:#fff}
-.hero-card{background:#ffffff12;border:1px solid #ffffff2b;border-radius:24px;padding:25px;backdrop-filter:blur(8px)}.hero-card h3{margin-top:0}.mini{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #ffffff20}.mini:last-child{border-bottom:0}
-main{max-width:1180px;margin:auto;padding:45px 20px}.section-title{text-align:center;margin-bottom:25px}.section-title h2{font-size:30px;margin:0 0 8px}.section-title p{color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 7px 25px #0f172a0a}.icon{font-size:28px}.card h3{margin:12px 0 8px}.card p{color:var(--muted);line-height:1.8;margin:0}
-.pathways{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}.path{padding:24px;border-radius:18px;background:#fff;border:1px solid var(--line)}.path strong{font-size:18px}.path p{color:var(--muted);line-height:1.8}
-.cta{margin-top:45px;background:#10213d;color:#fff;border-radius:24px;padding:32px;display:flex;justify-content:space-between;align-items:center;gap:20px}.cta p{color:#cbd5e1;line-height:1.8;margin-bottom:0}
-footer{text-align:center;padding:32px 20px;color:var(--muted);font-size:13px}
-@media(max-width:850px){.hero{grid-template-columns:1fr;padding-top:48px}.grid{grid-template-columns:repeat(2,1fr)}.pathways{grid-template-columns:1fr}.cta{flex-direction:column;align-items:flex-start}}
-@media(max-width:520px){.grid{grid-template-columns:1fr}.navlinks{display:none}}
+:root{--navy:#082f57;--blue:#0d5c91;--teal:#0f7b83;--gold:#c89b2c;--ink:#122033;--muted:#64748b;--bg:#f4f7fb;--line:#dbe3ee;--white:#fff;--ok:#13795b;--danger:#b42318;--shadow:0 18px 55px rgba(8,47,87,.10)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:"Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}a{color:inherit}.container{width:min(1180px,calc(100% - 32px));margin:auto}
+.topbar{background:#061f3a;color:#dbeafe;font-size:13px}.topbar .container{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:8px 0;flex-wrap:wrap}.contacts{display:flex;gap:16px;flex-wrap:wrap}.contacts a{text-decoration:none}.contacts a:hover{color:#fff}
+header{background:radial-gradient(circle at 80% 10%,#1d78a7 0,#0d477c 35%,#082f57 75%);color:#fff;overflow:hidden}.nav{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0}.brand{display:flex;align-items:center;gap:12px;text-decoration:none}.brand .brand-mark{width:70px;height:58px;filter:drop-shadow(0 8px 12px rgba(0,0,0,.16))}.brand-title{font-weight:900;font-size:18px;line-height:1.35}.brand-title small{display:block;color:#f4d47a;font-size:11px;font-weight:700;margin-top:2px}.navlinks{display:flex;gap:8px;flex-wrap:wrap}.navlinks a{padding:9px 12px;border-radius:10px;text-decoration:none;color:#e7f2ff}.navlinks a:hover{background:#ffffff16}
+.hero{padding:58px 0 75px;display:grid;grid-template-columns:1.25fr .75fr;gap:35px;align-items:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid #ffffff36;background:#ffffff12;padding:7px 12px;border-radius:999px;color:#f8e5a9;font-weight:800;font-size:13px}.hero h1{font-size:clamp(35px,5vw,62px);line-height:1.12;margin:18px 0 15px}.hero h1 span{color:#f4d47a}.hero p{font-size:18px;color:#d8e8f8;max-width:760px}.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}.btn{border:0;border-radius:12px;padding:12px 18px;font:inherit;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;justify-content:center;align-items:center;gap:8px}.btn.primary{background:linear-gradient(135deg,#fff,#edf5ff);color:var(--navy)}.btn.gold{background:linear-gradient(135deg,#e5bf54,#b78719);color:#fff}.btn.outline{border:1px solid #ffffff42;color:#fff;background:#ffffff0c}.btn.dark{background:var(--navy);color:#fff}.hero-card{background:#ffffff10;border:1px solid #ffffff25;border-radius:28px;padding:24px;box-shadow:0 20px 70px #0003;backdrop-filter:blur(10px)}.hero-card .card-logo{display:flex;align-items:center;gap:12px;border-bottom:1px solid #ffffff1f;padding-bottom:15px;margin-bottom:8px}.hero-card .brand-mark{width:62px}.hero-list{display:grid;gap:8px}.hero-list div{padding:11px 0;border-bottom:1px solid #ffffff18}.hero-list div:last-child{border:0}
+main{padding:55px 0}.section{margin-bottom:62px}.section-head{text-align:center;max-width:850px;margin:0 auto 28px}.section-head .kicker{color:var(--teal);font-weight:900}.section-head h2{font-size:clamp(27px,4vw,38px);margin:5px 0}.section-head p{color:var(--muted);margin:0}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}.card .icon{font-size:30px}.card h3{margin:10px 0 7px}.card p{color:var(--muted);margin:0}.pathways{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.path{background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid var(--line);border-radius:20px;padding:24px}.path strong{font-size:19px}.path p{color:var(--muted)}
+.team{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.person{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}.person strong{display:block}.person span{display:block;color:var(--muted);font-size:13px}.person a{display:block;margin-top:7px;color:var(--blue);font-weight:800;text-decoration:none}
+.services{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.service{background:#fff;border:1px solid var(--line);border-radius:18px;padding:19px;display:flex;flex-direction:column;gap:10px}.service .sicon{font-size:28px}.service h3{margin:0}.service p{color:var(--muted);font-size:14px;margin:0;flex:1}.service button{width:100%}
+.form-shell{display:none;margin:25px auto 0;max-width:980px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:26px;box-shadow:var(--shadow)}.form-shell.open{display:block}.form-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}.form-head h3{margin:0}.form-head p{color:var(--muted);margin:5px 0}.close{border:0;background:#eef3f8;border-radius:10px;padding:8px 12px;cursor:pointer}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:18px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:800;font-size:14px}.field input,.field select,.field textarea{width:100%;font:inherit;padding:12px 13px;border:1px solid #ccd6e2;border-radius:11px;background:#fff;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #0d5c9115}.field textarea{min-height:115px;resize:vertical}.required{color:#b42318}.files{padding:14px;border:1px dashed #aebdce;border-radius:14px;background:#f8fbff}.files small{color:var(--muted);display:block;margin-top:5px}.status{margin-top:13px;padding:11px 13px;border-radius:10px;display:none}.status.show{display:block}.status.ok{background:#eaf8f1;color:#126a50}.status.err{background:#fff0ef;color:#9f2118}.fees{margin-top:18px;padding:14px;border-radius:14px;background:#f7fafc;border:1px solid var(--line)}.fee-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.fee-row:last-child{border:0}
+.contact-panel{background:linear-gradient(135deg,#082f57,#0f7b83);color:#fff;border-radius:28px;padding:30px;display:grid;grid-template-columns:1.1fr .9fr;gap:25px}.contact-panel p{color:#d8e8f8}.socials{display:flex;flex-wrap:wrap;gap:9px}.socials a{background:#ffffff14;border:1px solid #ffffff25;padding:10px 13px;border-radius:11px;text-decoration:none}.admin-box{margin-top:25px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+footer{background:#061f3a;color:#b9c9db;padding:35px 0}.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:25px}.footer-grid h3{color:#fff;margin-top:0}.footer-grid a{text-decoration:none;color:#cfe0f1;display:block;margin:6px 0}.copyright{border-top:1px solid #ffffff16;margin-top:25px;padding-top:18px;font-size:13px}
+.toast{position:fixed;left:16px;bottom:16px;z-index:50;max-width:420px;background:#092f54;color:#fff;padding:14px 16px;border-radius:13px;box-shadow:0 15px 45px #0004;display:none}.toast.show{display:block}
+@media(max-width:950px){.hero{grid-template-columns:1fr}.grid,.services,.team{grid-template-columns:repeat(2,1fr)}.pathways,.contact-panel,.footer-grid{grid-template-columns:1fr}.navlinks{display:none}}
+@media(max-width:560px){.container{width:min(100% - 22px,1180px)}.topbar .container{font-size:12px}.grid,.services,.team,.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.hero{padding-top:40px}.brand-title{font-size:15px}.brand .brand-mark{width:58px}}
 </style>
 </head>
 <body>
+<div class="topbar"><div class="container"><div>منظومة مدارس / مراكز دار الارتقاء الفكري</div><div class="contacts"><a href="tel:+966538216050">📞 0538216050</a><a href="tel:+966538838891">📞 0538838891</a><a href="https://t.me/DarAlIrtiqaAlFikri" target="_blank" rel="noopener">Telegram</a><a href="https://whatsapp.com/channel/0029VaOF4wAAe5VuBMdiz93V" target="_blank" rel="noopener">WhatsApp</a></div></div></div>
 <header>
-<nav>
-<div class="logo">🎓 مدارس دار الارتقاء الفكري</div>
-<div class="navlinks"><a href="#features">المزايا</a><a href="#services">الخدمات والتسجيل</a><a href="#pathways">المسارات</a><a href="admin.html">الإدارة</a></div>
+<div class="container">
+<nav class="nav">
+<a class="brand" href="#">
+<svg class="brand-mark" viewBox="0 0 120 100" role="img" aria-label="شعار مدارس دار الارتقاء الفكري">
+<path d="M10 48 Q60 18 110 48 L105 76 Q60 55 15 76Z" fill="#0f6f83"/>
+<path d="M18 58 Q60 38 102 58 L98 84 Q60 65 22 84Z" fill="#0d477c"/>
+<path d="M60 8c-8 0-14 6-14 14s6 14 14 14 14-6 14-14S68 8 60 8Z" fill="#0b4d91"/>
+<path d="M60 34 L38 55 60 72 82 55Z" fill="#0b4d91"/>
+<path d="M30 31 Q42 18 54 16 M90 31 Q78 18 66 16" fill="none" stroke="#c89b2c" stroke-width="6" stroke-linecap="round"/>
+<path d="M60 0 l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#c89b2c"/>
+</svg>
+<div class="brand-title">مدارس دار الارتقاء الفكري<small>تعليم .. بناء .. مستقبل أفضل</small></div>
+</a>
+<div class="navlinks"><a href="#about">عن المنظومة</a><a href="#pathways">المسارات</a><a href="#services">الخدمات</a><a href="#leadership">الإدارة</a><a href="#contact">التواصل</a><a href="admin.html">لوحة الإدارة</a></div>
 </nav>
 <section class="hero">
 <div>
-<span class="badge">منصة تعليمية ذكية متكاملة</span>
-<h1>نتعلم، نرتقي، ونبني المستقبل</h1>
-<p>بيئة تعليمية موحدة تجمع الطالب وولي الأمر والمعلم والإدارة، وتدعم التعلم المخصص والمتابعة الذكية من مرحلة الطفولة حتى التعليم العالي والتدريب المهني.</p>
-<div class="actions"><a class="btn primary" href="#features">اكتشف المنصة</a><a class="btn secondary" href="admin.html">دخول الإدارة</a></div>
+<div class="eyebrow">✦ تعليم شامل • ذكاء اصطناعي • حوكمة ذكية</div>
+<h1>منظومة تعليمية <span>عالمية</span> تبدأ من المتعلم وتبني المستقبل</h1>
+<p>منظومة مدارس / مراكز دار الارتقاء الفكري للتعليم العام والعالي والتدريب التقني والمهني، تجمع التعليم الحضوري وعن بُعد، المناهج العربية والإسلامية والدولية، والذكاء الاصطناعي في بيئة واحدة متكاملة.</p>
+<div class="hero-actions"><a class="btn gold" href="#services">ابدأ طلب خدمة</a><a class="btn primary" href="#pathways">استكشف المسارات</a><a class="btn outline" href="admin.html">دخول الإدارة</a></div>
 </div>
 <div class="hero-card">
-<h3>لوحة التجربة التعليمية</h3>
-<div class="mini">👨‍🎓 <span>الطالب — تعلم ومهام ونتائج</span></div>
-<div class="mini">👨‍👩‍👧 <span>ولي الأمر — متابعة وتواصل</span></div>
-<div class="mini">👩‍🏫 <span>المعلم — تعليم وتقييم</span></div>
-<div class="mini">🧠 <span>الذكاء الاصطناعي — إشراف ومساندة</span></div>
+<div class="card-logo"><svg class="brand-mark" viewBox="0 0 120 100" role="img" aria-label="شعار مدارس دار الارتقاء الفكري">
+<path d="M10 48 Q60 18 110 48 L105 76 Q60 55 15 76Z" fill="#0f6f83"/>
+<path d="M18 58 Q60 38 102 58 L98 84 Q60 65 22 84Z" fill="#0d477c"/>
+<path d="M60 8c-8 0-14 6-14 14s6 14 14 14 14-6 14-14S68 8 60 8Z" fill="#0b4d91"/>
+<path d="M60 34 L38 55 60 72 82 55Z" fill="#0b4d91"/>
+<path d="M30 31 Q42 18 54 16 M90 31 Q78 18 66 16" fill="none" stroke="#c89b2c" stroke-width="6" stroke-linecap="round"/>
+<path d="M60 0 l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#c89b2c"/>
+</svg><div><strong>هوية تعليمية موحدة</strong><br><small>لجميع المراحل والمجالات</small></div></div>
+<div class="hero-list"><div>👶 الطفولة والتعليم الأساسي</div><div>📚 التعليم العام والمناهج العربية والإسلامية والدولية</div><div>🎓 التعليم الجامعي والدراسات العليا</div><div>🛠️ التدريب التقني والمهني والتخصصي</div><div>🤖 المشرف الذكي والمعلم الذكي</div></div>
 </div>
 </section>
+</div>
 </header>
 
 <main>
-<section id="features">
-<div class="section-title"><h2>كل ما يحتاجه التعليم في مكان واحد</h2><p>منصة قابلة للتوسع لتخدم المدارس والمراكز والبرامج التعليمية.</p></div>
+<div class="container">
+<section id="about" class="section">
+<div class="section-head"><div class="kicker">منظومة واحدة — مجالات متعددة</div><h2>بنية تعليمية قابلة للتوسع والنمو</h2><p>تم تصميم المنظومة لتخدم المتعلم وولي الأمر والمعلم والإدارة، مع بقاء القرار الإداري النهائي لدى الإدارة المخولة.</p></div>
 <div class="grid">
-<article class="card"><div class="icon">🎯</div><h3>تعلم مخصص</h3><p>مسارات تعليمية تتناسب مع المرحلة والمستوى والبرنامج واحتياجات المتعلم.</p></article>
-<article class="card"><div class="icon">🤖</div><h3>المعلم الذكي</h3><p>شرح وتمارين ومراجعة وتغذية راجعة تساعد المتعلم على التقدم.</p></article>
-<article class="card"><div class="icon">🧠</div><h3>المشرف الذكي</h3><p>متابعة التشغيل والمهام والاستثناءات وإعداد التقارير تحت إشراف الإدارة.</p></article>
-<article class="card"><div class="icon">📊</div><h3>متابعة متكاملة</h3><p>الحضور والغياب والدرجات والواجبات والبرامج والإنجازات التعليمية.</p></article>
+<article class="card"><div class="icon">🎯</div><h3>تعلم مخصص</h3><p>مسارات ومهام وتقييمات تتكيف مع المرحلة والمستوى والاحتياج.</p></article>
+<article class="card"><div class="icon">🤖</div><h3>المعلم الذكي</h3><p>شرح وتمارين ومراجعة وتغذية راجعة ودعم تعليمي مستمر.</p></article>
+<article class="card"><div class="icon">🧠</div><h3>المشرف الذكي</h3><p>متابعة التشغيل والمهام والاستثناءات والتقارير تحت حوكمة الإدارة.</p></article>
+<article class="card"><div class="icon">🔐</div><h3>حوكمة وأمان</h3><p>صلاحيات وموافقات وسجلات تدقيق وحماية لبيانات المتعلمين والإدارة.</p></article>
 </div>
 </section>
 
-<section id="pathways" style="margin-top:55px">
-<div class="section-title"><h2>المسارات التعليمية</h2><p>تصميم مرن يستوعب مراحل التعليم والتدريب المختلفة.</p></div>
+<section id="pathways" class="section">
+<div class="section-head"><div class="kicker">المسارات التعليمية</div><h2>من عمر 3 سنوات إلى التعليم العالي والمهني</h2><p>بنية مرنة تستوعب البرامج المدرسية والجامعية والتدريبية والتعليم الإلكتروني.</p></div>
 <div class="pathways">
-<div class="path"><strong>👶 الطفولة والتعليم الأساسي</strong><p>بناء المهارات والمعارف تدريجيًا مع متابعة مستوى المتعلم.</p></div>
-<div class="path"><strong>📚 التعليم العام والجامعي</strong><p>برامج ومواد ومهام وتقييمات منظمة للطلاب في المراحل المختلفة.</p></div>
-<div class="path"><strong>🛠️ التدريب المهني والتخصصي</strong><p>مسارات عملية ومهنية قابلة للتوسع في مختلف التخصصات.</p></div>
+<div class="path"><strong>👶 الطفولة والتعليم الأساسي</strong><p>مهارات تأسيسية، نمو متدرج، أنشطة، متابعة وتواصل مع الأسرة.</p></div>
+<div class="path"><strong>📘 التعليم العام</strong><p>المناهج العربية والإسلامية والدولية، المواد، الفصول، الجداول والتقييمات.</p></div>
+<div class="path"><strong>🌍 التعليم الدولي</strong><p>أنظمة ومراجع ومؤسسات دولية ومسارات مؤهلة للتوسع عالميًا.</p></div>
+<div class="path"><strong>🎓 التعليم الجامعي والدراسات العليا</strong><p>برامج وتخصصات وجداول وإرشاد وقبول ومساحات تعلم افتراضية.</p></div>
+<div class="path"><strong>🧰 التدريب التقني والمهني</strong><p>برامج مهنية، مهارات عملية، مراكز تدريب ومسارات تخصصية.</p></div>
+<div class="path"><strong>💻 التعليم الإلكتروني</strong><p>دورات، جلسات افتراضية، أنشطة تعلم، تقدم رقمي ومتابعة مستمرة.</p></div>
 </div>
 </section>
 
-<section class="cta">
-<div><h2>الإدارة الذكية في قلب المنصة</h2><p>أوامر إدارية، موافقات، مهام للذكاء الاصطناعي وسجل نشاط — مع بقاء القرار النهائي بيد الإدارة المخولة.</p></div>
-<a class="btn primary" href="admin.html">فتح لوحة الإدارة</a>
-</section>
-
-<section id="services" style="margin-top:55px">
-<div class="section-title"><h2>الخدمات والمجالات — لكل خدمة استمارتها وطريقة تسجيلها</h2><p>لا توجد استمارة واحدة لجميع الخدمات. اختر المجال لتظهر بياناته وإجراء التسجيل الخاص به.</p></div>
-<div id="services-list" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))"></div>
-<div id="service-form-wrap" class="card" style="max-width:900px;margin:25px auto;display:none">
-<h3 id="service-form-title"></h3><p id="service-form-description" style="color:var(--muted);line-height:1.8"></p><div id="service-fees" style="margin:18px 0;padding:18px;background:#f8fafc;border:1px solid var(--line);border-radius:14px"></div>
-<form id="serviceForm" class="grid" style="grid-template-columns:repeat(2,1fr)"></form>
+<section id="services" class="section">
+<div class="section-head"><div class="kicker">الخدمات الإلكترونية</div><h2>كل خدمة باستمارتها وإجراءاتها</h2><p>اختر الخدمة، املأ البيانات، أرفق المستندات عند الحاجة، ثم أرسل الطلب ليظهر لدى الإدارة للمراجعة.</p></div>
+<div id="services-list" class="services"><div class="card">جاري تحميل الخدمات…</div></div>
+<div id="service-form-wrap" class="form-shell">
+<div class="form-head"><div><h3 id="service-form-title"></h3><p id="service-form-description"></p></div><button class="close" type="button" id="closeService">إغلاق</button></div>
+<div id="service-fees" class="fees"></div>
+<form id="serviceForm"><div id="service-fields" class="form-grid"></div></form>
 </div>
 </section>
 
-<section id="live-data" style="margin-top:55px">
-<div class="section-title"><h2>المراكز والبرامج المتاحة</h2><p id="data-status">جاري تحميل البيانات من المنصة…</p></div>
-<div id="centers-list" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"></div>
-<div id="programs-list" class="pathways"></div>
+<section id="leadership" class="section">
+<div class="section-head"><div class="kicker">الإدارة والإشراف</div><h2>قيادة واضحة وحوكمة تشغيلية</h2><p>تُحفظ صلاحيات الإدارة والموافقات، ويعمل الذكاء الاصطناعي ضمن الحدود المحددة له.</p></div>
+<div class="team">
+<div class="person"><strong>أ/ علي سليمان الأهدل</strong><span>المدير الإداري</span><a href="tel:+966538216050">0538216050</a></div>
+<div class="person"><strong>أ/ أمل محمد برديني</strong><span>المديرة العامة</span><a href="tel:+966538838891">0538838891</a></div>
+<div class="person"><strong>م/ نواف الأهدل</strong><span>الإشراف العام</span><a href="tel:+966562295493">0562295493</a></div>
+<div class="person"><strong>م/ نوف الأهدل</strong><span>الإشراف العام</span><a href="tel:+966531807012">0531807012</a></div>
+</div>
+<div class="admin-box"><div><strong>لوحة الإدارة والتحكم الذكي</strong><div style="color:var(--muted)">التسجيلات • التشغيل • التعليم • المالية • الذكاء الاصطناعي • التدقيق • الموافقات</div></div><a class="btn dark" href="admin.html">فتح لوحة الإدارة</a></div>
 </section>
+
+<section id="contact" class="section">
+<div class="contact-panel"><div><h2>تواصل مع منظومة دار الارتقاء الفكري</h2><p>للاستفسارات والخدمات والبرامج والتسجيل، استخدم قنوات التواصل الرسمية أو أرسل الطلب مباشرة من الخدمة المناسبة.</p><div class="socials"><a href="https://whatsapp.com/channel/0029VaOF4wAAe5VuBMdiz93V" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/DarAlIrtiqaAlFikri" target="_blank" rel="noopener">Telegram</a><a href="https://www.facebook.com/profile.php?id=61557021980112&mibextid=ZbWKwL" target="_blank" rel="noopener">Facebook</a></div></div><div><h3>أرقام الإدارة</h3><p>المدير الإداري: <a href="tel:+966538216050">0538216050</a><br>المديرة العامة: <a href="tel:+966538838891">0538838891</a><br>الإشراف العام: <a href="tel:+966562295493">0562295493</a> — <a href="tel:+966531807012">0531807012</a></p></div></div>
+</section>
+</div>
 </main>
 
-<footer>© 2026 مدارس دار الارتقاء الفكري — منصة تعليمية ذكية</footer>
+<footer><div class="container"><div class="footer-grid"><div><h3>مدارس دار الارتقاء الفكري</h3><p>تعليم .. بناء .. مستقبل أفضل</p><p>منظومة مدارس / مراكز دار الارتقاء الفكري للتعليم العام والعالي والتدريب التقني والمهني.</p></div><div><h3>روابط سريعة</h3><a href="#pathways">المسارات التعليمية</a><a href="#services">الخدمات الإلكترونية</a><a href="admin.html">لوحة الإدارة</a></div><div><h3>التواصل</h3><a href="https://t.me/DarAlIrtiqaAlFikri" target="_blank">Telegram</a><a href="https://whatsapp.com/channel/0029VaOF4wAAe5VuBMdiz93V" target="_blank">WhatsApp</a><a href="https://www.facebook.com/profile.php?id=61557021980112&mibextid=ZbWKwL" target="_blank">Facebook</a></div></div><div class="copyright">© 2026 مدارس دار الارتقاء الفكري — جميع الحقوق محفوظة</div></div></footer>
+<div id="toast" class="toast"></div>
+
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
-const statusEl=document.getElementById("data-status"),listEl=document.getElementById("centers-list"),programsEl=document.getElementById("programs-list");
-function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
-async function loadLiveData(){
- const [centersRes,programsRes]=await Promise.all([
-  sb.from("centers").select("id,name,description,phone,email,address,is_active").eq("is_active",true).order("created_at",{ascending:true}),
-  sb.from("programs").select("id,center_id,name,description,start_date,end_date,is_active").eq("is_active",true).order("created_at",{ascending:true})
- ]);
- if(centersRes.error||programsRes.error){statusEl.textContent="تعذر تحميل البيانات حاليًا.";return;}
- const centers=centersRes.data||[], programs=programsRes.data||[];
- statusEl.textContent=centers.length||programs.length?"بيانات محدثة مباشرة من قاعدة بيانات المنصة.":"سيتم عرض المراكز والبرامج هنا عند إضافتها إلى النظام.";
- listEl.innerHTML=centers.map(x=>`<article class="card"><div class="icon">🏫</div><h3>${escapeHtml(x.name)}</h3><p>${escapeHtml(x.description||"مركز تعليمي تابع لمدارس دار الارتقاء الفكري.")}</p>${x.address?`<p style="margin-top:10px">📍 ${escapeHtml(x.address)}</p>`:""}${x.phone?`<p style="margin-top:6px">📞 ${escapeHtml(x.phone)}</p>`:""}</article>`).join("");
- programsEl.innerHTML=programs.length?`<div style="grid-column:1/-1;margin-top:12px"><h2>البرامج التعليمية</h2></div>${programs.map(p=>`<article class="path"><strong>📘 ${escapeHtml(p.name)}</strong><p>${escapeHtml(p.description||"برنامج تعليمي متاح في المنصة.")}</p>${p.start_date?`<small>البداية: ${escapeHtml(p.start_date)}</small>`:""}</article>`).join("")}`:"";
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+const toast=(msg,ok=false)=>{const t=$("toast");t.textContent=msg;t.style.background=ok?"#13795b":"#092f54";t.classList.add("show");setTimeout(()=>t.classList.remove("show"),4500)};
+const icons={student_registration:"🎓",program_application:"📘",course_registration:"🧑‍🏫",activity_join:"🏃",event_registration:"🎪",employment_training:"💼",university_guidance:"🎓",general_service:"🧾"};
+let services=[];
+function inputField(f){
+ const req=f.required?"required":"", star=f.required?' <span class="required">*</span>':"";
+ if(f.type==="textarea") return '<div class="field full"><label>'+esc(f.label)+star+'</label><textarea data-key="'+esc(f.key)+'" '+req+'></textarea></div>';
+ if(f.type==="select") return '<div class="field"><label>'+esc(f.label)+star+'</label><select data-key="'+esc(f.key)+'" '+req+'><option value="">اختر…</option>'+((f.options||[]).map(o=>'<option value="'+esc(o.value)+'">'+esc(o.label)+'</option>').join(""))+'</select></div>';
+ return '<div class="field"><label>'+esc(f.label)+star+'</label><input data-key="'+esc(f.key)+'" type="'+esc(f.type||"text")+'" '+req+' maxlength="500"></div>';
 }
-const servicesList=document.getElementById("services-list"),serviceWrap=document.getElementById("service-form-wrap"),serviceTitle=document.getElementById("service-form-title"),serviceDesc=document.getElementById("service-form-description"),serviceFees=document.getElementById("service-fees"),serviceForm=document.getElementById("serviceForm");
-let serviceDefinitions=[];
-function renderField(f){
- const req=f.required?"required":"";
- const star=f.required?" *":"";
- if(f.type==="select") return '<div><label>'+escapeHtml(f.label)+star+'</label><select data-key="'+escapeHtml(f.key)+'" '+req+' style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"><option value="">اختر</option>'+((f.options||[]).map(o=>'<option value="'+escapeHtml(o.value)+'">'+escapeHtml(o.label)+'</option>').join(""))+'</select></div>';
- if(f.type==="textarea") return '<div style="grid-column:1/-1"><label>'+escapeHtml(f.label)+star+'</label><textarea data-key="'+escapeHtml(f.key)+'" '+req+' maxlength="3000" style="width:100%;min-height:100px;padding:11px;border:1px solid var(--line);border-radius:10px"></textarea></div>';
- return '<div><label>'+escapeHtml(f.label)+star+'</label><input data-key="'+escapeHtml(f.key)+'" type="'+escapeHtml(f.type||"text")+'" '+req+' maxlength="500" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>';
+function commonFields(isStudent){
+ return isStudent?[
+  {key:"student_name",type:"text",label:"اسم الطالب/الطالبة",required:true},
+  {key:"gender",type:"select",label:"النوع",required:true,options:[{label:"طالب",value:"male"},{label:"طالبة",value:"female"}]},
+  {key:"date_of_birth",type:"date",label:"تاريخ الميلاد"},
+  {key:"nationality",type:"text",label:"الجنسية"},
+  {key:"identity_type",type:"text",label:"نوع الهوية/الوثيقة"},
+  {key:"identity_number",type:"text",label:"رقم الهوية/الوثيقة"},
+  {key:"phone",type:"tel",label:"رقم التواصل"},
+  {key:"email",type:"email",label:"البريد الإلكتروني"},
+  {key:"guardian_name",type:"text",label:"اسم ولي الأمر"},
+  {key:"guardian_relationship",type:"text",label:"صلة القرابة"},
+  {key:"guardian_phone",type:"tel",label:"هاتف ولي الأمر"},
+  {key:"address",type:"text",label:"العنوان"},
+  {key:"previous_education",type:"text",label:"المؤهل أو التعليم السابق"},
+  {key:"notes",type:"textarea",label:"ملاحظات"}
+ ]:[
+  {key:"applicant_name",type:"text",label:"الاسم",required:true},
+  {key:"applicant_phone",type:"tel",label:"رقم التواصل"},
+  {key:"applicant_email",type:"email",label:"البريد الإلكتروني"}
+ ];
 }
-async function openService(service){
- serviceTitle.textContent=service.service_name+' — '+service.registration_method_label;
- serviceDesc.textContent=service.description||"";
- serviceFees.innerHTML="<strong>الرسوم الخاصة بهذه الخدمة</strong><p style=\"color:var(--muted);margin:6px 0 12px\">تختلف الرسوم من مجال إلى آخر، ولا يتم افتراض مبلغ موحد لجميع الخدمات.</p><div id=\"feeRows\">جاري تحميل الرسوم…</div>";
- const feeRes=await sb.from("service_fee_items").select("fee_code,fee_type,fee_name,description,amount,currency,calculation_method,is_required,payment_stage").eq("service_id",service.id).eq("is_active",true).order("display_order",{ascending:true});
- const feeRows=document.getElementById("feeRows");
- if(feeRes.error||!(feeRes.data||[]).length){feeRows.innerHTML="<span style=\"color:var(--muted)\">لا توجد رسوم محددة لهذه الخدمة حاليًا؛ تحدد الإدارة الرسوم عند المراجعة.</span>";}else{feeRows.innerHTML=feeRes.data.map(f=>"<div style=\"display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)\"><span><strong>"+escapeHtml(f.fee_name)+"</strong><br><small style=\"color:var(--muted)\">"+escapeHtml(f.description||"")+(f.is_required?"":" — حسب الحاجة")+"</small></span><span style=\"white-space:nowrap\">"+(f.amount===null?"يحدد من الإدارة":escapeHtml(f.amount)+" "+escapeHtml(f.currency||"SAR"))+"</span></div>").join("");}
- serviceForm.innerHTML=((service.service_code==="student_registration")?'<div><label>اسم الطالب/الطالبة *</label><input data-key="student_name" required maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>رقم الهاتف</label><input data-key="phone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>البريد الإلكتروني</label><input data-key="email" type="email" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>': '<div><label>الاسم *</label><input data-key="applicant_name" required maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>رقم التواصل</label><input data-key="applicant_phone" type="tel" maxlength="30" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div><div><label>البريد الإلكتروني</label><input data-key="applicant_email" type="email" maxlength="200" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"></div>')+((service.form_fields||[]).filter(f=>!["applicant_name","applicant_phone","applicant_email","student_name","phone","email"].includes(f.key)).map(renderField).join(""))+'<div style="grid-column:1/-1"><label style="display:flex;gap:8px;align-items:flex-start"><input id="serviceConsent" type="checkbox" required style="margin-top:5px"><span>'+escapeHtml(service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.")+'</span></label></div><div style="grid-column:1/-1" class="actions"><button class="btn primary" type="submit">إرسال '+escapeHtml(service.registration_method_label)+'</button><span id="serviceMsg" style="color:var(--muted)"></span></div>';
- serviceForm.dataset.serviceCode=service.service_code;
- serviceWrap.style.display="block";
- serviceWrap.scrollIntoView({behavior:"smooth",block:"start"});
+function renderForm(service){
+ $("service-form-title").textContent=service.service_name+" — "+service.registration_method_label;
+ $("service-form-description").textContent=service.description||"أدخل البيانات بدقة؛ الطلبات تُراجع من الإدارة.";
+ const fields=[...commonFields(service.service_code==="student_registration"),...(service.form_fields||[])];
+ const seen=new Set();
+ const unique=fields.filter(f=>{if(seen.has(f.key))return false;seen.add(f.key);return true});
+ $("service-fields").innerHTML=unique.map(inputField).join("")+
+ '<div class="field full files"><label>المرفقات (اختياري)</label><input id="serviceFiles" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"><small>يمكن إرفاق PDF أو صور أو Word أو Excel، بحد أقصى 10MB إجمالًا.</small></div>'+
+ '<div class="field full"><label><input id="serviceConsent" type="checkbox" required> أوافق على مراجعة الطلب والتواصل معي بشأنه.</label></div>'+
+ '<div class="field full"><button class="btn dark" id="serviceSubmit" type="submit">إرسال الطلب</button><div id="serviceStatus" class="status"></div></div>';
+ $("serviceForm").dataset.serviceCode=service.service_code;
+ $("service-form-wrap").classList.add("open");
+ $("service-form-wrap").scrollIntoView({behavior:"smooth",block:"start"});
+ loadFees(service.id);
+}
+async function loadFees(serviceId){
+ const box=$("service-fees");box.innerHTML="<strong>الرسوم</strong><div style='color:var(--muted);margin-top:5px'>جاري التحقق من الرسوم الحالية…</div>";
+ const r=await sb.from("service_fee_items").select("fee_name,description,amount,currency,is_required").eq("service_id",serviceId).eq("is_active",true).order("display_order",{ascending:true});
+ if(r.error||!r.data?.length){box.innerHTML="<strong>الرسوم</strong><div style='color:var(--muted);margin-top:5px'>لا توجد رسوم محددة لهذه الخدمة حاليًا.</div>";return}
+ box.innerHTML="<strong>الرسوم الحالية</strong>"+r.data.map(f=>'<div class="fee-row"><span>'+esc(f.fee_name)+(f.description?'<small style="display:block;color:var(--muted)">'+esc(f.description)+'</small>':"")+'</span><strong>'+(f.amount==null?"يحدد من الإدارة":esc(f.amount)+" "+esc(f.currency||""))+'</strong></div>').join("");
+}
+async function uploadFiles(files,folder){
+ if(!files?.length)return [];
+ let total=0;const allowed=["application/pdf","image/jpeg","image/png","image/webp","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
+ const out=[];
+ for(const f of files){
+  total+=f.size;
+  if(!allowed.includes(f.type)||f.size>10*1024*1024)throw new Error("نوع أو حجم أحد المرفقات غير مسموح.");
+ }
+ if(total>10*1024*1024)throw new Error("إجمالي المرفقات يتجاوز 10MB.");
+ for(const f of files){
+  const safe=f.name.replace(/[^\w.\-\u0600-\u06ff ]/g,"_");
+  const path="public/"+folder+"/"+crypto.randomUUID()+"-"+safe;
+  const r=await sb.storage.from("dar-submissions").upload(path,f,{upsert:false,contentType:f.type});
+  if(r.error)throw r.error;
+  out.push({path,name:f.name,type:f.type,size:f.size});
+ }
+ return out;
 }
 async function loadServices(){
- const {data,error}=await sb.from("service_catalog").select("id,service_code,service_name,service_category,description,registration_method,registration_method_label,form_fields,consent_text,display_order").eq("is_active",true).order("display_order",{ascending:true});
- if(error){servicesList.innerHTML='<div class="card">تعذر تحميل الخدمات حاليًا.</div>';return;}
- serviceDefinitions=data||[];
- servicesList.innerHTML=serviceDefinitions.map((s,i)=>'<article class="card"><div class="icon">📋</div><h3>'+escapeHtml(s.service_name)+'</h3><p>'+escapeHtml(s.description||"")+'</p><p style="margin-top:10px"><strong>طريقة التسجيل:</strong> '+escapeHtml(s.registration_method_label)+'</p><button class="btn primary" type="button" data-service-index="'+i+'" style="margin-top:14px">فتح الاستمارة</button></article>').join("");
- servicesList.querySelectorAll("[data-service-index]").forEach(b=>b.addEventListener("click",()=>openService(serviceDefinitions[Number(b.dataset.serviceIndex)])));
+ const r=await sb.from("service_catalog").select("id,service_code,service_name,service_category,description,registration_method,registration_method_label,form_fields,consent_text,display_order").eq("is_active",true).order("display_order",{ascending:true});
+ if(r.error){$("services-list").innerHTML='<div class="card"><strong>تعذر تحميل الخدمات.</strong><p>'+esc(r.error.message)+'</p></div>';return}
+ services=r.data||[];
+ $("services-list").innerHTML=services.map((s,i)=>'<article class="service"><div class="sicon">'+(icons[s.service_code]||"📋")+'</div><h3>'+esc(s.service_name)+'</h3><p>'+esc(s.description||"خدمة إلكترونية من منظومة دار الارتقاء الفكري.")+'</p><button class="btn dark" type="button" data-service="'+i+'">فتح الاستمارة</button></article>').join("");
+ $("services-list").querySelectorAll("[data-service]").forEach(b=>b.addEventListener("click",()=>renderForm(services[Number(b.dataset.service)])));
 }
-serviceForm?.addEventListener("submit",async e=>{
+$("closeService").onclick=()=>{$("service-form-wrap").classList.remove("open");window.location.hash="services"};
+$("serviceForm").addEventListener("submit",async e=>{
  e.preventDefault();
- const msg=document.getElementById("serviceMsg"); msg.textContent="جارٍ إرسال الطلب…";
- const data={};
- serviceForm.querySelectorAll("[data-key]").forEach(el=>{data[el.dataset.key]=el.value.trim?el.value.trim():el.value});
- data.consent_given=document.getElementById("serviceConsent").checked;
- const {data:result,error}=await sb.rpc("submit_service_request",{p_service_code:serviceForm.dataset.serviceCode,p_data:data});
- if(error){msg.textContent=error.message==="CONSENT_REQUIRED"?"يجب الموافقة قبل الإرسال.":"تعذر إرسال الطلب حاليًا. يرجى المحاولة مرة أخرى.";return}
- msg.textContent="تم استلام الطلب بنجاح. رقم الطلب: "+result;
- serviceForm.reset();
+ const status=$("serviceStatus"),btn=$("serviceSubmit");status.className="status show";status.textContent="جارٍ تجهيز الطلب والمرفقات…";btn.disabled=true;
+ try{
+  const data={};
+  $("serviceForm").querySelectorAll("[data-key]").forEach(el=>data[el.dataset.key]=el.value.trim?el.value.trim():el.value);
+  if(!$("serviceConsent").checked)throw new Error("يجب الموافقة قبل الإرسال.");
+  const files=await uploadFiles($("serviceFiles").files,"service");
+  if(files.length)data.attachments=files;
+  const r=await sb.rpc("submit_service_request",{p_service_code:$("serviceForm").dataset.serviceCode,p_data:{...data,consent_given:true}});
+  if(r.error)throw r.error;
+  status.className="status show ok";status.textContent="تم استلام الطلب بنجاح. رقم الطلب: "+r.data;
+  toast("تم إرسال الطلب بنجاح",true);$("serviceForm").reset();
+ }catch(err){console.error(err);status.className="status show err";status.textContent=err.message||"تعذر إرسال الطلب. حاول مرة أخرى.";toast("تعذر إرسال الطلب")}
+ finally{btn.disabled=false}
 });
 loadServices();
-
-const registrationForm=document.getElementById("registrationForm");
-registrationForm?.addEventListener("submit",async e=>{
- e.preventDefault();
- const msg=document.getElementById("regMsg"); msg.textContent="جارٍ إرسال الطلب…";
- const payload={
-  student_name:document.getElementById("regName").value.trim(),
-  gender:document.getElementById("regGender").value,
-  date_of_birth:document.getElementById("regDob").value||null,
-  nationality:document.getElementById("regNationality").value.trim()||null,
-  identity_type:document.getElementById("regIdentityType").value.trim()||null,
-  identity_number:document.getElementById("regIdentityNumber").value.trim()||null,
-  phone:document.getElementById("regPhone").value.trim()||null,
-  email:document.getElementById("regEmail").value.trim()||null,
-  guardian_name:document.getElementById("regGuardian").value.trim()||null,
-  guardian_relationship:document.getElementById("regRelation").value.trim()||null,
-  guardian_phone:document.getElementById("regGuardianPhone").value.trim()||null,
-  address:document.getElementById("regAddress").value.trim()||null,
-  previous_education:document.getElementById("regPrevious").value.trim()||null,
-  notes:document.getElementById("regNotes").value.trim()||null
- };
- const {data,error}=await sb.rpc("submit_student_registration",{p_data:payload});
- if(error){msg.textContent="تعذر إرسال الطلب حاليًا. يرجى المحاولة مرة أخرى.";return}
- msg.textContent="تم استلام الطلب بنجاح. رقم التسجيل: "+data;
- registrationForm.reset();
-});
-
-loadLiveData();
 </script>
 </body>
 </html>
