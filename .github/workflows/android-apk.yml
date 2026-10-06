@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - run: mkdir -p www && cp index.html admin.html app.webmanifest www/
       - run: npx cap add android
       - run: npx cap sync android
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
