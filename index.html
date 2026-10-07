@@ -201,8 +201,8 @@ async function uploadFiles(files,folder){
  }
  if(total>10*1024*1024)throw new Error("إجمالي المرفقات يتجاوز 10MB.");
  for(const f of files){
-  const safe=f.name.replace(/[^\w.\-\u0600-\u06ff ]/g,"_");
-  const path="public/"+folder+"/"+crypto.randomUUID()+"-"+safe;
+  const ext=(f.name.match(/\.[A-Za-z0-9]{1,10}$/)||[""])[0].toLowerCase();
+  const path="public/"+folder+"/"+crypto.randomUUID()+ext;
   const r=await sb.storage.from("dar-submissions").upload(path,f,{upsert:false,contentType:f.type});
   if(r.error)throw r.error;
   out.push({path,name:f.name,type:f.type,size:f.size});
