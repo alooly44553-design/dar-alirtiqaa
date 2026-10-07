@@ -1,10 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300">
-<rect width="420" height="300" fill="none"/>
-<path d="M45 132Q210 48 375 132L360 225Q210 170 60 225Z" fill="#0f7b83"/>
-<path d="M72 160Q210 100 348 160L337 248Q210 190 83 248Z" fill="#0d477c"/>
-<circle cx="210" cy="48" r="28" fill="#0b4d91"/>
-<path d="M210 76L148 136L210 192L272 136Z" fill="#0b4d91"/>
-<path d="M112 92Q145 54 190 50M308 92Q275 54 230 50" fill="none" stroke="#c89b2c" stroke-width="14" stroke-linecap="round"/>
-<path d="M210 10l7 18 19 2-14 13 4 19-16-9-16 9 4-19-14-13 19-2z" fill="#c89b2c"/>
-<text x="210" y="286" text-anchor="middle" font-family="Arial,Tahoma,sans-serif" font-size="25" font-weight="700" fill="#0d477c">مدارس دار الارتقاء الفكري</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430">
+<rect width="900" height="430" fill="none"/>
+<g transform="translate(20,35)">
+<path d="M35 235 Q180 145 330 205 L370 260 L410 205 Q560 145 705 235 L690 345 Q550 285 420 320 L370 350 L320 320 Q190 285 50 345Z" fill="#0d477c"/>
+<path d="M50 220 Q190 125 330 190 L370 245 L410 190 Q550 125 690 220 L680 285 Q545 230 420 270 L370 305 L320 270 Q195 230 60 285Z" fill="#0f7b83"/>
+<path d="M65 205 Q190 125 320 177 L370 225 L420 177 Q550 125 675 205" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round"/>
+<circle cx="370" cy="82" r="39" fill="#0b4d91"/>
+<path d="M370 121 C354 154 340 180 326 208 L370 248 L414 208 C400 180 386 154 370 121Z" fill="#0b4d91"/>
+<path d="M328 151 Q286 115 244 105 M412 151 Q454 115 496 105" fill="none" stroke="#0b4d91" stroke-width="19" stroke-linecap="round"/>
+<path d="M235 155 Q270 108 318 96 M505 155 Q470 108 422 96" fill="none" stroke="#c89b2c" stroke-width="13" stroke-linecap="round"/>
+<path d="M370 22 l11 27 29 4-22 19 6 29-24-14-24 14 6-29-22-19 29-4z" fill="#c89b2c"/>
+</g>
+<text x="865" y="125" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="58" font-weight="800" fill="#0b4d91">مدارس</text>
+<text x="865" y="195" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="57" font-weight="800" fill="#0b4d91">دار الارتقاء الفكري</text>
+<line x1="555" y1="225" x2="855" y2="225" stroke="#c89b2c" stroke-width="4"/>
+<text x="855" y="270" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="31" font-weight="700" fill="#c89b2c">تعليم .. بناء .. مستقبل أفضل</text>
 </svg>
