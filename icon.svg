@@ -1,9 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 <rect width="512" height="512" rx="96" fill="#ffffff"/>
-<path d="M55 220Q256 102 457 220L439 391Q256 288 73 391Z" fill="#0f7b83"/>
-<path d="M88 279Q256 193 424 279L411 430Q256 330 101 430Z" fill="#0d477c"/>
-<circle cx="256" cy="101" r="34" fill="#0b4d91"/>
-<path d="M256 135L180 210L256 279L332 210Z" fill="#0b4d91"/>
-<path d="M137 158Q177 111 225 104M375 158Q335 111 287 104" fill="none" stroke="#c89b2c" stroke-width="18" stroke-linecap="round"/>
-<path d="M256 38l9 23 25 3-19 17 5 25-20-12-20 12 5-25-19-17 25-3z" fill="#c89b2c"/>
+<!-- open book / educational identity -->
+<path d="M54 258 Q137 202 232 236 L256 277 L280 236 Q375 202 458 258 L448 383 Q352 340 268 365 L256 378 L244 365 Q160 340 64 383 Z" fill="#0d477c"/>
+<path d="M64 247 Q151 187 239 226 L256 260 L273 226 Q361 187 448 247 L441 315 Q350 270 270 302 L256 316 L242 302 Q162 270 71 315 Z" fill="#0f7b83"/>
+<path d="M72 236 Q153 182 235 215 L256 247 L277 215 Q359 182 440 236" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+<!-- rising human figure, not a cross -->
+<circle cx="256" cy="92" r="31" fill="#0b4d91"/>
+<path d="M256 125 C244 151 232 176 222 203 L256 236 L290 203 C280 176 268 151 256 125Z" fill="#0b4d91"/>
+<path d="M224 151 Q190 121 158 111 M288 151 Q322 121 354 111" fill="none" stroke="#0b4d91" stroke-width="16" stroke-linecap="round"/>
+<!-- gold rising accents and star -->
+<path d="M142 154 Q165 112 204 104 M370 154 Q347 112 308 104" fill="none" stroke="#c89b2c" stroke-width="12" stroke-linecap="round"/>
+<path d="M256 32 l9 22 24 3-18 16 5 24-20-12-20 12 5-24-18-16 24-3z" fill="#c89b2c"/>
 </svg>
