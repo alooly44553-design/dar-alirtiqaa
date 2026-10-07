@@ -270,7 +270,31 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
  },200);
 })();
 </script>
-<script>\n(async function(){\n const run=async()=>{const box=document.getElementById("studentRegistrationsList"),msg=document.getElementById("studentRegistrationsMsg");msg.textContent="جارٍ التحميل…";const r=await window.sb.from("student_registrations").select("id,registration_number,student_name,gender,nationality,phone,guardian_name,guardian_phone,previous_education,notes,approval_status,approval_note,documented,document_reference,created_at").order("created_at",{ascending:false}).limit(100);if(r.error){msg.textContent="تعذر تحميل التسجيلات.";return}box.innerHTML=(r.data||[]).map(x=>"<article class=\"card\" style=\"margin:12px 0\"><h3>"+esc(x.student_name)+" — "+esc(x.registration_number)+"</h3><p>"+esc(x.phone||"")+" | ولي الأمر: "+esc(x.guardian_name||"")+" | "+esc(x.guardian_phone||"")+"</p><p><span class=\"badge\">"+esc(x.approval_status||"pending")+"</span>"+(x.documented?" <span class=\"badge ok\">موثق</span>":"")+"</p><details><summary>البيانات</summary><div>الجنسية: "+esc(x.nationality||"")+"</div><div>التعليم السابق: "+esc(x.previous_education||"")+"</div><div>ملاحظات: "+esc(x.notes||"")+"</div></details><div class=\"toolbar\" style=\"margin-top:10px\"><button data-reg-action=\"approved\" data-reg-id=\""+x.id+"\">اعتماد</button><button class=\"secondary\" data-reg-action=\"rejected\" data-reg-id=\""+x.id+"\">رفض</button><button data-reg-action=\"documented\" data-reg-id=\""+x.id+"\">توثيق</button></div></article>").join("")||"<p>لا توجد تسجيلات.</p>";box.querySelectorAll("[data-reg-action]").forEach(b=>b.onclick=async()=>{const action=b.dataset.regAction;const note=prompt("ملاحظة الإدارة (اختياري):")||null;const update=action==="documented"?{documented:true,documented_at:new Date().toISOString(),document_reference:note}:{approval_status:action,approval_note:note,approved_at:action==="approved"?new Date().toISOString():null};const u=await window.sb.from("student_registrations").update(update).eq("id",b.dataset.regId);if(u.error)alert("تعذر تنفيذ الإجراء.");else run()});msg.textContent="تم تحديث التسجيلات.";};document.getElementById("refreshStudentRegistrations").onclick=run;run();})();\n</script>\n<section class="card full"><h2>قوى التسويق الإلكتروني والاستقبال الذكي 🚀📣💬</h2><p class="muted">القنوات الرسمية المرتبطة بالنظام تظهر كرابط مباشر، بينما القنوات المخططة تبقى تحت إدارة واعتماد الإدارة.</p>
+<script>\n(async function(){\n const run=async()=>{const box=document.getElementById("studentRegistrationsList"),msg=document.getElementById("studentRegistrationsMsg");msg.textContent="جارٍ التحميل…";const r=await window.sb.from("student_registrations").select("id,registration_number,student_name,gender,nationality,phone,guardian_name,guardian_phone,previous_education,notes,approval_status,approval_note,documented,document_reference,created_at").order("created_at",{ascending:false}).limit(100);if(r.error){msg.textContent="تعذر تحميل التسجيلات.";return}box.innerHTML=(r.data||[]).map(x=>"<article class=\"card\" style=\"margin:12px 0\"><h3>"+esc(x.student_name)+" — "+esc(x.registration_number)+"</h3><p>"+esc(x.phone||"")+" | ولي الأمر: "+esc(x.guardian_name||"")+" | "+esc(x.guardian_phone||"")+"</p><p><span class=\"badge\">"+esc(x.approval_status||"pending")+"</span>"+(x.documented?" <span class=\"badge ok\">موثق</span>":"")+"</p><details><summary>البيانات</summary><div>الجنسية: "+esc(x.nationality||"")+"</div><div>التعليم السابق: "+esc(x.previous_education||"")+"</div><div>ملاحظات: "+esc(x.notes||"")+"</div></details><div class=\"toolbar\" style=\"margin-top:10px\"><button data-reg-action=\"approved\" data-reg-id=\""+x.id+"\">اعتماد</button><button class=\"secondary\" data-reg-action=\"rejected\" data-reg-id=\""+x.id+"\">رفض</button><button data-reg-action=\"documented\" data-reg-id=\""+x.id+"\">توثيق</button></div></article>").join("")||"<p>لا توجد تسجيلات.</p>";box.querySelectorAll("[data-reg-action]").forEach(b=>b.onclick=async()=>{const action=b.dataset.regAction;const note=prompt("ملاحظة الإدارة (اختياري):")||null;const update=action==="documented"?{documented:true,documented_at:new Date().toISOString(),document_reference:note}:{approval_status:action,approval_note:note,approved_at:action==="approved"?new Date().toISOString():null};const u=await window.sb.from("student_registrations").update(update).eq("id",b.dataset.regId);if(u.error)alert("تعذر تنفيذ الإجراء.");else run()});msg.textContent="تم تحديث التسجيلات.";};document.getElementById("refreshStudentRegistrations").onclick=run;run();})();\n</script>\n<section class="card full" id="smart-manager" style="margin-top:14px">
+<h2>🤖 مركز المدير الذكي — التواصل الاجتماعي والمنظومة الصحية والتعليمية</h2>
+<p class="muted">مركز موحد لإعداد المحتوى، جدولة النشر، متابعة القنوات والاستفسارات، وإدارة الموافقات. النشر الخارجي الفعلي لا يتم إلا عبر قناة مرتبطة ومعتمدة، وتبقى القرارات الحساسة تحت اعتماد الإدارة.</p>
+<div class="grid">
+<div>
+<h3 style="font-size:14px">إعداد منشور</h3>
+<select id="smartChannel" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin:5px 0"></select>
+<input id="smartTitle" placeholder="عنوان المنشور" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin:5px 0">
+<textarea id="smartBody" placeholder="نص المحتوى..." style="min-height:130px"></textarea>
+<input id="smartSchedule" type="datetime-local" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin:5px 0">
+<button id="smartSaveDraft" type="button">حفظ كمسودة</button>
+<button id="smartSubmitApproval" type="button" style="margin-right:6px">حفظ وإرسال للاعتماد</button>
+<div id="smartManagerMsg" class="small muted" style="margin-top:8px"></div>
+</div>
+<div>
+<h3 style="font-size:14px">حالة المركز</h3>
+<div id="smartManagerStatus" class="list"><span class="muted">جارٍ التحميل...</span></div>
+</div>
+</div>
+<div style="margin-top:12px">
+<h3 style="font-size:14px">المحتوى الأخير والموافقات</h3>
+<div id="smartContentList" class="list"><span class="muted">جارٍ التحميل...</span></div>
+</div>
+</section>
+<section class="card full"><h2>قوى التسويق الإلكتروني والاستقبال الذكي 🚀📣💬</h2><p class="muted">القنوات الرسمية المرتبطة بالنظام تظهر كرابط مباشر، بينما القنوات المخططة تبقى تحت إدارة واعتماد الإدارة.</p>
 <p class="muted">منظومة مستمرة مخصصة للتسويق، التصميم، الفيديو، النشر، النمو الدولي، استقبال الاستفسارات والردود، وإدارة المجتمعات والقنوات. جميع الأعمال الحساسة أو النشر النهائي تبقى تحت اعتماد الإدارة.</p>
 <div class="grid">
 <div><h3 style="font-size:14px">قوى التسويق والتصميم</h3><div id="marketingForceList" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
@@ -628,5 +652,46 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
  },200);
 })();
 </script>
-<script>setTimeout(async()=>{if(!window.sb)return;const r=await window.sb.from("edu_invoices").select("id,invoice_number,description,learner_id,net_amount,status,due_date,installment_no,installment_count").order("due_date",{ascending:true}).limit(100);const rows=r.data||[];const paidMap={};for(const x of rows)paidMap[x.id]=0;const p=await window.sb.from("edu_invoice_payments").select("invoice_id,amount").in("invoice_id",rows.map(x=>x.id).length?rows.map(x=>x.id):["00000000-0000-0000-0000-000000000000"]);for(const x of (p.data||[]))paidMap[x.invoice_id]=(paidMap[x.invoice_id]||0)+Number(x.amount||0);const due=rows.reduce((n,x)=>n+Number(x.net_amount||0),0),paid=Object.values(paidMap).reduce((n,x)=>n+x,0);document.getElementById("financeCount").textContent=rows.length;document.getElementById("financeDue").textContent=due.toFixed(2)+" SAR";document.getElementById("financePaid").textContent=paid.toFixed(2)+" SAR";document.getElementById("financeRemaining").textContent=(due-paid).toFixed(2)+" SAR";document.getElementById("financeAdminList").innerHTML=rows.slice(0,20).map(x=>"<div class=\"item\"><strong>"+x.invoice_number+"</strong><div class=\"small\">"+x.description+" · "+x.net_amount+" SAR · "+x.status+" · القسط "+(x.installment_no||1)+"/"+(x.installment_count||1)+" · استحقاق "+x.due_date+"</div></div>").join("")||"<span class=\"muted\">لا توجد فواتير.</span>"},800);</script></body>
+<script>setTimeout(async()=>{if(!window.sb)return;const r=await window.sb.from("edu_invoices").select("id,invoice_number,description,learner_id,net_amount,status,due_date,installment_no,installment_count").order("due_date",{ascending:true}).limit(100);const rows=r.data||[];const paidMap={};for(const x of rows)paidMap[x.id]=0;const p=await window.sb.from("edu_invoice_payments").select("invoice_id,amount").in("invoice_id",rows.map(x=>x.id).length?rows.map(x=>x.id):["00000000-0000-0000-0000-000000000000"]);for(const x of (p.data||[]))paidMap[x.invoice_id]=(paidMap[x.invoice_id]||0)+Number(x.amount||0);const due=rows.reduce((n,x)=>n+Number(x.net_amount||0),0),paid=Object.values(paidMap).reduce((n,x)=>n+x,0);document.getElementById("financeCount").textContent=rows.length;document.getElementById("financeDue").textContent=due.toFixed(2)+" SAR";document.getElementById("financePaid").textContent=paid.toFixed(2)+" SAR";document.getElementById("financeRemaining").textContent=(due-paid).toFixed(2)+" SAR";document.getElementById("financeAdminList").innerHTML=rows.slice(0,20).map(x=>"<div class=\"item\"><strong>"+x.invoice_number+"</strong><div class=\"small\">"+x.description+" · "+x.net_amount+" SAR · "+x.status+" · القسط "+(x.installment_no||1)+"/"+(x.installment_count||1)+" · استحقاق "+x.due_date+"</div></div>").join("")||"<span class=\"muted\">لا توجد فواتير.</span>"},800);</script><script>
+(async function(){
+ const wait=setInterval(async()=>{
+  if(!window.sb)return;
+  clearInterval(wait);
+  const esc=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+  const msg=document.getElementById("smartManagerMsg");
+  async function loadSmartManager(){
+   const [ch,content,inq]=await Promise.all([
+    window.sb.from("social_community_channels").select("id,channel_name,platform,status,channel_url").order("created_at",{ascending:false}),
+    window.sb.from("social_content").select("id,title,body,status,scheduled_for,approved_at,published_at,created_at,channel_id").order("created_at",{ascending:false}).limit(20),
+    window.sb.from("inquiry_response_queue").select("id,platform,status,priority,received_at,response_draft,requires_management_approval").order("received_at",{ascending:false}).limit(8)
+   ]);
+   const channels=ch.data||[], rows=content.data||[], inquiries=inq.data||[];
+   document.getElementById("smartChannel").innerHTML=channels.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.channel_name)+' — '+esc(x.platform)+' — '+esc(x.status)+'</option>').join("")||'<option value="">لا توجد قناة مسجلة</option>';
+   const counts=rows.reduce((m,x)=>(m[x.status]=(m[x.status]||0)+1,m),{});
+   document.getElementById("smartManagerStatus").innerHTML=[
+    '<div class="item"><strong>القنوات المسجلة</strong><div class="small">'+channels.length+'</div></div>',
+    '<div class="item"><strong>مسودات</strong><div class="small">'+(counts.draft||0)+'</div></div>',
+    '<div class="item"><strong>بانتظار الاعتماد</strong><div class="small">'+(counts.pending_approval||0)+'</div></div>',
+    '<div class="item"><strong>منشور</strong><div class="small">'+(counts.published||0)+'</div></div>',
+    '<div class="item"><strong>استفسارات حديثة</strong><div class="small">'+inquiries.length+'</div></div>'
+   ].join("");
+   document.getElementById("smartContentList").innerHTML=rows.map(x=>'<div class="item"><strong>'+esc(x.title||"بدون عنوان")+'</strong><div class="small">'+esc(x.status)+' · '+esc(x.scheduled_for||"بدون جدولة")+' · '+esc(channels.find(y=>y.id===x.channel_id)?.channel_name||"بدون قناة")+'</div><div class="small">'+esc((x.body||"").slice(0,220))+'</div></div>').join("")||'<span class="muted">لا يوجد محتوى بعد.</span>';
+ }
+ async function saveSmart(status){
+  const body=document.getElementById("smartBody").value.trim(),title=document.getElementById("smartTitle").value.trim(),channel_id=document.getElementById("smartChannel").value||null,sv=document.getElementById("smartSchedule").value;
+  if(!body){msg.className="small dangerText";msg.textContent="اكتب نص المحتوى أولًا.";return}
+  const {data:{user}}=await window.sb.auth.getUser();
+  const payload={title:title||null,body,channel_id,status,scheduled_for:sv?new Date(sv).toISOString():null,approved_by:null,approved_at:null,published_at:null};
+  const {error}=await window.sb.from("social_content").insert(payload);
+  if(error){msg.className="small dangerText";msg.textContent="تعذر حفظ المحتوى: "+error.message;return}
+  msg.className="small successText";msg.textContent=status==="pending_approval"?"تم حفظ المحتوى وإرساله للاعتماد.":"تم حفظ المحتوى كمسودة.";
+  document.getElementById("smartTitle").value="";document.getElementById("smartBody").value="";document.getElementById("smartSchedule").value="";
+  await loadSmartManager();
+ }
+ document.getElementById("smartSaveDraft").onclick=()=>saveSmart("draft");
+ document.getElementById("smartSubmitApproval").onclick=()=>saveSmart("pending_approval");
+ loadSmartManager();
+ },200);
+})();
+</script></body>
 </html>
