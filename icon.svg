@@ -1,14 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<rect width="512" height="512" rx="96" fill="#ffffff"/>
-<!-- open book / educational identity -->
-<path d="M54 258 Q137 202 232 236 L256 277 L280 236 Q375 202 458 258 L448 383 Q352 340 268 365 L256 378 L244 365 Q160 340 64 383 Z" fill="#0d477c"/>
-<path d="M64 247 Q151 187 239 226 L256 260 L273 226 Q361 187 448 247 L441 315 Q350 270 270 302 L256 316 L242 302 Q162 270 71 315 Z" fill="#0f7b83"/>
-<path d="M72 236 Q153 182 235 215 L256 247 L277 215 Q359 182 440 236" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
-<!-- rising human figure, not a cross -->
-<circle cx="256" cy="92" r="31" fill="#0b4d91"/>
-<path d="M256 125 C244 151 232 176 222 203 L256 236 L290 203 C280 176 268 151 256 125Z" fill="#0b4d91"/>
-<path d="M224 151 Q190 121 158 111 M288 151 Q322 121 354 111" fill="none" stroke="#0b4d91" stroke-width="16" stroke-linecap="round"/>
-<!-- gold rising accents and star -->
-<path d="M142 154 Q165 112 204 104 M370 154 Q347 112 308 104" fill="none" stroke="#c89b2c" stroke-width="12" stroke-linecap="round"/>
-<path d="M256 32 l9 22 24 3-18 16 5 24-20-12-20 12 5-24-18-16 24-3z" fill="#c89b2c"/>
+<rect width="512" height="512" rx="96" fill="#fff"/>
+<g stroke="#0b4d91" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="185" cy="151" r="28" fill="#0b4d91"/><circle cx="327" cy="151" r="28" fill="#0f7b83"/>
+<path d="M185 181v76M151 215l34 30 34-30M160 285l25-28 25 28M327 181v76M293 215l34 30 34-30M302 285l25-28 25 28" fill="none"/>
+<circle cx="112" cy="236" r="20" fill="#0f7b83"/><circle cx="168" cy="242" r="17" fill="#0b4d91"/><circle cx="344" cy="242" r="17" fill="#0b4d91"/><circle cx="400" cy="236" r="20" fill="#0f7b83"/>
+<path d="M112 258v55M91 280l21 17 21-17M98 332l14-19 14 19M168 259v46M150 278l18 14 18-14M156 321l12-16 12 16M344 259v46M326 278l18 14 18-14M332 321l12-16 12 16M400 258v55M379 280l21 17 21-17M386 332l14-19 14 19" fill="none"/>
+</g>
+<g fill="none" stroke="#c89b2c" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><path d="M84 366h344"/><path d="M118 398h62v38h-62z"/><path d="M202 398l22-38 22 38-22 38z"/><path d="M286 398h70"/><path d="M342 383l24 15-24 15z"/></g>
+<path d="M256 67l8 20 22 3-17 14 5 22-18-11-18 11 5-22-17-14 22-3z" fill="#c89b2c"/>
+<text x="256" y="472" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#0b4d91">أسرة تتعلم • مستقبل أفضل</text>
 </svg>
