@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بوابة العمل المدرسي — مدارس دار الارتقاء الفكري</title>
+<style>
+body{margin:0;font-family:system-ui,Tahoma,Arial;background:#f4f7fb;color:#172033}header{background:#082f57;color:#fff;padding:18px}main{max-width:1100px;margin:auto;padding:18px}.card{background:#fff;border:1px solid #dbe3ee;border-radius:16px;padding:16px;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}input,textarea,select{width:100%;box-sizing:border-box;padding:11px;margin:5px 0;border:1px solid #cbd5e1;border-radius:10px}button{border:0;border-radius:10px;padding:11px 15px;background:#082f57;color:#fff;cursor:pointer}button.secondary{background:#e2e8f0;color:#172033}.muted{color:#64748b;font-size:13px}.item{border:1px solid #e2e8f0;border-radius:11px;padding:11px;margin:7px 0}.ok{color:#166534}.err{color:#991b1b}.hide{display:none}.tabs button{margin-left:6px}.badge{display:inline-block;padding:4px 9px;border-radius:99px;background:#e2e8f0;font-size:12px}
+</style></head><body>
+<header><strong>مدارس دار الارتقاء الفكري</strong><div class="muted" style="color:#dbeafe">بوابة العمل المدرسي: الدروس ← الشرح ← الواجبات ← التسليم ← المراجعة والنتيجة</div></header>
+<main>
+<section id="login" class="card"><h2>الدخول المدرسي</h2><p class="muted">الدخول مخصص للطلاب والمعلمين والحسابات المدرسية المعتمدة.</p><input id="email" type="email" placeholder="البريد الإلكتروني"><input id="password" type="password" placeholder="كلمة المرور"><button id="loginBtn">دخول</button><div id="loginMsg" class="muted"></div></section>
+<section id="app" class="hide">
+<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div><strong id="who"></strong> <span id="role" class="badge"></span></div><button id="logout" class="secondary">تسجيل الخروج</button></div></div>
+<div id="teacherPanel" class="hide">
+<div class="card"><h2>👨‍🏫 مساحة المعلم</h2><div class="grid"><div><h3>إعداد درس</h3><input id="lessonTitle" placeholder="عنوان الدرس"><textarea id="lessonExplanation" placeholder="شرح الدرس / المحتوى"></textarea><input id="lessonObjectives" placeholder="الأهداف"><select id="lessonProgram"></select><select id="lessonSubject"></select><select id="lessonClassroom"></select><button id="saveLesson">حفظ الدرس كمسودة</button><button id="publishLesson" style="margin-right:6px">نشر الدرس</button></div><div><h3>إنشاء واجب</h3><select id="assignmentLesson"></select><input id="assignmentTitle" placeholder="عنوان الواجب"><textarea id="assignmentInstructions" placeholder="تعليمات الواجب"></textarea><input id="assignmentDue" type="datetime-local"><input id="assignmentMax" type="number" value="100" min="1"><button id="saveAssignment">نشر الواجب</button></div></div><div id="teacherMsg" class="muted"></div></div>
+<div class="card"><h2>📥 تسليمات الطلاب</h2><div id="teacherSubmissions">جارٍ التحميل...</div></div>
+</div>
+<div id="studentPanel" class="hide">
+<div class="card"><h2>👨‍🎓 مساحة الطالب</h2><h3>الدروس</h3><div id="studentLessons">جارٍ التحميل...</div><h3>الواجبات</h3><div id="studentAssignments">جارٍ التحميل...</div></div>
+<div id="submitBox" class="card hide"><h3>إرسال الواجب</h3><strong id="submitTitle"></strong><textarea id="answerText" placeholder="اكتب إجابتك هنا"></textarea><button id="submitAnswer">إرسال الإجابة</button><div id="studentMsg" class="muted"></div></div>
+</div>
+</section></main>
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
+const $=id=>document.getElementById(id), esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+let me=null, selectedAssignment=null;
+async function profile(){const {data:{user}}=await sb.auth.getUser();if(!user)return null;
+ const [s,l]=await Promise.all([sb.from("staff").select("id,full_name,job_title").eq("auth_user_id",user.id).maybeSingle(),sb.from("learners").select("id,full_name").eq("auth_user_id",user.id).maybeSingle()]);
+ return {user,staff:s.data,learner:l.data};
+}
+function msg(el,t,ok=false){$(el).textContent=t;$(el).className=ok?"ok":"err"}
+async function loadTeacher(){
+ const p=me.staff;
+ const [pr,su,cl,le]=await Promise.all([sb.from("programs").select("id,name").eq("is_active",true).order("name"),sb.from("subjects").select("id,name").eq("is_active",true).order("name"),sb.from("classrooms").select("id,name").eq("is_active",true).order("name"),sb.from("school_lessons").select("id,title,status,created_at").eq("teacher_id",p.id).order("created_at",{ascending:false})]);
+ $("lessonProgram").innerHTML=(pr.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");
+ $("lessonSubject").innerHTML=(su.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");
+ $("lessonClassroom").innerHTML=(cl.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");
+ $("assignmentLesson").innerHTML=(le.data||[]).map(x=>`<option value="${x.id}">${esc(x.title)} — ${esc(x.status)}</option>`).join("");
+ const sr=await sb.from("school_submissions").select("id,learner_id,assignment_id,status,score,feedback,submitted_at,school_assignments!inner(title,lesson_id),learners!inner(full_name)").order("submitted_at",{ascending:false}).limit(50);
+ $("teacherSubmissions").innerHTML=(sr.data||[]).map(x=>`<div class="item"><strong>${esc(x.learners?.full_name)}</strong> — ${esc(x.school_assignments?.title)}<div class="muted">${esc(x.status)} · الدرجة: ${x.score??"لم تُرصد"} · ${esc(x.submitted_at||"")}</div><textarea data-feedback="${x.id}" placeholder="ملاحظات المعلم">${esc(x.feedback||"")}</textarea><input data-score="${x.id}" type="number" min="0" placeholder="الدرجة"><button data-review="${x.id}">حفظ المراجعة</button></div>`).join("")||"لا توجد تسليمات بعد.";
+ document.querySelectorAll("[data-review]").forEach(b=>b.onclick=async()=>{const id=b.dataset.review;const score=document.querySelector(`[data-score="${id}"]`).value;const feedback=document.querySelector(`[data-feedback="${id}"]`).value;const r=await sb.from("school_submissions").update({score:score===""?null:Number(score),feedback,status:"reviewed",reviewed_by:p.id,reviewed_at:new Date().toISOString()}).eq("id",id);msg("teacherMsg",r.error?r.error.message:"تم حفظ المراجعة والنتيجة.",!r.error);});
+}
+async function saveLesson(status){const payload={title:$("lessonTitle").value.trim(),explanation:$("lessonExplanation").value.trim(),objectives:$("lessonObjectives").value.trim(),program_id:$("lessonProgram").value||null,subject_id:$("lessonSubject").value||null,classroom_id:$("lessonClassroom").value||null,teacher_id:me.staff.id,status,created_by:me.staff.id};if(!payload.title)return msg("teacherMsg","أدخل عنوان الدرس.");const r=await sb.from("school_lessons").insert(payload);msg("teacherMsg",r.error?.message||"تم حفظ الدرس.",!r.error);if(!r.error)loadTeacher()}
+$("saveLesson").onclick=()=>saveLesson("draft");$("publishLesson").onclick=()=>saveLesson("published");
+$("saveAssignment").onclick=async()=>{const payload={lesson_id:$("assignmentLesson").value,title:$("assignmentTitle").value.trim(),instructions:$("assignmentInstructions").value.trim(),due_at:$("assignmentDue").value?new Date($("assignmentDue").value).toISOString():null,max_score:Number($("assignmentMax").value||100),status:"published",created_by:me.staff.id};const r=await sb.from("school_assignments").insert(payload);msg("teacherMsg",r.error?.message||"تم نشر الواجب.",!r.error);if(!r.error)loadTeacher()};
+async function loadStudent(){const p=me.learner;const [le,as]=await Promise.all([sb.from("school_lessons").select("id,title,explanation,objectives,scheduled_for").eq("status","published").order("scheduled_for",{ascending:true}),sb.from("school_assignments").select("id,title,instructions,due_at,max_score").eq("status","published").order("due_at",{ascending:true})]);$("studentLessons").innerHTML=(le.data||[]).map(x=>`<div class="item"><strong>${esc(x.title)}</strong><div>${esc(x.explanation||"لا يوجد شرح بعد.")}</div><div class="muted">${esc(x.objectives||"")}</div></div>`).join("")||"لا توجد دروس منشورة.";
+$("studentAssignments").innerHTML=(as.data||[]).map(x=>`<div class="item"><strong>${esc(x.title)}</strong><div>${esc(x.instructions||"")}</div><div class="muted">آخر موعد: ${esc(x.due_at||"غير محدد")} · الدرجة: ${x.max_score}</div><button data-submit="${x.id}">حل وإرسال</button></div>`).join("")||"لا توجد واجبات منشورة.";
+document.querySelectorAll("[data-submit]").forEach(b=>b.onclick=()=>{selectedAssignment=b.dataset.submit;$("submitTitle").textContent=b.closest(".item").querySelector("strong").textContent;$("submitBox").classList.remove("hide");$("submitBox").scrollIntoView({behavior:"smooth"})});
+}
+$("submitAnswer").onclick=async()=>{if(!selectedAssignment)return;const r=await sb.from("school_submissions").upsert({assignment_id:selectedAssignment,learner_id:me.learner.id,answer_text:$("answerText").value.trim(),submitted_at:new Date().toISOString(),status:"submitted"},{onConflict:"assignment_id,learner_id"});msg("studentMsg",r.error?.message||"تم إرسال الواجب بنجاح.",!r.error)};
+$("loginBtn").onclick=async()=>{const r=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(r.error)return msg("loginMsg",r.error.message);await boot()};
+$("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
+async function boot(){me=await profile();if(!me)return;$("login").classList.add("hide");$("app").classList.remove("hide");$("who").textContent=me.staff?.full_name||me.learner?.full_name||me.user.email;$("role").textContent=me.staff?"معلم/موظف":"طالب";if(me.staff){$("teacherPanel").classList.remove("hide");await loadTeacher()}else if(me.learner){$("studentPanel").classList.remove("hide");await loadStudent()}else{msg("loginMsg","الحساب لا يملك ملفًا مدرسيًا مرتبطًا بعد.");await sb.auth.signOut()}}
+boot();
+</script></body></html>
