@@ -24,6 +24,48 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Android APK for permanent Pages download
+        shell: bash
+        run: |
+          set -e
+          mkdir -p www
+          cp index.html admin.html portal.html app.webmanifest logo.svg icon.svg www/
+          npx cap add android
+          sed -i 's/versionCode [0-9]*/versionCode 2/' android/app/build.gradle
+          sed -i 's/versionName "[^"]*"/versionName "1.0.1"/' android/app/build.gradle
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin
+          mkdir -p android/app/src/main/res/mipmap-mdpi android/app/src/main/res/mipmap-hdpi android/app/src/main/res/mipmap-xhdpi android/app/src/main/res/mipmap-xxhdpi android/app/src/main/res/mipmap-xxxhdpi
+          rsvg-convert -w 48 -h 48 icon.svg -o android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          rsvg-convert -w 72 -h 72 icon.svg -o android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          rsvg-convert -w 96 -h 96 icon.svg -o android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          rsvg-convert -w 144 -h 144 icon.svg -o android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          rsvg-convert -w 192 -h 192 icon.svg -o android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do cp android/app/src/main/res/mipmap-$d/ic_launcher.png android/app/src/main/res/mipmap-$d/ic_launcher_round.png; done
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+          cd ..
+          mkdir -p downloads
+          cp android/app/build/outputs/apk/debug/app-debug.apk downloads/dar-alirtiqaa.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk downloads/dar-alirtiqaa-v1.0.1.apk
+          sha256sum downloads/dar-alirtiqaa.apk > downloads/dar-alirtiqaa.apk.sha256
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
