@@ -294,6 +294,31 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <div id="smartContentList" class="list"><span class="muted">جارٍ التحميل...</span></div>
 </div>
 </section>
+<section class="card full" id="ai-service-queue" style="margin-top:14px">
+<h2>🧠 طلبات المستخدمين → المدير الذكي</h2>
+<p class="muted">كل طلب خدمة جديد يصل هنا تلقائيًا بعد حفظه في Supabase، ويُوجَّه إلى المدير الذكي للمراجعة والمعالجة، مع بقاء الاعتماد النهائي للإدارة.</p>
+<div class="toolbar"><button id="refreshAiServiceQueue" type="button">تحديث</button><span id="aiServiceQueueMsg" class="muted"></span></div>
+<div id="aiServiceQueueList" class="list"><span class="muted">جارٍ التحميل...</span></div>
+</section>
+<script>
+(async function(){
+ const timer=setInterval(async()=>{
+  if(!window.sb)return; clearInterval(timer);
+  const list=document.getElementById("aiServiceQueueList"),msg=document.getElementById("aiServiceQueueMsg");
+  const load=async()=>{
+   msg.textContent="جارٍ تحميل طابور المدير الذكي…";
+   const r=await window.sb.from("ai_service_request_queue").select("id,request_number,service_code,applicant_name,applicant_phone,status,requires_management_approval,ai_notes,created_at,operations_agents(name)").order("created_at",{ascending:false}).limit(50);
+   if(r.error){msg.textContent="تعذر تحميل طابور المدير الذكي: "+r.error.message;return;}
+   list.innerHTML=(r.data||[]).map(x=>{
+    const agent=x.operations_agents||{}; const st=x.status||"pending_review";
+    return '<article class="item"><strong>'+String(x.request_number||"")+' — '+String(x.applicant_name||"")+'</strong><div class="small">الخدمة: '+String(x.service_code||"")+' · الحالة: '+String(st)+' · المدير الذكي: '+String(agent.name||"غير معيّن")+'</div><div class="small">'+String(x.ai_notes||"")+'</div><div class="small muted">'+new Date(x.created_at).toLocaleString("ar")+'</div></article>';
+   }).join("")||'<span class="muted">لا توجد طلبات في طابور المدير الذكي.</span>';
+   msg.textContent="تم تحديث الطابور.";
+  };
+  document.getElementById("refreshAiServiceQueue").onclick=load; load();
+ },200);
+})();
+</script>
 <section class="card full"><h2>قوى التسويق الإلكتروني والاستقبال الذكي 🚀📣💬</h2><p class="muted">القنوات الرسمية المرتبطة بالنظام تظهر كرابط مباشر، بينما القنوات المخططة تبقى تحت إدارة واعتماد الإدارة.</p>
 <p class="muted">منظومة مستمرة مخصصة للتسويق، التصميم، الفيديو، النشر، النمو الدولي، استقبال الاستفسارات والردود، وإدارة المجتمعات والقنوات. جميع الأعمال الحساسة أو النشر النهائي تبقى تحت اعتماد الإدارة.</p>
 <div class="grid">
