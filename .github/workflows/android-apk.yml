@@ -25,7 +25,7 @@ jobs:
           node-version: 22
       - run: npm install
       - name: Prepare web bundle
-        run: mkdir -p www && cp index.html admin.html app.webmanifest logo.svg icon.svg www/
+        run: mkdir -p www && cp index.html admin.html portal.html app.webmanifest logo.svg icon.svg www/
       - name: Create Android project
         run: npx cap add android
       - name: Apply app identity and version
