@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="manifest" href="app.webmanifest">
+<link rel="manifest" href="./app.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#082f57">
 <meta name="description" content="منظومة مدارس / مراكز دار الارتقاء الفكري للتعليم العام والعالي والتدريب التقني والمهني.">
 <title>منظومة مدارس / مراكز دار الارتقاء الفكري</title>
@@ -227,6 +231,13 @@ $("serviceForm").addEventListener("submit",async e=>{
  finally{btn.disabled=false}
 });
 loadServices();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
