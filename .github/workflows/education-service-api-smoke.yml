@@ -74,6 +74,26 @@ jobs:
           assert.equal(student.consent_text, studentConsent);
           assert.equal(program.consent_text, programConsent);
 
+          const identityOptions = [
+            'national_id', 'resident_id', 'visitor_id', 'family_visit',
+            'hajj_umrah', 'document', 'official_letter', 'other', 'none'
+          ];
+          for (const service of catalog) {
+            const fields = Array.isArray(service.form_fields) ? service.form_fields : [];
+            const identityType = fields.find(field => field?.key === 'identity_type');
+            const identityNumber = fields.find(field => field?.key === 'identity_number');
+            assert.ok(identityType, service.service_code + ': identity type field must exist');
+            assert.equal(identityType.required, false, service.service_code + ': identity type must be optional');
+            assert.deepEqual(
+              (identityType.options || []).map(option => option.value),
+              identityOptions,
+              service.service_code + ': identity options must match the approved list'
+            );
+            assert.ok(identityNumber, service.service_code + ': identity number field must exist');
+            assert.equal(identityNumber.required, false, service.service_code + ': identity number must be optional');
+          }
+          console.log('PASS: all 8 services expose the 9 identity options; identity type and number are optional');
+
           const fees = await request('/api/education/service-fees?service_id=' + encodeURIComponent(student.id));
           assert.equal(fees.response.status, 200);
           assert.equal(fees.body.ok, true);
