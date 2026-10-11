@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       const dateOfBirth = cleanText(body.date_of_birth, 10);
       const validDate = (value) => {
         if (!value) return true;
-        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
         const [year, month, day] = value.split("-").map(Number);
         const parsed = new Date(Date.UTC(year, month - 1, day));
         return parsed.getUTCFullYear() === year &&
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
           parsed.getUTCDate() === day &&
           parsed.getTime() <= Date.now();
       };
-      const validEmail = (value) => !value || /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(value);
+      const validEmail = (value) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
       if (name.length < 2 || !gender || (phone && !validPhone(phone)) ||
           (guardianPhone && !validPhone(guardianPhone)) || !validEmail(email) ||
           !validDate(dateOfBirth) || (!phone && !guardianPhone && !email)) {
