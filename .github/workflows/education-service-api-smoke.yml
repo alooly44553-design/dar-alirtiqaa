@@ -120,6 +120,9 @@ jobs:
             { ...studentFields, date_of_birth: '2000-02-30', consent_given: true, consent_text: studentConsent }, 'INVALID_REGISTRATION_FIELDS');
           await expectError('invalid student email', '/api/education/registrations',
             { ...studentFields, email: 'not-an-email', consent_given: true, consent_text: studentConsent }, 'INVALID_REGISTRATION_FIELDS');
+          await expectError('invalid student identity type', '/api/education/registrations',
+            { ...studentFields, identity_type: 'not-a-valid-option', consent_given: true, consent_text: studentConsent },
+            'INVALID_IDENTITY_TYPE');
 
           await expectError('general service missing consent', '/api/education/service-requests',
             { service_code: 'program_application' }, 'CONSENT_REQUIRED');
