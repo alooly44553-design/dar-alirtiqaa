@@ -228,6 +228,7 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <button id="addAttendance" type="button">حفظ الحضور</button></div></div>
 <div id="staffMsg" class="small muted" style="margin-top:8px"></div><div id="scheduleMsg" class="small muted" style="margin-top:8px"></div><div id="attendanceMsg" class="small muted" style="margin-top:8px"></div>
 <div id="staffList" class="list" style="margin-top:10px"></div><div id="schedulesList" class="list" style="margin-top:10px"></div></section>
+<section class="card full"><h2>الجداول الزمنية لبقية الخدمات التعليمية — صباحي ومسائي</h2><p class="muted">قوالب أسبوعية مبدئية من الأحد إلى الخميس، موزعة بحسب طبيعة الخدمة وإسناد الطاقم المتخصص. تبقى القوالب غير منشورة حتى مراجعتها واعتمادها إداريًا.</p><div class="row"><select id="serviceScheduleFilter" style="flex:1;padding:10px;border:1px solid #cbd5e1;border-radius:10px"><option value="">كل الخدمات</option></select><button id="serviceScheduleRefresh" type="button">تحديث الجداول</button></div><div id="serviceScheduleSummary" class="grid" style="margin-top:10px"></div><div id="serviceScheduleList" class="list" style="margin-top:10px"></div><div id="serviceScheduleMsg" class="small muted" style="margin-top:8px"></div></section>
 <section class="card full"><h2>حضور وتأخر وإجازات الموظفين والمعلمين</h2>
 <p class="muted">سجل مستقل لحضور جميع الموظفين والمعلمين، التأخر، الغياب والإجازات، مع إدخال كل سجل تلقائيًا إلى متابعة المشرف الذكي.</p>
 <div class="grid" style="margin-top:10px"><div><select id="staffAttendanceStaff" style="width:100%;padding:10px;margin:5px 0"></select><select id="staffAttendanceCenter" style="width:100%;padding:10px;margin:5px 0"></select><input id="staffAttendanceDate" type="date" style="width:100%;padding:10px;margin:5px 0"><select id="staffAttendanceStatus" style="width:100%;padding:10px;margin:5px 0"><option value="present">حاضر</option><option value="absent">غائب</option><option value="late">متأخر</option><option value="excused">معذور</option><option value="leave">إجازة</option></select><input id="staffCheckIn" type="time" style="width:100%;padding:10px;margin:5px 0"><input id="staffCheckOut" type="time" style="width:100%;padding:10px;margin:5px 0"><input id="staffAttendanceNotes" placeholder="ملاحظات" style="width:100%;padding:10px;margin:5px 0"><button id="addStaffAttendance" type="button">حفظ حضور الموظف</button></div><div><div id="staffAttendanceSummary" class="item"></div><div id="staffAttendanceList" class="list" style="margin-top:10px"></div></div></div><div id="staffAttendanceMsg" class="small muted" style="margin-top:8px"></div></section>
@@ -793,6 +794,37 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
  document.getElementById("smartSubmitApproval").onclick=()=>saveSmart("pending_approval");
  loadSmartManager();
  },200);
+})();
+</script><script>
+(function(){
+ const timer=setInterval(async()=>{
+  if(!window.sb)return;clearInterval(timer);
+  const box=document.getElementById("serviceScheduleList"),filter=document.getElementById("serviceScheduleFilter"),summary=document.getElementById("serviceScheduleSummary"),msg=document.getElementById("serviceScheduleMsg");
+  const esc=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+  const days=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
+  let rows=[];
+  async function load(){
+   msg.textContent="جارٍ تحميل الجداول...";
+   const {data,error}=await window.sb.from("edu_service_schedule_templates").select("service_code,service_name_ar,day_of_week,session_code,start_time,end_time,activity_title_ar,responsible_role,responsible_agent_name,duration_minutes,status,is_published,requires_management_approval,notes_ar").order("service_code").order("day_of_week").order("start_time");
+   if(error){msg.textContent="تعذر تحميل الجداول: "+error.message;box.innerHTML="";return}
+   rows=data||[];
+   const seen={};rows.forEach(x=>seen[x.service_code]=x.service_name_ar);
+   const old=filter.value;
+   filter.innerHTML='<option value="">كل الخدمات</option>'+Object.entries(seen).map(([k,v])=>'<option value="'+esc(k)+'">'+esc(v)+'</option>').join("");
+   if(seen[old])filter.value=old;
+   render();
+  }
+  function render(){
+   const data=rows.filter(x=>!filter.value||x.service_code===filter.value);
+   const groups={};data.forEach(x=>{const k=x.service_code+"|"+x.session_code;(groups[k]??={name:x.service_name_ar,session:x.session_code,count:0,days:[],start:x.start_time,end:x.end_time,agent:x.responsible_agent_name,activity:x.activity_title_ar,published:x.is_published});groups[k].count++;groups[k].days.push(days[x.day_of_week]||"");});
+   summary.innerHTML='<div class="item"><strong>قوالب الجدول</strong><div class="small">'+data.length+' خانة أسبوعية</div></div><div class="item"><strong>الجداول المجمعة</strong><div class="small">'+Object.keys(groups).length+' جدول خدمة وفترة</div></div><div class="item"><strong>حالة النشر</strong><div class="small">'+data.filter(x=>x.is_published).length+' منشورة · '+data.filter(x=>!x.is_published).length+' بانتظار الاعتماد</div></div>';
+   box.innerHTML=Object.values(groups).map(g=>'<div class="item"><strong>'+esc(g.name)+' — '+(g.session==="morning"?"الفترة الصباحية":g.session==="evening"?"الفترة المسائية":g.session==="flexible"?"تعلم مرن":"تشغيل إداري")+'</strong><div class="small">'+esc(g.start).slice(0,5)+' – '+esc(g.end).slice(0,5)+' · '+esc(g.days.join("، "))+'</div><div class="small">المهمة: '+esc(g.activity)+' · المسؤول: '+esc(g.agent||"غير محدد")+'</div><div class="small">'+(g.published?"منشور":"قالب غير منشور — بانتظار الاعتماد الإداري")+'</div></div>').join("")||'<div class="item">لا توجد جداول لهذه الخدمة.</div>';
+   msg.textContent="القوالب المعروضة مواعيد تنظيمية مقترحة، وليست جلسات منشورة أو حجوزات مؤكدة.";
+  }
+  filter.addEventListener("change",render);
+  document.getElementById("serviceScheduleRefresh").addEventListener("click",load);
+  await load();
+ },250);
 })();
 </script></body>
 </html>
