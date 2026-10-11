@@ -185,7 +185,9 @@ function renderForm(service){
  loadFees(service.id, service.service_code);
  if(service.service_code==="university_guidance"){
   const degreeField=$("service-fields").querySelector('[data-key="degree_level"]');
+  const existingFileField=$("service-fields").querySelector('[data-key="has_existing_file"]');
   if(degreeField)degreeField.addEventListener("change",()=>loadFees(service.id,service.service_code));
+  if(existingFileField)existingFileField.addEventListener("change",()=>loadFees(service.id,service.service_code));
  }
  if(service.service_code==="student_registration"){
   const stageField=$("service-fields").querySelector('[data-key="education_stage"]');
@@ -229,10 +231,14 @@ async function loadFees(serviceId, serviceCode){
     if((rule.education_stage||rule.grade||rule.exclude_grade)&&(!stage||!grade))return false;
    }
    if(serviceCode==="university_guidance"&&rule.fee_scope==="tuition_only"){
-    const degree=$( "service-fields" ).querySelector('[data-key="degree_level"]')?.value||"";
+    const degree=$("service-fields").querySelector('[data-key="degree_level"]')?.value||"";
     const appliesTo=Array.isArray(rule.applies_to)?rule.applies_to:[];
     const normalizedDegree=degree==="other_graduate"?"postgraduate_studies":degree;
     if(!degree||!appliesTo.includes(normalizedDegree))return false;
+   }
+   if(serviceCode==="university_guidance"&&rule.applies_when==="no_existing_file"){
+    const existingFile=$("service-fields").querySelector('[data-key="has_existing_file"]')?.value||"";
+    if(existingFile!=="no")return false;
    }
    return true;
   });
@@ -244,7 +250,7 @@ async function loadFees(serviceId, serviceCode){
   const conditionalFees=fees.filter(isConditionalFee);
   const currencies=[...new Set(baseFees.map(f=>f.currency||"SAR"))];
   const totals=currencies.map(currency=>{const amount=baseFees.filter(f=>(f.currency||"SAR")===currency).reduce((sum,f)=>sum+(Number(f.amount)||0),0);return amount.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+" "+currency}).join(" + ");
-  const policyNotice="<div style='color:var(--muted);font-size:12px;margin-top:8px'>المجموع الأساسي يستثني رسوم فتح الملف والرسوم التي تُطبق عند الحاجة فقط. لا تُضاف رسوم مشروطة إلا بعد التحقق من انطباقها وإبلاغ المستفيد مسبقًا.</div>";
+  const policyNotice="<div style='color:var(--muted);font-size:12px;margin-top:8px'>المجموع الأساسي يستثني رسوم فتح الملف والرسوم التي تُطبق عند الحاجة فقط. تظهر رسوم فتح الملف عند اختيار عدم وجود ملف سابق؛ وتتحقق الإدارة من ذلك قبل اعتمادها. لا تُضاف رسوم مشروطة إلا بعد التحقق من انطباقها وإبلاغ المستفيد مسبقًا.</div>";
   if(!fees.length){box.innerHTML="<strong>الرسوم المعتمدة</strong>"+stageNotice+degreeNotice+"<div style='color:var(--muted);margin-top:5px'>لا توجد رسوم معتمدة منطبقة على الاختيارات الحالية.</div>"+policyNotice;return}
   const feeRows=fees.map(f=>'<div class="fee-row"><span>'+esc(f.fee_name)+(isConditionalFee(f)?'<small style="display:block;color:var(--muted)">رسوم مشروطة؛ لا تدخل في المجموع الأساسي</small>':"")+(f.condition_rule?.note?'<small style="display:block;color:var(--muted)">'+esc(f.condition_rule.note)+'</small>':"")+(f.description?'<small style="display:block;color:var(--muted)">'+esc(f.description)+'</small>':"")+'</span><strong>'+esc(f.amount)+" "+esc(f.currency||"")+'</strong></div>').join("");
   const totalRow=baseFees.length?'<div class="fee-row" style="margin-top:8px;padding-top:12px;border-top:2px solid var(--navy)"><strong>المجموع الأساسي للرسوم غير المشروطة</strong><strong>'+esc(totals)+'</strong></div>':"";
