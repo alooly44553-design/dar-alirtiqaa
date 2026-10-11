@@ -39,7 +39,7 @@ export default async function handler(req, res) {
         `,
         sql`
           SELECT id, service_id, fee_code, fee_name, description, amount, currency,
-                 calculation_method, is_required, payment_stage, is_active, display_order
+                 calculation_method, is_required, payment_stage, is_active, display_order, condition_rule
           FROM education.service_fee_items
           WHERE service_id IN (
             SELECT id FROM education.service_catalog WHERE is_active = true
