@@ -27,6 +27,7 @@ export default async function handler(req, res) {
     // Student attachments are disabled in the UI until private, authenticated storage is implemented.
     // Never trust client-supplied attachment paths or metadata.
     const attachments = [];
+    const consentText = "أوافق على مراجعة الطلب والتواصل معي بشأنه.";
     if (studentName.length < 2 || !gender ||
         (phone && !validPhone(phone)) || (guardianPhone && !validPhone(guardianPhone)) ||
         !validEmail(email) || !validDate(dateOfBirth) ||
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
       INSERT INTO education.student_registrations
         (registration_number, student_name, full_name, gender, date_of_birth, nationality,
          identity_type, identity_number, phone, email, guardian_name, guardian_relationship,
-         guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status)
+         guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status, consent_given, consent_recorded_at, consent_text)
       VALUES
         (${registrationNumber}, ${studentName}, ${studentName}, ${gender},
          NULLIF(${dateOfBirth}, '')::date,
@@ -54,7 +55,7 @@ export default async function handler(req, res) {
          NULLIF(${cleanText(body.previous_education, 200)}, ''),
          NULLIF(${cleanText(body.requested_program, 120)}, ''),
          NULLIF(${cleanText(body.notes, 1000)}, ''),
-         ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending')
+         ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending', true, now(), ${consentText})
       RETURNING id, registration_number, approval_status, created_at
     `;
     return sendJson(res, 201, { ok: true, registration: rows[0] });
