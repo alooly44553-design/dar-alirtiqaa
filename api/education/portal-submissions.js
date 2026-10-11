@@ -1,5 +1,5 @@
 import { getDatabase, sendJson, cleanText } from "../../lib/neon-db.js";
-import { resolvePortalIdentity, supabaseRows } from "../../lib/education-portal-auth.js";
+import { resolvePortalIdentity } from "../../lib/education-portal-auth.js";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
@@ -22,12 +22,7 @@ export default async function handler(req, res) {
         return sendJson(res, 400, { error: "INVALID_SUBMISSION_FIELDS" });
       }
 
-      const enrollments = await supabaseRows("enrollments", identity.token, {
-        select: "program_id,classroom_id,status",
-        learner_id: "eq." + identity.learner.id,
-        status: "eq.active",
-        limit: "500"
-      });
+      const enrollments = identity.enrollments;
       const programs = new Set(enrollments.map(x => x.program_id).filter(Boolean));
       const classrooms = new Set(enrollments.map(x => x.classroom_id).filter(Boolean));
 
