@@ -99,6 +99,8 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <div><h3 style="font-size:14px">إضافة سجل تسجيل</h3>
 <input id="regAdminName" placeholder="اسم الطالب/الطالبة" style="width:100%;padding:10px;margin:5px 0">
 <select id="regAdminGender" style="width:100%;padding:10px;margin:5px 0"><option value="">الجنس</option><option value="male">طالب</option><option value="female">طالبة</option></select>
+<select id="regAdminStage" style="width:100%;padding:10px;margin:5px 0"><option value="">المرحلة التعليمية</option><option value="primary">المرحلة الابتدائية</option><option value="middle">المرحلة المتوسطة</option><option value="secondary">المرحلة الثانوية</option></select>
+<select id="regAdminGrade" style="width:100%;padding:10px;margin:5px 0"><option value="">الصف الدراسي</option><option value="الأول الابتدائي">الأول الابتدائي</option><option value="الثاني الابتدائي">الثاني الابتدائي</option><option value="الثالث الابتدائي">الثالث الابتدائي</option><option value="الرابع الابتدائي">الرابع الابتدائي</option><option value="الخامس الابتدائي">الخامس الابتدائي</option><option value="السادس الابتدائي">السادس الابتدائي</option><option value="الأول المتوسط">الأول المتوسط</option><option value="الثاني المتوسط">الثاني المتوسط</option><option value="الثالث المتوسط">الثالث المتوسط</option><option value="الأول الثانوي">الأول الثانوي</option><option value="الثاني الثانوي">الثاني الثانوي</option><option value="الثالث الثانوي">الثالث الثانوي</option></select>
 <input id="regAdminDob" type="date" style="width:100%;padding:10px;margin:5px 0">
 <input id="regAdminNationality" placeholder="الجنسية" style="width:100%;padding:10px;margin:5px 0">
 <input id="regAdminPhone" placeholder="الهاتف" style="width:100%;padding:10px;margin:5px 0">
@@ -611,14 +613,18 @@ async function loadRegistrations(){
   box.innerHTML=rows.map(x=>'<div class="item"><strong>'+escapeHtml(x.student_name)+' — '+escapeHtml(x.registration_number||"بانتظار الرقم")+'</strong><div class="small">الجنس: '+(x.gender==="female"?"طالبة":"طالب")+' · الهاتف: '+escapeHtml(x.phone||"غير مسجل")+' · ولي الأمر: '+escapeHtml(x.guardian_name||"غير مسجل")+' · المرحلة/الصف: '+escapeHtml(x.requested_program||"غير محدد")+'</div><div class="small">الحالة: <span class="badge '+(x.approval_status==="approved"?"ok":x.approval_status==="rejected"?"danger":"warn")+'">'+escapeHtml(x.approval_status)+'</span> · التوثيق: '+(x.documented?"موثق":"غير موثق")+'</div><div class="row" style="margin-top:7px"><button type="button" data-reg-approve="'+x.id+'">اعتماد</button><button type="button" class="secondary" data-reg-reject="'+x.id+'">رفض</button><button type="button" class="secondary" data-reg-doc="'+x.id+'">'+(x.documented?"تحديث التوثيق":"توثيق قبول التسجيل")+'</button></div></div>').join("")||'<span class="muted">لا توجد سجلات تسجيل.</span>';
  }catch(error){box.innerHTML='<div class="item dangerText">تعذر تحميل سجلات التسجيل: '+escapeHtml(error.message)+'</div>'}
 }
+const regAdminStage=document.getElementById("regAdminStage"),regAdminGrade=document.getElementById("regAdminGrade");
+const regAdminGrades={primary:["الأول الابتدائي","الثاني الابتدائي","الثالث الابتدائي","الرابع الابتدائي","الخامس الابتدائي","السادس الابتدائي"],middle:["الأول المتوسط","الثاني المتوسط","الثالث المتوسط"],secondary:["الأول الثانوي","الثاني الثانوي","الثالث الثانوي"]};
+const regAdminGradeOptions=Array.from(regAdminGrade?.options||[]).slice(1).map(o=>({label:o.textContent,value:o.value}));
+regAdminStage?.addEventListener("change",()=>{const allowed=regAdminGrades[regAdminStage.value]||[];const previous=regAdminGrade.value;regAdminGrade.innerHTML='<option value="">الصف الدراسي</option>'+regAdminGradeOptions.filter(o=>allowed.includes(o.value)).map(o=>'<option value="'+escapeHtml(o.value)+'">'+escapeHtml(o.label)+'</option>').join("");regAdminGrade.value=allowed.includes(previous)?previous:""});
 document.getElementById("addRegistration")?.addEventListener("click",async()=>{
- const student_name=document.getElementById("regAdminName").value.trim(),gender=document.getElementById("regAdminGender").value;
+ const student_name=document.getElementById("regAdminName").value.trim(),gender=document.getElementById("regAdminGender").value,education_stage=regAdminStage.value,education_grade=regAdminGrade.value;
  const m=document.getElementById("registrationMsg");
  if(!student_name||!gender){m.textContent="أدخل الاسم والجنس.";return}
  try{
-  await educationAdminApi("POST",{student_name,gender,date_of_birth:document.getElementById("regAdminDob").value||"",nationality:document.getElementById("regAdminNationality").value.trim(),phone:document.getElementById("regAdminPhone").value.trim(),guardian_name:document.getElementById("regAdminGuardian").value.trim(),guardian_phone:document.getElementById("regAdminGuardianPhone").value.trim(),notes:document.getElementById("regAdminNotes").value.trim()});
+  await educationAdminApi("POST",{student_name,gender,education_stage,education_grade,date_of_birth:document.getElementById("regAdminDob").value||"",nationality:document.getElementById("regAdminNationality").value.trim(),phone:document.getElementById("regAdminPhone").value.trim(),guardian_name:document.getElementById("regAdminGuardian").value.trim(),guardian_phone:document.getElementById("regAdminGuardianPhone").value.trim(),notes:document.getElementById("regAdminNotes").value.trim()});
   m.className="small successText";m.textContent="تم حفظ سجل التسجيل في قاعدة التعليم المستقلة.";
-  document.getElementById("regAdminName").value="";document.getElementById("regAdminNotes").value="";await loadRegistrations();
+  document.getElementById("regAdminName").value="";document.getElementById("regAdminNotes").value="";regAdminStage.value="";regAdminGrade.innerHTML='<option value="">الصف الدراسي</option>';await loadRegistrations();
  }catch(error){m.className="small dangerText";m.textContent="تعذر حفظ السجل: "+error.message}
 });
 document.getElementById("registrationsList")?.addEventListener("click",async e=>{
