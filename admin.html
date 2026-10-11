@@ -826,5 +826,74 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
   await load();
  },250);
 })();
-</script></body>
+</script>
+<section id="branchAdminSupervisorPanel" style="max-width:1100px;margin:24px auto;padding:18px;border:1px solid #dbe3ef;border-radius:16px;background:#fff;box-shadow:0 4px 16px #0f172a0d">
+ <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+  <div><h2 style="margin:0 0 6px">المشرف الذكي للفروع الحضورية 🧭</h2><p style="margin:0;color:#64748b;font-size:13px">فحص آلي كل 30 دقيقة للحضور والمهام المتأخرة والكشوفات والجداول الناقصة. الإجراءات الحساسة والحذف والتقييد النهائي تبقى بانتظار موافقة الإدارة.</p></div>
+  <button id="branchSupervisorRun" type="button" style="border:0;border-radius:10px;padding:10px 14px;background:#13233f;color:#fff;cursor:pointer">تشغيل فحص الآن</button>
+ </div>
+ <p id="branchSupervisorMsg" style="font-size:13px;color:#64748b">جارٍ التحقق من صلاحيات الإدارة...</p>
+ <div id="branchSupervisorSummary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0"></div>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+  <div><h3 style="font-size:15px">آخر عمليات الفحص</h3><div id="branchSupervisorRuns" style="display:grid;gap:8px"></div></div>
+  <div><h3 style="font-size:15px">تنبيهات ومراجعات الفروع</h3><div id="branchSupervisorQueue" style="display:grid;gap:8px"></div></div>
+ </div>
+</section>
+<script type="module">
+(async function(){
+ const msg=document.getElementById("branchSupervisorMsg");
+ const runBtn=document.getElementById("branchSupervisorRun");
+ const summary=document.getElementById("branchSupervisorSummary");
+ const runsBox=document.getElementById("branchSupervisorRuns");
+ const queueBox=document.getElementById("branchSupervisorQueue");
+ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+ const when=v=>v?new Date(v).toLocaleString("ar-SA",{dateStyle:"medium",timeStyle:"short"}):"—";
+ const wait=()=>new Promise(resolve=>{if(window.sb)return resolve();const timer=setInterval(()=>{if(window.sb){clearInterval(timer);resolve()}},200)});
+ await wait();
+ const sb=window.sb;
+ const sessionResult=await sb.auth.getSession();
+ const token=sessionResult.data?.session?.access_token;
+ if(!token){msg.textContent="سجّل الدخول بحساب إداري معتمد لعرض متابعة الفروع.";runBtn.disabled=true;return;}
+ const adminResult=await sb.rpc("is_center_management_admin");
+ if(adminResult.error||adminResult.data!==true){msg.textContent="هذه اللوحة مخصصة للإدارة المعتمدة فقط.";runBtn.disabled=true;return;}
+ async function load(){
+  const [runs,queue]=await Promise.all([
+   sb.from("ai_execution_runs").select("id,center_id,status,started_at,completed_at,checks,result_summary").eq("run_type","branch_admin_audit").order("created_at",{ascending:false}).limit(10),
+   sb.from("ai_supervision_queue").select("id,center_id,title,priority,status,findings,recommendation,reminder_at,created_at").in("status",["pending","in_progress"]).order("reminder_at",{ascending:true}).limit(20)
+  ]);
+  if(runs.error){msg.textContent="تعذر تحميل سجل الفحص: "+runs.error.message;return;}
+  const runData=runs.data||[],queueData=queue.data||[];
+  const latest=runData[0],checks=latest?.checks||{};
+  summary.innerHTML=[
+   ["حالة آخر فحص",latest?.status==="completed"?"اكتمل":"لا يوجد فحص"],
+   ["الفروع المفحوصة",String(runData.length?new Set(runData.map(x=>x.center_id).filter(Boolean)).size:0)],
+   ["تنبيهات بانتظار المراجعة",String(queueData.length)],
+   ["وقت آخر فحص",when(latest?.completed_at)]
+  ].map(([a,b])=>'<div style="border:1px solid #e2e8f0;border-radius:12px;padding:12px;background:#f8fafc"><strong style="display:block;font-size:13px">'+esc(a)+'</strong><span style="font-size:17px;font-weight:700">'+esc(b)+'</span></div>').join("");
+  runsBox.innerHTML=runData.map(x=>{
+   const c=x.checks||{};
+   return '<article style="border:1px solid #e2e8f0;border-radius:12px;padding:12px"><strong>'+esc(c.center_name||"فرع")+'</strong><div style="font-size:12px;color:#64748b;margin:4px 0">'+esc(when(x.completed_at||x.started_at))+' · '+esc(x.status)+'</div><div style="font-size:13px;line-height:1.8">الموظفون النشطون: '+esc(c.active_staff??"—")+'<br>المهام المتأخرة: '+esc(c.overdue_tasks??"—")+'<br>الكشوفات المعلقة: '+esc(c.pending_personnel_records??"—")+'<br>الجداول الناقصة: '+esc(c.incomplete_active_schedules??"—")+'<br>نواقص الحضور بعد 18:00: '+esc(c.missing_attendance_today_after_18??"—")+'</div></article>';
+  }).join("")||'<div style="color:#64748b">لم يُسجل فحص بعد.</div>';
+  queueBox.innerHTML=queueData.map(x=>'<article style="border:1px solid #e2e8f0;border-radius:12px;padding:12px"><strong>'+esc(x.title)+'</strong><div style="font-size:12px;color:#64748b;margin:4px 0">الأولوية: '+esc(x.priority)+' · التذكير: '+esc(when(x.reminder_at))+'</div><div style="font-size:13px">'+esc(x.findings||"")+'</div><div style="font-size:12px;margin-top:6px">'+esc(x.recommendation||"")+'</div></article>').join("")||'<div style="color:#64748b">لا توجد تنبيهات مفتوحة حاليًا.</div>';
+  if(!runs.error)msg.textContent="لوحة المشرف متصلة. الفحص الدوري مجدول كل 30 دقيقة؛ ويمكن تشغيل فحص فوري.";
+ }
+ runBtn.addEventListener("click",async()=>{
+  const current=await sb.auth.getSession(),access=current.data?.session?.access_token;
+  if(!access){msg.textContent="انتهت الجلسة؛ سجّل الدخول مجددًا.";return;}
+  runBtn.disabled=true;msg.textContent="جارٍ فحص سجلات الفروع...";
+  try{
+   const response=await fetch("https://oisfclsgcjofxzeraqpb.supabase.co/functions/v1/branch-admin-supervisor",{method:"POST",headers:{"Authorization":"Bearer "+access,"apikey":"sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk","Content-Type":"application/json"},body:"{}"});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(result.error||"فشل تشغيل الفحص");
+   msg.textContent="اكتمل الفحص الفعلي: "+(result.result?.centers_checked??0)+" فرعًا، وتنبيهات جديدة: "+(result.result?.new_supervision_items??0)+".";
+   await load();
+  }catch(e){msg.textContent="تعذر تشغيل الفحص: "+e.message;}
+  finally{runBtn.disabled=false;}
+ });
+ await load();
+ setInterval(load,60000);
+})();
+</script>
+
+</body>
 </html>
