@@ -1,0 +1,89 @@
+name: Education registration API smoke tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/education-api-smoke.yml"
+      - "api/education/registrations.js"
+      - "index.html"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  negative-registration-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check production education status
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify API validation without creating records
+        env:
+          EDUCATION_BASE_URL: https://alirtiqaa-educational-platform.vercel.app
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+
+          const base = process.env.EDUCATION_BASE_URL;
+          const consent = 'أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.';
+          const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+          async function getStatus() {
+            const response = await fetch(base + '/api/education/status', { cache: 'no-store' });
+            const body = await response.json();
+            assert.equal(response.status, 200, 'status endpoint must return HTTP 200');
+            assert.equal(body.ok, true, 'status endpoint must report ok=true');
+            assert.equal(body.database, 'connected', 'education Neon database must be connected');
+          }
+
+          let statusReady = false;
+          for (let attempt = 1; attempt <= 12; attempt++) {
+            try {
+              await getStatus();
+              statusReady = true;
+              break;
+            } catch (error) {
+              if (attempt === 12) throw error;
+              await sleep(5000);
+            }
+          }
+          assert.equal(statusReady, true, 'production API did not become ready');
+
+          async function postCase(label, payload, expectedError) {
+            const response = await fetch(base + '/api/education/registrations', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            const body = await response.json().catch(() => ({}));
+            assert.equal(response.status, 400, label + ': expected HTTP 400, got ' + response.status);
+            assert.equal(body.error, expectedError, label + ': unexpected validation error code');
+            console.log('PASS: ' + label + ' -> HTTP ' + response.status + ' / ' + body.error);
+          }
+
+          const baseFields = {
+            student_name: 'Synthetic Test',
+            gender: 'male',
+            phone: '12345678',
+          };
+
+          await postCase('missing consent', {}, 'CONSENT_REQUIRED');
+          await postCase('mismatched consent text', {
+            ...baseFields, consent_given: true, consent_text: 'wrong consent text',
+          }, 'CONSENT_TEXT_MISMATCH');
+          await postCase('invalid short student name', {
+            ...baseFields, student_name: 'A', consent_given: true, consent_text: consent,
+          }, 'INVALID_REGISTRATION_FIELDS');
+          await postCase('impossible date of birth', {
+            ...baseFields, date_of_birth: '2000-02-30', consent_given: true, consent_text: consent,
+          }, 'INVALID_REGISTRATION_FIELDS');
+          await postCase('invalid email format', {
+            ...baseFields, email: 'not-an-email', consent_given: true, consent_text: consent,
+          }, 'INVALID_REGISTRATION_FIELDS');
+
+          console.log('PASS: all negative registration tests completed; these cases should not create records.');
+          NODE
