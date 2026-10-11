@@ -131,9 +131,7 @@ footer{background:#061f3a;color:#b9c9db;padding:35px 0}.footer-grid{display:grid
 <footer><div class="container"><div class="footer-grid"><div><h3>مدارس دار الارتقاء الفكري</h3><p>تعليم .. بناء .. مستقبل أفضل</p><p>منظومة مدارس / مراكز دار الارتقاء الفكري للتعليم العام والعالي والتدريب التقني والمهني.</p></div><div><h3>روابط سريعة</h3><a href="#pathways">المسارات التعليمية</a><a href="#services">الخدمات الإلكترونية</a><a href="admin.html">لوحة الإدارة</a></div><div><h3>التواصل</h3><a href="https://t.me/DarAlIrtiqaAlFikri" target="_blank">Telegram</a><a href="https://whatsapp.com/channel/0029VaOF4wAAe5VuBMdiz93V" target="_blank">WhatsApp</a><a href="https://www.facebook.com/profile.php?id=61557021980112&mibextid=ZbWKwL" target="_blank">Facebook</a></div></div><div class="copyright">© 2026 مدارس دار الارتقاء الفكري — جميع الحقوق محفوظة</div></div></footer>
 <div id="toast" class="toast"></div>
 
-<script type="module">
-import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
+<script>
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 const toast=(msg,ok=false)=>{const t=$("toast");t.textContent=msg;t.style.background=ok?"#13795b":"#092f54";t.classList.add("show");setTimeout(()=>t.classList.remove("show"),4500)};
