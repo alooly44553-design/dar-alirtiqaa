@@ -124,7 +124,76 @@ CREATE TABLE IF NOT EXISTS education.service_requests (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  request_number text NOT NULL UNIQUE,
  applicant_name text NOT NULL CHECK (char_length(btrim(applicant_name)) BETWEEN 2 AND 120),
- phone text CHECK (phone IS NULL OR phone ~ '^[+0-9 ()-]{7,30}REVOKE ALL ON ALL TABLES IN SCHEMA education FROM PUBLIC;
+ phone text CHECK (phone IS NULL OR phone ~ '^[+0-9 ()-]{7,30}
+-- School learning portal data is stored only in the education Neon project.
+-- Profile/master-data IDs (staff, learners, programs, subjects, classrooms) are UUID references
+-- while those legacy identity/master records are being migrated in a later controlled phase.
+CREATE TABLE IF NOT EXISTS education.school_lessons (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+ program_id uuid,
+ subject_id uuid,
+ teacher_id uuid,
+ classroom_id uuid,
+ title text NOT NULL CHECK (char_length(btrim(title)) BETWEEN 2 AND 200),
+ explanation text,
+ objectives text,
+ resources jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(resources) = 'array'),
+ ai_generated boolean NOT NULL DEFAULT false,
+ status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published','archived')),
+ scheduled_for timestamptz,
+ created_by uuid,
+ created_at timestamptz NOT NULL DEFAULT now(),
+ updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS education_school_lessons_teacher_created_idx
+ ON education.school_lessons (teacher_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS education_school_lessons_status_schedule_idx
+ ON education.school_lessons (status, scheduled_for);
+
+CREATE TABLE IF NOT EXISTS education.school_assignments (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+ lesson_id uuid REFERENCES education.school_lessons(id) ON DELETE CASCADE,
+ classroom_id uuid,
+ subject_id uuid,
+ title text NOT NULL CHECK (char_length(btrim(title)) BETWEEN 2 AND 200),
+ instructions text,
+ due_at timestamptz,
+ max_score numeric NOT NULL DEFAULT 100 CHECK (max_score > 0),
+ status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published','closed')),
+ created_by uuid,
+ created_at timestamptz NOT NULL DEFAULT now(),
+ updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS education_school_assignments_lesson_status_idx
+ ON education.school_assignments (lesson_id, status, due_at);
+
+CREATE TABLE IF NOT EXISTS education.school_submissions (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+ assignment_id uuid NOT NULL REFERENCES education.school_assignments(id) ON DELETE CASCADE,
+ learner_id uuid NOT NULL,
+ learner_name text NOT NULL DEFAULT '',
+ answer_text text,
+ attachments jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(attachments) = 'array'),
+ submitted_at timestamptz,
+ status text NOT NULL DEFAULT 'submitted' CHECK (status IN ('draft','submitted','reviewed','returned')),
+ score numeric CHECK (score IS NULL OR score >= 0),
+ feedback text,
+ ai_feedback text,
+ ai_review_status text NOT NULL DEFAULT 'not_requested' CHECK (ai_review_status IN ('not_requested','pending','ready','approved')),
+ reviewed_by uuid,
+ reviewed_at timestamptz,
+ created_at timestamptz NOT NULL DEFAULT now(),
+ updated_at timestamptz NOT NULL DEFAULT now(),
+ UNIQUE (assignment_id, learner_id)
+);
+ALTER TABLE education.school_submissions
+ ADD COLUMN IF NOT EXISTS learner_name text NOT NULL DEFAULT '';
+CREATE INDEX IF NOT EXISTS education_school_submissions_assignment_status_idx
+ ON education.school_submissions (assignment_id, status, submitted_at DESC);
+CREATE INDEX IF NOT EXISTS education_school_submissions_learner_created_idx
+ ON education.school_submissions (learner_id, created_at DESC);
+
+REVOKE ALL ON ALL TABLES IN SCHEMA education FROM PUBLIC;
 REVOKE ALL ON ALL SEQUENCES IN SCHEMA education FROM PUBLIC;
 COMMIT;
 ),
@@ -150,7 +219,7 @@ ALTER TABLE education.service_requests ADD COLUMN IF NOT EXISTS management_note 
 ALTER TABLE education.service_requests ADD COLUMN IF NOT EXISTS documented boolean NOT NULL DEFAULT false;
 ALTER TABLE education.service_requests ADD COLUMN IF NOT EXISTS documented_at timestamptz;
 ALTER TABLE education.service_requests ADD COLUMN IF NOT EXISTS document_reference text;
-DO $
+DO $$
 BEGIN
  IF NOT EXISTS (
   SELECT 1 FROM pg_constraint
@@ -161,7 +230,7 @@ BEGIN
    ADD CONSTRAINT education_service_requests_service_code_fkey
    FOREIGN KEY (service_code) REFERENCES education.service_catalog(service_code);
  END IF;
-END $;
+END $$;
 CREATE INDEX IF NOT EXISTS education_service_requests_created_idx
  ON education.service_requests (created_at DESC);
 CREATE INDEX IF NOT EXISTS education_service_requests_status_idx
