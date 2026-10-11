@@ -169,9 +169,12 @@ function renderForm(service){
  $("service-form-title").textContent=service.service_name+" — "+service.registration_method_label;
  $("service-form-description").textContent=service.description||"أدخل البيانات بدقة؛ الطلبات تُراجع من الإدارة.";
  const consentText=service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.";
- const fields=[...commonFields(service.service_code==="student_registration"),...(service.form_fields||[])];
- const seen=new Set();
- const unique=fields.filter(f=>{if(seen.has(f.key))return false;seen.add(f.key);return true});
+ const mergedFields=new Map(commonFields(service.service_code==="student_registration").map(f=>[f.key,f]));
+ (service.form_fields||[]).forEach(f=>{
+  if(!f||typeof f.key!=="string")return;
+  mergedFields.set(f.key,{...(mergedFields.get(f.key)||{}),...f});
+ });
+ const unique=Array.from(mergedFields.values());
  const attachmentField='<div class="field full"><small>المرفقات غير مفعّلة مؤقتًا حتى اكتمال ربط تخزين خاص ومستقل وآمن.</small></div>';
  $("service-fields").innerHTML=unique.map(inputField).join("")+attachmentField+
  '<div class="field full"><label><input id="serviceConsent" type="checkbox" required> '+esc(consentText)+'</label></div>'+
