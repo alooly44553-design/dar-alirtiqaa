@@ -6,7 +6,8 @@ export default async function handler(req, res) {
     return sendJson(res, 405, { error: "METHOD_NOT_ALLOWED" });
   }
   try {
-    const serviceId = typeof req.query?.service_id === "string" ? req.query.service_id : "";
+    const requestUrl = new URL(req.url || "/", "https://education.local");
+    const serviceId = requestUrl.searchParams.get("service_id") || "";
     if (!/^[0-9a-f-]{36}$/i.test(serviceId)) {
       return sendJson(res, 400, { error: "INVALID_SERVICE_ID" });
     }
