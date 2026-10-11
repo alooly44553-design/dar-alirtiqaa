@@ -1,0 +1,117 @@
+name: Education service API smoke tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/education-service-api-smoke.yml"
+      - "api/education/**"
+      - "index.html"
+      - "admin.html"
+      - "database/neon/education.sql"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  education-service-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test live education APIs without inserting records
+        env:
+          EDUCATION_BASE_URL: https://alirtiqaa-educational-platform.vercel.app
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+
+          const base = process.env.EDUCATION_BASE_URL;
+          const studentConsent = 'أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.';
+          const programConsent = 'أوافق على مراجعة طلب الالتحاق والتواصل معي لاستكمال الإجراءات.';
+          const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+          async function request(path, method = 'GET', payload) {
+            const response = await fetch(base + path, {
+              method,
+              cache: 'no-store',
+              headers: payload === undefined ? {} : { 'content-type': 'application/json' },
+              body: payload === undefined ? undefined : JSON.stringify(payload),
+            });
+            const body = await response.json().catch(() => ({}));
+            return { response, body };
+          }
+
+          let catalog;
+          let ready = false;
+          for (let attempt = 1; attempt <= 60; attempt++) {
+            try {
+              const status = await request('/api/education/status');
+              assert.equal(status.response.status, 200);
+              assert.equal(status.body.database, 'connected');
+              const services = await request('/api/education/services');
+              if (services.response.status === 200 && services.body.ok === true &&
+                  Array.isArray(services.body.services) && services.body.services.length === 8) {
+                catalog = services.body.services;
+                ready = true;
+                break;
+              }
+            } catch (_) {
+              // Wait briefly while the production deployment and aliases propagate.
+            }
+            await sleep(3000);
+          }
+          assert.equal(ready, true, 'new Neon service APIs did not become available on production');
+          console.log('PASS: status endpoint and isolated Neon service catalog are ready');
+
+          const student = catalog.find(x => x.service_code === 'student_registration');
+          const program = catalog.find(x => x.service_code === 'program_application');
+          assert.ok(student, 'student-registration service is present');
+          assert.ok(program, 'program-application service is present');
+          assert.equal(student.consent_text, studentConsent);
+          assert.equal(program.consent_text, programConsent);
+
+          const fees = await request('/api/education/service-fees?service_id=' + encodeURIComponent(student.id));
+          assert.equal(fees.response.status, 200);
+          assert.equal(fees.body.ok, true);
+          assert.ok(Array.isArray(fees.body.fees) && fees.body.fees.length > 0);
+          const badFees = await request('/api/education/service-fees?service_id=not-a-uuid');
+          assert.equal(badFees.response.status, 400);
+          assert.equal(badFees.body.error, 'INVALID_SERVICE_ID');
+          console.log('PASS: isolated fee API and identifier validation');
+
+          async function expectError(label, path, payload, expected) {
+            const result = await request(path, 'POST', payload);
+            assert.equal(result.response.status, 400, label + ': expected HTTP 400, got ' + result.response.status);
+            assert.equal(result.body.error, expected, label + ': unexpected response code');
+            console.log('PASS: ' + label + ' -> ' + expected);
+          }
+
+          const studentFields = { student_name: 'Synthetic Test', gender: 'male', phone: '12345678' };
+          await expectError('student registration missing consent', '/api/education/registrations', {}, 'CONSENT_REQUIRED');
+          await expectError('student consent mismatch', '/api/education/registrations',
+            { ...studentFields, consent_given: true, consent_text: 'wrong text' }, 'CONSENT_TEXT_MISMATCH');
+          await expectError('invalid student name', '/api/education/registrations',
+            { ...studentFields, student_name: 'A', consent_given: true, consent_text: studentConsent }, 'INVALID_REGISTRATION_FIELDS');
+          await expectError('impossible student date', '/api/education/registrations',
+            { ...studentFields, date_of_birth: '2000-02-30', consent_given: true, consent_text: studentConsent }, 'INVALID_REGISTRATION_FIELDS');
+          await expectError('invalid student email', '/api/education/registrations',
+            { ...studentFields, email: 'not-an-email', consent_given: true, consent_text: studentConsent }, 'INVALID_REGISTRATION_FIELDS');
+
+          await expectError('general service missing consent', '/api/education/service-requests',
+            { service_code: 'program_application' }, 'CONSENT_REQUIRED');
+          await expectError('general service consent mismatch', '/api/education/service-requests',
+            { service_code: 'program_application', consent_given: true, consent_text: 'wrong text' }, 'CONSENT_TEXT_MISMATCH');
+          await expectError('general service required fields', '/api/education/service-requests',
+            { service_code: 'program_application', consent_given: true, consent_text: programConsent }, 'INVALID_SERVICE_FIELDS');
+          await expectError('general service invalid email', '/api/education/service-requests', {
+            service_code: 'program_application', applicant_name: 'Synthetic Test', applicant_phone: '12345678',
+            applicant_email: 'not-an-email', education_level: 'secondary', program_interest: 'test',
+            consent_given: true, consent_text: programConsent
+          }, 'INVALID_EMAIL');
+
+          console.log('PASS: all negative POST tests completed; no test requests should have been written.');
+          NODE
