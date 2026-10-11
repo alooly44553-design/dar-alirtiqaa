@@ -10,7 +10,7 @@ Each has a separate default branch and its own schema. Bootstrap SQL files in th
 
 ## Education project: current integration status
 
-The education Vercel project now has these server-side routes:
+The education Vercel project has these server-side routes. Its latest production deployment is READY, and a live GET to `/api/education/status` returned HTTP 200 with `database: connected`. The private `DATABASE_URL` is stored as a sensitive Vercel environment variable; the admin-validation publishable key was also retrieved from the linked Supabase project and stored as sensitive. A rollback-only SQL smoke test confirmed that the registration insert shape matches the current Neon table without leaving test rows.
 
 - `GET /api/education/status` — non-sensitive database connectivity check.
 - `POST /api/education/registrations` — validates and saves public student registrations in Neon.
@@ -24,6 +24,6 @@ The public education form routes student registration submissions to Neon. The e
 - Attachments are temporarily disabled on the student-registration form until an isolated storage path is connected. Do not re-enable them until the file bytes are stored outside the shared backend.
 - Health and public-services databases have initial schemas, but their live frontends and APIs have not yet been switched to them.
 - No production data has been copied from the shared Supabase project. Do not delete or deactivate the old backend while any service still uses it.
-- End-to-end HTTP submission and admin review still require a live test using a permitted admin session. A successful deployment alone does not prove the full workflow.
+- End-to-end HTTP submission and admin review still require a live test using a permitted admin session. Vercel Authentication prevented the external fetch tool from accessing the admin route, so that workflow is not yet confirmed. A successful deployment and database status check do not prove the full workflow.
 - Never expose a privileged Neon connection string in browser JavaScript. Each deployment must have its own secret `DATABASE_URL` and matching `DAR_ALIRTIQAA_APP` value.
 - Keep health appointment requests limited to non-clinical scheduling information; do not store diagnoses or medical reports in this schema.
