@@ -247,14 +247,15 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
   if(!window.sb)return;
   clearInterval(waitForSb);
   const list=document.getElementById("serviceSubmissionsList"),msg=document.getElementById("serviceSubmissionsMsg");
+  const safe=v=>String(v??"").replace(/[&<>"\']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","\'":"&#39;"}[ch]));
   async function load(){
    msg.textContent="جارٍ تحميل الطلبات…";
    const {data,error}=await window.sb.from("service_submissions").select("id,submission_number,applicant_name,applicant_phone,applicant_email,submission_data,consent_given,status,management_note,documented,document_reference,created_at,service_catalog(service_name,service_category,registration_method_label)").order("created_at",{ascending:false}).limit(100);
    if(error){msg.textContent="تعذر تحميل طلبات الخدمات.";return;}
    list.innerHTML=(data||[]).map(x=>{
     const s=x.service_catalog||{}; const d=x.submission_data||{};
-    const fields=Object.entries(d).filter(([k])=>k!=="consent_given").map(([k,v])=>'<div><strong>'+k+':</strong> '+String(v??"")+'</div>').join("");
-    return '<article class="card" style="margin:12px 0"><h3>'+String(s.service_name||"خدمة")+' — '+x.submission_number+'</h3><p>'+String(x.applicant_name||"")+' | '+String(x.applicant_phone||"")+' | '+String(x.applicant_email||"")+'</p><p><strong>طريقة التسجيل:</strong> '+String(s.registration_method_label||"")+' | <strong>الحالة:</strong> '+String(x.status||"")+'</p><details><summary>بيانات الطلب</summary>'+fields+'</details><div class="toolbar" style="margin-top:10px"><button data-action="accept" data-id="'+x.id+'">اعتماد</button><button data-action="reject" data-id="'+x.id+'">رفض</button><button data-action="document" data-id="'+x.id+'">توثيق</button></div></article>';
+    const fields=Object.entries(d).filter(([k])=>k!=="consent_given").map(([k,v])=>'<div><strong>'+safe(k)+':</strong> '+safe(v)+'</div>').join("");
+    return '<article class="card" style="margin:12px 0"><h3>'+safe(s.service_name||"خدمة")+' — '+safe(x.submission_number)+'</h3><p>'+safe(x.applicant_name||"")+' | '+safe(x.applicant_phone||"")+' | '+safe(x.applicant_email||"")+'</p><p><strong>طريقة التسجيل:</strong> '+safe(s.registration_method_label||"")+' | <strong>الحالة:</strong> '+safe(x.status||"")+'</p><details><summary>بيانات الطلب</summary>'+fields+'</details><div class="toolbar" style="margin-top:10px"><button data-action="accept" data-id="'+safe(x.id)+'">اعتماد</button><button data-action="reject" data-id="'+safe(x.id)+'">رفض</button><button data-action="document" data-id="'+safe(x.id)+'">توثيق</button></div></article>';
    }).join("")||"<p>لا توجد طلبات خدمات حتى الآن.</p>";
    msg.textContent="تم تحديث الطلبات.";
    list.querySelectorAll("button[data-action]").forEach(b=>b.onclick=async()=>{
@@ -305,13 +306,14 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
  const timer=setInterval(async()=>{
   if(!window.sb)return; clearInterval(timer);
   const list=document.getElementById("aiServiceQueueList"),msg=document.getElementById("aiServiceQueueMsg");
+  const safe=v=>String(v??"").replace(/[&<>"\']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","\'":"&#39;"}[ch]));
   const load=async()=>{
    msg.textContent="جارٍ تحميل طابور المدير الذكي…";
    const r=await window.sb.from("ai_service_request_queue").select("id,request_number,service_code,applicant_name,applicant_phone,status,requires_management_approval,ai_notes,created_at,operations_agents(name)").order("created_at",{ascending:false}).limit(50);
    if(r.error){msg.textContent="تعذر تحميل طابور المدير الذكي: "+r.error.message;return;}
    list.innerHTML=(r.data||[]).map(x=>{
     const agent=x.operations_agents||{}; const st=x.status||"pending_review";
-    return '<article class="item"><strong>'+String(x.request_number||"")+' — '+String(x.applicant_name||"")+'</strong><div class="small">الخدمة: '+String(x.service_code||"")+' · الحالة: '+String(st)+' · المدير الذكي: '+String(agent.name||"غير معيّن")+'</div><div class="small">'+String(x.ai_notes||"")+'</div><div class="small muted">'+new Date(x.created_at).toLocaleString("ar")+'</div></article>';
+    return '<article class="item"><strong>'+safe(x.request_number||"")+' — '+safe(x.applicant_name||"")+'</strong><div class="small">الخدمة: '+safe(x.service_code||"")+' · الحالة: '+safe(st)+' · المدير الذكي: '+safe(agent.name||"غير معيّن")+'</div><div class="small">'+safe(x.ai_notes||"")+'</div><div class="small muted">'+safe(new Date(x.created_at).toLocaleString("ar"))+'</div></article>';
    }).join("")||'<span class="muted">لا توجد طلبات في طابور المدير الذكي.</span>';
    msg.textContent="تم تحديث الطابور.";
   };
