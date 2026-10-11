@@ -12,6 +12,15 @@ export default async function handler(req, res) {
     const phone = cleanText(body.phone, 30);
     const guardianPhone = cleanText(body.guardian_phone, 30);
     const email = cleanText(body.email, 254);
+    const identityType = cleanText(body.identity_type, 80);
+    const identityNumber = cleanText(body.identity_number, 80);
+    const allowedIdentityTypes = [
+      "national_id", "resident_id", "visitor_id", "family_visit",
+      "hajj_umrah", "document", "official_letter", "other", "none"
+    ];
+    if (identityType && !allowedIdentityTypes.includes(identityType)) {
+      return sendJson(res, 400, { error: "INVALID_IDENTITY_TYPE" });
+    }
     const dateOfBirth = cleanText(body.date_of_birth, 10);
     const educationStage = cleanText(body.education_stage, 20);
     const educationGrade = cleanText(body.education_grade, 40);
@@ -62,8 +71,8 @@ export default async function handler(req, res) {
         (${registrationNumber}, ${studentName}, ${studentName}, ${gender},
          NULLIF(${dateOfBirth}, '')::date,
          NULLIF(${cleanText(body.nationality, 80)}, ''),
-         NULLIF(${cleanText(body.identity_type, 80)}, ''),
-         NULLIF(${cleanText(body.identity_number, 80)}, ''),
+         NULLIF(${identityType}, ''),
+         NULLIF(${identityNumber}, ''),
          NULLIF(${phone}, ''), NULLIF(${email}, ''),
          NULLIF(${cleanText(body.guardian_name, 120)}, ''),
          NULLIF(${cleanText(body.guardian_relationship, 80)}, ''),
