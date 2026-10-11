@@ -21,33 +21,177 @@ body{margin:0;font-family:system-ui,Tahoma,Arial;background:#f4f7fb;color:#17203
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
 const $=id=>document.getElementById(id), esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
-let me=null, selectedAssignment=null;
-async function profile(){const {data:{user}}=await sb.auth.getUser();if(!user)return null;
- const [s,l]=await Promise.all([sb.from("staff").select("id,full_name,job_title").eq("auth_user_id",user.id).maybeSingle(),sb.from("learners").select("id,full_name").eq("auth_user_id",user.id).maybeSingle()]);
- return {user,staff:s.data,learner:l.data};
+let me=null, selectedAssignment=null, teacherLessons=[];
+
+async function api(path,method="GET",body){
+ const sessionResult=await sb.auth.getSession();
+ const token=sessionResult.data?.session?.access_token;
+ if(!token)throw new Error("انتهت جلسة الدخول؛ يرجى تسجيل الدخول مجددًا.");
+ const response=await fetch(path,{
+  method,
+  cache:"no-store",
+  headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
+  body:method==="GET"?undefined:JSON.stringify(body||{})
+ });
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(({
+  AUTH_REQUIRED:"انتهت جلسة الدخول؛ يرجى تسجيل الدخول مجددًا.",
+  TEACHER_PROFILE_REQUIRED:"هذا الحساب ليس مرتبطًا بملف معلم نشط.",
+  LEARNER_PROFILE_REQUIRED:"هذا الحساب ليس مرتبطًا بملف طالب نشط.",
+  SCHOOL_PROFILE_NOT_FOUND:"لم يُعثر على ملف مدرسي نشط لهذا الحساب.",
+  INVALID_LESSON_FIELDS:"تحقق من عنوان الدرس وحالته.",
+  INVALID_LESSON_REFERENCE:"اختر برنامجًا أو مادة أو فصلًا صالحًا من الخيارات المتاحة.",
+  INVALID_ASSIGNMENT_FIELDS:"تحقق من عنوان الواجب والدرجة القصوى.",
+  INVALID_SUBMISSION_FIELDS:"اكتب إجابة الواجب قبل الإرسال.",
+  ASSIGNMENT_NOT_ASSIGNED_TO_LEARNER:"هذا الواجب غير مخصص لبرنامجك أو فصلك.",
+  SUBMISSION_NOT_FOUND:"التسليم غير موجود أو لا يتبع هذا المعلم.",
+  SCORE_EXCEEDS_MAXIMUM:"الدرجة أعلى من الدرجة القصوى للواجب."
+ })[result.error]||result.error||"تعذر تنفيذ العملية المدرسية.");
+ return result;
 }
-function msg(el,t,ok=false){$(el).textContent=t;$(el).className=ok?"ok":"err"}
+function msg(el,t,ok=false){$(el).textContent=t;$(el).className=ok?"ok":"err";}
+async function profile(){
+ const result=await api("/api/education/portal-profile");
+ return result.profile;
+}
 async function loadTeacher(){
- const p=me.staff;
- const [pr,su,cl,le]=await Promise.all([sb.from("programs").select("id,name").eq("is_active",true).order("name"),sb.from("subjects").select("id,name").eq("is_active",true).order("name"),sb.from("classrooms").select("id,name").eq("is_active",true).order("name"),sb.from("school_lessons").select("id,title,status,created_at").eq("teacher_id",p.id).order("created_at",{ascending:false})]);
- $("lessonProgram").innerHTML=(pr.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");
- $("lessonSubject").innerHTML=(su.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");
- $("lessonClassroom").innerHTML=(cl.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");
- $("assignmentLesson").innerHTML=(le.data||[]).map(x=>`<option value="${x.id}">${esc(x.title)} — ${esc(x.status)}</option>`).join("");
- const sr=await sb.from("school_submissions").select("id,learner_id,assignment_id,status,score,feedback,submitted_at,school_assignments!inner(title,lesson_id),learners!inner(full_name)").order("submitted_at",{ascending:false}).limit(50);
- $("teacherSubmissions").innerHTML=(sr.data||[]).map(x=>`<div class="item"><strong>${esc(x.learners?.full_name)}</strong> — ${esc(x.school_assignments?.title)}<div class="muted">${esc(x.status)} · الدرجة: ${x.score??"لم تُرصد"} · ${esc(x.submitted_at||"")}</div><textarea data-feedback="${x.id}" placeholder="ملاحظات المعلم">${esc(x.feedback||"")}</textarea><input data-score="${x.id}" type="number" min="0" placeholder="الدرجة"><button data-review="${x.id}">حفظ المراجعة</button></div>`).join("")||"لا توجد تسليمات بعد.";
- document.querySelectorAll("[data-review]").forEach(b=>b.onclick=async()=>{const id=b.dataset.review;const score=document.querySelector(`[data-score="${id}"]`).value;const feedback=document.querySelector(`[data-feedback="${id}"]`).value;const r=await sb.from("school_submissions").update({score:score===""?null:Number(score),feedback,status:"reviewed",reviewed_by:p.id,reviewed_at:new Date().toISOString()}).eq("id",id);msg("teacherMsg",r.error?r.error.message:"تم حفظ المراجعة والنتيجة.",!r.error);});
+ const result=await api("/api/education/portal-teacher");
+ teacherLessons=result.lessons||[];
+ const pr=result.programs||[],su=result.subjects||[],cl=result.classrooms||[];
+ $("lessonProgram").innerHTML=pr.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join("");
+ $("lessonSubject").innerHTML=su.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join("");
+ $("lessonClassroom").innerHTML=cl.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join("");
+ $("assignmentLesson").innerHTML=teacherLessons.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.title)+' — '+esc(x.status)+'</option>').join("");
+ const sr=result.submissions||[];
+ $("teacherSubmissions").innerHTML=sr.map(x=>'<div class="item"><strong>'+esc(x.learners?.full_name)+'</strong> — '+esc(x.school_assignments?.title)+'<div class="muted">'+esc(x.status)+' · الدرجة: '+(x.score??"لم تُرصد")+' · '+esc(x.submitted_at||"")+'</div><textarea data-feedback="'+esc(x.id)+'" placeholder="ملاحظات المعلم">'+esc(x.feedback||"")+'</textarea><input data-score="'+esc(x.id)+'" type="number" min="0" placeholder="الدرجة" value="'+(x.score??"")+'"><button data-review="'+esc(x.id)+'">حفظ المراجعة</button></div>').join("")||"لا توجد تسليمات بعد.";
+ document.querySelectorAll("[data-review]").forEach(b=>b.onclick=async()=>{
+  const id=b.dataset.review;
+  const score=document.querySelector('[data-score="'+id+'"]').value;
+  const feedback=document.querySelector('[data-feedback="'+id+'"]').value;
+  b.disabled=true;
+  try{
+   await api("/api/education/portal-submissions","PATCH",{id,score:score===""?null:Number(score),feedback});
+   msg("teacherMsg","تم حفظ المراجعة والنتيجة في قاعدة التعليم المستقلة.",true);
+   await loadTeacher();
+  }catch(error){msg("teacherMsg",error.message)}
+  finally{b.disabled=false}
+ });
 }
-async function saveLesson(status){const payload={title:$("lessonTitle").value.trim(),explanation:$("lessonExplanation").value.trim(),objectives:$("lessonObjectives").value.trim(),program_id:$("lessonProgram").value||null,subject_id:$("lessonSubject").value||null,classroom_id:$("lessonClassroom").value||null,teacher_id:me.staff.id,status,created_by:me.staff.id};if(!payload.title)return msg("teacherMsg","أدخل عنوان الدرس.");const r=await sb.from("school_lessons").insert(payload);msg("teacherMsg",r.error?.message||"تم حفظ الدرس.",!r.error);if(!r.error)loadTeacher()}
-$("saveLesson").onclick=()=>saveLesson("draft");$("publishLesson").onclick=()=>saveLesson("published");
-$("saveAssignment").onclick=async()=>{const lessonId=$("assignmentLesson").value;const lr=await sb.from("school_lessons").select("classroom_id,subject_id").eq("id",lessonId).single();if(lr.error)return msg("teacherMsg",lr.error.message);const payload={lesson_id:lessonId,classroom_id:lr.data.classroom_id,subject_id:lr.data.subject_id,title:$("assignmentTitle").value.trim(),instructions:$("assignmentInstructions").value.trim(),due_at:$("assignmentDue").value?new Date($("assignmentDue").value).toISOString():null,max_score:Number($("assignmentMax").value||100),status:"published",created_by:me.staff.id};const r=await sb.from("school_assignments").insert(payload);msg("teacherMsg",r.error?.message||"تم نشر الواجب.",!r.error);if(!r.error)loadTeacher()};
-async function loadStudent(){const p=me.learner;const [le,as]=await Promise.all([sb.from("school_lessons").select("id,title,explanation,objectives,scheduled_for").eq("status","published").order("scheduled_for",{ascending:true}),sb.from("school_assignments").select("id,title,instructions,due_at,max_score").eq("status","published").order("due_at",{ascending:true})]);$("studentLessons").innerHTML=(le.data||[]).map(x=>`<div class="item"><strong>${esc(x.title)}</strong><div>${esc(x.explanation||"لا يوجد شرح بعد.")}</div><div class="muted">${esc(x.objectives||"")}</div></div>`).join("")||"لا توجد دروس منشورة.";
-$("studentAssignments").innerHTML=(as.data||[]).map(x=>`<div class="item"><strong>${esc(x.title)}</strong><div>${esc(x.instructions||"")}</div><div class="muted">آخر موعد: ${esc(x.due_at||"غير محدد")} · الدرجة: ${x.max_score}</div><button data-submit="${x.id}">حل وإرسال</button></div>`).join("")||"لا توجد واجبات منشورة.";
-document.querySelectorAll("[data-submit]").forEach(b=>b.onclick=()=>{selectedAssignment=b.dataset.submit;$("submitTitle").textContent=b.closest(".item").querySelector("strong").textContent;$("submitBox").classList.remove("hide");$("submitBox").scrollIntoView({behavior:"smooth"})});
+async function saveLesson(status){
+ const title=$("lessonTitle").value.trim();
+ if(!title)return msg("teacherMsg","أدخل عنوان الدرس.");
+ const payload={
+  title,
+  explanation:$("lessonExplanation").value.trim(),
+  objectives:$("lessonObjectives").value.trim(),
+  program_id:$("lessonProgram").value||null,
+  subject_id:$("lessonSubject").value||null,
+  classroom_id:$("lessonClassroom").value||null,
+  status
+ };
+ try{
+  await api("/api/education/portal-teacher","POST",payload);
+  msg("teacherMsg","تم حفظ الدرس في قاعدة التعليم المستقلة.",true);
+  await loadTeacher();
+ }catch(error){msg("teacherMsg",error.message)}
 }
-$("submitAnswer").onclick=async()=>{if(!selectedAssignment)return;const r=await sb.from("school_submissions").upsert({assignment_id:selectedAssignment,learner_id:me.learner.id,answer_text:$("answerText").value.trim(),submitted_at:new Date().toISOString(),status:"submitted"},{onConflict:"assignment_id,learner_id"});msg("studentMsg",r.error?.message||"تم إرسال الواجب بنجاح.",!r.error)};
-$("loginBtn").onclick=async()=>{const r=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(r.error)return msg("loginMsg",r.error.message);await boot()};
+$("saveLesson").onclick=()=>saveLesson("draft");
+$("publishLesson").onclick=()=>saveLesson("published");
+
+$("saveAssignment").onclick=async()=>{
+ const lessonId=$("assignmentLesson").value;
+ const lesson=teacherLessons.find(x=>x.id===lessonId);
+ if(!lesson)return msg("teacherMsg","احفظ درسًا أولًا ثم اختره لإنشاء الواجب.");
+ const due=$("assignmentDue").value;
+ const payload={
+  lesson_id:lessonId,
+  title:$("assignmentTitle").value.trim(),
+  instructions:$("assignmentInstructions").value.trim(),
+  due_at:due?new Date(due).toISOString():null,
+  max_score:Number($("assignmentMax").value||100)
+ };
+ try{
+  await api("/api/education/portal-assignments","POST",payload);
+  msg("teacherMsg","تم نشر الواجب في قاعدة التعليم المستقلة.",true);
+  $("assignmentTitle").value="";
+  $("assignmentInstructions").value="";
+  $("assignmentDue").value="";
+  await loadTeacher();
+ }catch(error){msg("teacherMsg",error.message)}
+};
+
+async function loadStudent(){
+ const result=await api("/api/education/portal-student");
+ const lessons=result.lessons||[],assignments=result.assignments||[];
+ $("studentLessons").innerHTML=lessons.map(x=>'<div class="item"><strong>'+esc(x.title)+'</strong><div>'+esc(x.explanation||"لا يوجد شرح بعد.")+'</div><div class="muted">'+esc(x.objectives||"")+'</div></div>').join("")||"لا توجد دروس منشورة مخصصة لتسجيلك الحالي.";
+ $("studentAssignments").innerHTML=assignments.map(x=>'<div class="item"><strong>'+esc(x.title)+'</strong><div>'+esc(x.instructions||"")+'</div><div class="muted">آخر موعد: '+esc(x.due_at||"غير محدد")+' · الدرجة: '+esc(x.max_score)+'</div><button data-submit="'+esc(x.id)+'">حل وإرسال</button></div>').join("")||"لا توجد واجبات منشورة مخصصة لتسجيلك الحالي.";
+ document.querySelectorAll("[data-submit]").forEach(b=>b.onclick=()=>{
+  selectedAssignment=b.dataset.submit;
+  $("submitTitle").textContent=b.closest(".item").querySelector("strong").textContent;
+  $("submitBox").classList.remove("hide");
+  $("submitBox").scrollIntoView({behavior:"smooth"});
+ });
+}
+$("submitAnswer").onclick=async()=>{
+ if(!selectedAssignment)return;
+ const answer_text=$("answerText").value.trim();
+ if(!answer_text)return msg("studentMsg","اكتب إجابتك أولًا.");
+ $("submitAnswer").disabled=true;
+ try{
+  await api("/api/education/portal-submissions","POST",{assignment_id:selectedAssignment,answer_text});
+  msg("studentMsg","تم إرسال الواجب بنجاح وحفظه في قاعدة التعليم المستقلة.",true);
+  $("answerText").value="";
+ }catch(error){msg("studentMsg",error.message)}
+ finally{$("submitAnswer").disabled=false}
+};
+$("loginBtn").onclick=async()=>{
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||!password)return msg("loginMsg","يرجى إدخال البريد الإلكتروني وكلمة المرور.");
+ $("loginBtn").disabled=true;
+ try{
+  const result=await sb.auth.signInWithPassword({email,password});
+  if(result.error)throw new Error(result.error.message);
+  await boot();
+ }catch(error){
+  msg("loginMsg",error.message||"تعذر تسجيل الدخول.");
+  await sb.auth.signOut();
+ }finally{$("loginBtn").disabled=false}
+};
 $("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
-async function boot(){me=await profile();if(!me)return;$("login").classList.add("hide");$("app").classList.remove("hide");$("who").textContent=me.staff?.full_name||me.learner?.full_name||me.user.email;$("role").textContent=me.staff?"معلم/موظف":"طالب";if(me.staff){$("teacherPanel").classList.remove("hide");await loadTeacher()}else if(me.learner){$("studentPanel").classList.remove("hide");await loadStudent()}else{msg("loginMsg","الحساب لا يملك ملفًا مدرسيًا مرتبطًا بعد.");await sb.auth.signOut()}}
-boot();
+async function boot(){
+ const session=await sb.auth.getSession();
+ if(!session.data?.session)return;
+ try{
+  me=await profile();
+  $("login").classList.add("hide");
+  $("app").classList.remove("hide");
+  $("who").textContent=me.staff?.full_name||me.learner?.full_name||me.user?.email||"";
+  $("role").textContent=me.staff?"معلم/موظف":"طالب";
+  if(me.staff){
+   $("teacherPanel").classList.remove("hide");
+   $("studentPanel").classList.add("hide");
+   await loadTeacher();
+  }else if(me.learner){
+   $("studentPanel").classList.remove("hide");
+   $("teacherPanel").classList.add("hide");
+   await loadStudent();
+  }else{
+   msg("loginMsg","الحساب لا يملك ملفًا مدرسيًا نشطًا مرتبطًا به.");
+   await sb.auth.signOut();
+   $("login").classList.remove("hide");
+   $("app").classList.add("hide");
+  }
+ }catch(error){
+  msg("loginMsg",error.message||"تعذر تحميل ملفك المدرسي.");
+  await sb.auth.signOut();
+  $("login").classList.remove("hide");
+  $("app").classList.add("hide");
+ }
+}
+sb.auth.onAuthStateChange(event=>{
+ if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event)) {
+  if(event==="SIGNED_OUT")return;
+ }
+});
+boot().catch(error=>msg("loginMsg",error.message||"تعذر تهيئة البوابة."));
 </script></body></html>
