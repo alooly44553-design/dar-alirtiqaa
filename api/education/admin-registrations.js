@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const registrations = await sql`
         SELECT id, registration_number, student_name, gender, date_of_birth, nationality,
-               phone, guardian_name, guardian_phone, approval_status, approved_at,
+               requested_program, phone, guardian_name, guardian_phone, approval_status, approved_at,
                approval_note, documented, documented_at, document_reference, created_at
         FROM education.student_registrations
         ORDER BY created_at DESC
@@ -43,6 +43,17 @@ export default async function handler(req, res) {
       const guardianPhone = cleanText(body.guardian_phone, 30);
       const email = cleanText(body.email, 254);
       const dateOfBirth = cleanText(body.date_of_birth, 10);
+      const educationStage = cleanText(body.education_stage, 20);
+      const educationGrade = cleanText(body.education_grade, 40);
+      const gradesByStage = {
+        primary: ["الأول الابتدائي", "الثاني الابتدائي", "الثالث الابتدائي", "الرابع الابتدائي", "الخامس الابتدائي", "السادس الابتدائي"],
+        middle: ["الأول المتوسط", "الثاني المتوسط", "الثالث المتوسط"],
+        secondary: ["الأول الثانوي", "الثاني الثانوي", "الثالث الثانوي"]
+      };
+      const stageLabels = { primary: "المرحلة الابتدائية", middle: "المرحلة المتوسطة", secondary: "المرحلة الثانوية" };
+      const requestedProgram = stageLabels[educationStage] && gradesByStage[educationStage]?.includes(educationGrade)
+        ? stageLabels[educationStage] + " — " + educationGrade
+        : "";
       const validDate = (value) => {
         if (!value) return true;
         if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -54,6 +65,7 @@ export default async function handler(req, res) {
           parsed.getTime() <= Date.now();
       };
       const validEmail = (value) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      if (!requestedProgram) return sendJson(res, 400, { error: "INVALID_EDUCATION_GRADE" });
       if (name.length < 2 || !gender || (phone && !validPhone(phone)) ||
           (guardianPhone && !validPhone(guardianPhone)) || !validEmail(email) ||
           !validDate(dateOfBirth) || (!phone && !guardianPhone && !email)) {
@@ -63,11 +75,12 @@ export default async function handler(req, res) {
       const saved = await sql`
         INSERT INTO education.student_registrations
           (registration_number, student_name, full_name, gender, date_of_birth, nationality,
-           phone, email, guardian_name, guardian_phone, notes, status, approval_status)
+           requested_program, phone, email, guardian_name, guardian_phone, notes, status, approval_status)
         VALUES
           (${number}, ${name}, ${name}, ${gender},
            NULLIF(${dateOfBirth}, '')::date,
            NULLIF(${cleanText(body.nationality, 80)}, ''),
+           NULLIF(${requestedProgram}, ''),
            NULLIF(${phone}, ''), NULLIF(${email}, ''),
            NULLIF(${cleanText(body.guardian_name, 120)}, ''),
            NULLIF(${guardianPhone}, ''),
