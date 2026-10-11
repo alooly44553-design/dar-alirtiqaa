@@ -174,9 +174,7 @@ function renderForm(service){
  const fields=[...commonFields(service.service_code==="student_registration"),...(service.form_fields||[])];
  const seen=new Set();
  const unique=fields.filter(f=>{if(seen.has(f.key))return false;seen.add(f.key);return true});
- const attachmentField=service.service_code==="student_registration"
-  ? '<div class="field full"><small>سيتم تفعيل مرفقات التسجيل بعد ربط التخزين المستقل الآمن.</small></div>'
-  : '<div class="field full files"><label>المرفقات (اختياري)</label><input id="serviceFiles" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"><small>يمكن إرفاق PDF أو صور أو Word أو Excel، بحد أقصى 10MB إجمالًا.</small></div>';
+ const attachmentField='<div class="field full"><small>المرفقات غير مفعّلة مؤقتًا حتى اكتمال ربط تخزين خاص ومستقل وآمن.</small></div>';
  $("service-fields").innerHTML=unique.map(inputField).join("")+attachmentField+
  '<div class="field full"><label><input id="serviceConsent" type="checkbox" required> '+esc(consentText)+'</label></div>'+
  '<div class="field full"><button class="btn dark" id="serviceSubmit" type="submit">إرسال الطلب</button><div id="serviceStatus" class="status"></div></div>';
@@ -186,59 +184,63 @@ function renderForm(service){
  loadFees(service.id);
 }
 async function loadFees(serviceId){
- const box=$("service-fees");box.innerHTML="<strong>الرسوم</strong><div style='color:var(--muted);margin-top:5px'>جاري التحقق من الرسوم الحالية…</div>";
- const r=await sb.from("service_fee_items").select("fee_name,description,amount,currency,is_required").eq("service_id",serviceId).eq("is_active",true).order("display_order",{ascending:true});
- if(r.error||!r.data?.length){box.innerHTML="<strong>الرسوم</strong><div style='color:var(--muted);margin-top:5px'>لا توجد رسوم محددة لهذه الخدمة حاليًا.</div>";return}
- box.innerHTML="<strong>الرسوم الحالية</strong>"+r.data.map(f=>'<div class="fee-row"><span>'+esc(f.fee_name)+(f.description?'<small style="display:block;color:var(--muted)">'+esc(f.description)+'</small>':"")+'</span><strong>'+(f.amount==null?"يحدد من الإدارة":esc(f.amount)+" "+esc(f.currency||""))+'</strong></div>').join("");
-}
-async function uploadFiles(files,folder){
- if(!files?.length)return [];
- let total=0;const allowed=["application/pdf","image/jpeg","image/png","image/webp","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
- const out=[];
- for(const f of files){
-  total+=f.size;
-  if(!allowed.includes(f.type)||f.size>10*1024*1024)throw new Error("نوع أو حجم أحد المرفقات غير مسموح.");
+ const box=$("service-fees");
+ box.innerHTML="<strong>الرسوم</strong><div style='color:var(--muted);margin-top:5px'>جاري التحقق من الرسوم الحالية…</div>";
+ try{
+  const response=await fetch("/api/education/service-fees?service_id="+encodeURIComponent(serviceId),{cache:"no-store"});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.ok)throw new Error("تعذر جلب الرسوم.");
+  const fees=result.fees||[];
+  if(!fees.length){box.innerHTML="<strong>الرسوم</strong><div style='color:var(--muted);margin-top:5px'>لا توجد رسوم محددة لهذه الخدمة حاليًا.</div>";return}
+  box.innerHTML="<strong>الرسوم الحالية</strong>"+fees.map(f=>'<div class="fee-row"><span>'+esc(f.fee_name)+(f.description?'<small style="display:block;color:var(--muted)">'+esc(f.description)+'</small>':"")+'</span><strong>'+(f.amount==null?"يحدد من الإدارة":esc(f.amount)+" "+esc(f.currency||""))+'</strong></div>').join("");
+ }catch(error){
+  box.innerHTML="<strong>الرسوم</strong><div style='color:var(--muted);margin-top:5px'>تعذر تحميل الرسوم الحالية؛ حاول تحديث الصفحة.</div>";
  }
- if(total>10*1024*1024)throw new Error("إجمالي المرفقات يتجاوز 10MB.");
- for(const f of files){
-  const ext=(f.name.match(/\.[A-Za-z0-9]{1,10}$/)||[""])[0].toLowerCase();
-  const path="public/"+folder+"/"+crypto.randomUUID()+ext;
-  const r=await sb.storage.from("dar-submissions").upload(path,f,{upsert:false,contentType:f.type});
-  if(r.error)throw r.error;
-  out.push({path,name:f.name,type:f.type,size:f.size});
- }
- return out;
 }
 async function loadServices(){
- const r=await sb.from("service_catalog").select("id,service_code,service_name,service_category,description,registration_method,registration_method_label,form_fields,consent_text,display_order").eq("is_active",true).order("display_order",{ascending:true});
- if(r.error){$("services-list").innerHTML='<div class="card"><strong>تعذر تحميل الخدمات.</strong><p>'+esc(r.error.message)+'</p></div>';return}
- services=r.data||[];
- $("services-list").innerHTML=services.map((s,i)=>'<article class="service"><div class="sicon">'+(icons[s.service_code]||"📋")+'</div><h3>'+esc(s.service_name)+'</h3><p>'+esc(s.description||"خدمة إلكترونية من منظومة دار الارتقاء الفكري.")+'</p><button class="btn dark" type="button" data-service="'+i+'">فتح الاستمارة</button></article>').join("");
- $("services-list").querySelectorAll("[data-service]").forEach(b=>b.addEventListener("click",()=>renderForm(services[Number(b.dataset.service)])));
+ try{
+  const response=await fetch("/api/education/services",{cache:"no-store"});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.ok)throw new Error("تعذر تحميل الخدمات.");
+  services=result.services||[];
+  $("services-list").innerHTML=services.map((s,i)=>'<article class="service"><div class="sicon">'+(icons[s.service_code]||"📋")+'</div><h3>'+esc(s.service_name)+'</h3><p>'+esc(s.description||"خدمة إلكترونية من منظومة دار الارتقاء الفكري.")+'</p><button class="btn dark" type="button" data-service="'+i+'">فتح الاستمارة</button></article>').join("");
+  $("services-list").querySelectorAll("[data-service]").forEach(b=>b.addEventListener("click",()=>renderForm(services[Number(b.dataset.service)])));
+ }catch(error){
+  $("services-list").innerHTML='<div class="card"><strong>تعذر تحميل الخدمات.</strong><p>يرجى تحديث الصفحة لاحقًا.</p></div>';
+ }
 }
 $("closeService").onclick=()=>{$("service-form-wrap").classList.remove("open");window.location.hash="services"};
 $("serviceForm").addEventListener("submit",async e=>{
  e.preventDefault();
- const status=$("serviceStatus"),btn=$("serviceSubmit");status.className="status show";status.textContent="جارٍ تجهيز الطلب والمرفقات…";btn.disabled=true;
+ const status=$("serviceStatus"),btn=$("serviceSubmit");
+ status.className="status show";status.textContent="جارٍ إرسال الطلب بأمان…";btn.disabled=true;
  try{
   const data={};
   $("serviceForm").querySelectorAll("[data-key]").forEach(el=>data[el.dataset.key]=el.value.trim?el.value.trim():el.value);
   if(!$("serviceConsent").checked)throw new Error("يجب الموافقة قبل الإرسال.");
-  const fileInput=$("serviceFiles");const files=await uploadFiles(fileInput?.files,"service");
-  if(files.length)data.attachments=files;
   let requestNumber="";
   const serviceCode=$("serviceForm").dataset.serviceCode;
   const selectedService=services.find(s=>s.service_code===serviceCode);
   const consentText=selectedService?.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.";
   if(serviceCode==="student_registration"){
-   const response=await fetch("/api/education/registrations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,attachments:files,consent_given:true,consent_text:consentText})});
+   const response=await fetch("/api/education/registrations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,consent_given:true,consent_text:consentText})});
    const result=await response.json().catch(()=>({}));
    if(!response.ok)throw new Error(({CONSENT_REQUIRED:"يجب الموافقة قبل الإرسال.",CONSENT_TEXT_MISMATCH:"نص الموافقة تغيّر. أغلق الاستمارة وافتحها مجددًا ثم وافق على النص الحالي.",INVALID_REGISTRATION_FIELDS:"يرجى إدخال اسم الطالب والجنس ووسيلة تواصل صحيحة.",DATABASE_NOT_CONFIGURED:"خدمة التسجيل المستقلة غير مهيأة بعد."})[result.error]||"تعذر إرسال طلب التسجيل. حاول مرة أخرى.");
    requestNumber=result.registration?.registration_number||result.registration?.id||"";
   }else{
-   const r=await sb.rpc("submit_service_request",{p_service_code:serviceCode,p_data:{...data,attachments:files,consent_given:true,consent_text:consentText}});
-   if(r.error)throw r.error;
-   requestNumber=r.data;
+   const response=await fetch("/api/education/service-requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,service_code:serviceCode,consent_given:true,consent_text:consentText})});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(({
+    CONSENT_REQUIRED:"يجب الموافقة قبل الإرسال.",
+    CONSENT_TEXT_MISMATCH:"نص الموافقة تغيّر. أغلق الاستمارة وافتحها مجددًا ثم وافق على النص الحالي.",
+    INVALID_SERVICE:"الخدمة المحددة غير صحيحة.",
+    SERVICE_NOT_FOUND:"الخدمة غير متاحة حاليًا.",
+    INVALID_SERVICE_FIELDS:"يرجى مراجعة الحقول المطلوبة والتأكد من صحتها.",
+    INVALID_EMAIL:"تحقق من صيغة البريد الإلكتروني.",
+    INVALID_PHONE:"تحقق من صيغة رقم الهاتف.",
+    INVALID_CONTACT:"أدخل رقم هاتف أو بريدًا إلكترونيًا للتواصل معك."
+   })[result.error]||"تعذر إرسال الطلب. حاول مرة أخرى.");
+   requestNumber=result.request?.request_number||"";
   }
   status.className="status show ok";status.textContent="تم استلام الطلب بنجاح. رقم الطلب: "+requestNumber;
   toast("تم إرسال الطلب بنجاح",true);$("serviceForm").reset();
