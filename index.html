@@ -184,11 +184,25 @@ function renderForm(service){
  $("service-form-wrap").scrollIntoView({behavior:"smooth",block:"start"});
  loadFees(service.id, service.service_code);
  if(service.service_code==="student_registration"){
+  const stageField=$("service-fields").querySelector('[data-key="education_stage"]');
+  const gradeField=$("service-fields").querySelector('[data-key="education_grade"]');
   const refreshFees=()=>loadFees(service.id, service.service_code);
-  ["education_stage","education_grade"].forEach(key=>{
-   const field=$("service-fields").querySelector('[data-key="'+key+'"]');
-   if(field)field.addEventListener("change",refreshFees);
-  });
+  const gradeOptions=gradeField?Array.from(gradeField.options).slice(1).map(o=>({label:o.textContent,value:o.value})):[];
+  const gradesByStage={
+   primary:["الأول الابتدائي","الثاني الابتدائي","الثالث الابتدائي","الرابع الابتدائي","الخامس الابتدائي","السادس الابتدائي"],
+   middle:["الأول المتوسط","الثاني المتوسط","الثالث المتوسط"],
+   secondary:["الأول الثانوي","الثاني الثانوي","الثالث الثانوي"]
+  };
+  const syncGradeOptions=()=>{
+   if(!stageField||!gradeField)return;
+   const allowed=gradesByStage[stageField.value]||[];
+   const previous=gradeField.value;
+   gradeField.innerHTML='<option value="">اختر…</option>'+gradeOptions.filter(o=>allowed.includes(o.value)).map(o=>'<option value="'+esc(o.value)+'">'+esc(o.label)+'</option>').join("");
+   gradeField.value=allowed.includes(previous)?previous:"";
+  };
+  if(stageField)stageField.addEventListener("change",()=>{syncGradeOptions();refreshFees()});
+  if(gradeField)gradeField.addEventListener("change",refreshFees);
+  syncGradeOptions();
  }
 }
 async function loadFees(serviceId, serviceCode){
