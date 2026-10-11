@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     // Student attachments are disabled in the UI until private, authenticated storage is implemented.
     // Never trust client-supplied attachment paths or metadata.
     const attachments = [];
-    const consentText = "أوافق على مراجعة الطلب والتواصل معي بشأنه.";
+    const consentText = "أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.";
     if (studentName.length < 2 || !gender ||
         (phone && !validPhone(phone)) || (guardianPhone && !validPhone(guardianPhone)) ||
         !validEmail(email) || !validDate(dateOfBirth) ||
