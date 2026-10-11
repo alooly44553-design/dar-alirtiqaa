@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     const body = req.body && typeof req.body === "object" ? req.body : {};
 
     if (req.method === "POST") {
-      if (!identity.learner) return sendJson(res, 403, { error: "LEARNER_PROFILE_REQUIRED" });
+      if (!identity.learner || identity.staff) return sendJson(res, 403, { error: "LEARNER_PROFILE_REQUIRED" });
       const assignmentId = cleanText(body.assignment_id, 36);
       const answerText = cleanText(typeof body.answer_text === "string" ? body.answer_text : "", 20000);
       if (!UUID.test(assignmentId) || answerText.length < 1) {
