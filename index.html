@@ -233,7 +233,7 @@ $("serviceForm").addEventListener("submit",async e=>{
   if(serviceCode==="student_registration"){
    const response=await fetch("/api/education/registrations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,attachments:files,consent_given:true,consent_text:consentText})});
    const result=await response.json().catch(()=>({}));
-   if(!response.ok)throw new Error(({CONSENT_REQUIRED:"يجب الموافقة قبل الإرسال.",INVALID_REGISTRATION_FIELDS:"يرجى إدخال اسم الطالب والجنس ووسيلة تواصل صحيحة.",DATABASE_NOT_CONFIGURED:"خدمة التسجيل المستقلة غير مهيأة بعد."})[result.error]||"تعذر إرسال طلب التسجيل. حاول مرة أخرى.");
+   if(!response.ok)throw new Error(({CONSENT_REQUIRED:"يجب الموافقة قبل الإرسال.",CONSENT_TEXT_MISMATCH:"نص الموافقة تغيّر. أغلق الاستمارة وافتحها مجددًا ثم وافق على النص الحالي.",INVALID_REGISTRATION_FIELDS:"يرجى إدخال اسم الطالب والجنس ووسيلة تواصل صحيحة.",DATABASE_NOT_CONFIGURED:"خدمة التسجيل المستقلة غير مهيأة بعد."})[result.error]||"تعذر إرسال طلب التسجيل. حاول مرة أخرى.");
    requestNumber=result.registration?.registration_number||result.registration?.id||"";
   }else{
    const r=await sb.rpc("submit_service_request",{p_service_code:serviceCode,p_data:{...data,attachments:files,consent_given:true,consent_text:consentText}});
