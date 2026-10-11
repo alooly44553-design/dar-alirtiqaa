@@ -150,6 +150,18 @@ ALTER TABLE education.service_requests ADD COLUMN IF NOT EXISTS management_note 
 ALTER TABLE education.service_requests ADD COLUMN IF NOT EXISTS documented boolean NOT NULL DEFAULT false;
 ALTER TABLE education.service_requests ADD COLUMN IF NOT EXISTS documented_at timestamptz;
 ALTER TABLE education.service_requests ADD COLUMN IF NOT EXISTS document_reference text;
+DO $
+BEGIN
+ IF NOT EXISTS (
+  SELECT 1 FROM pg_constraint
+  WHERE conname = 'education_service_requests_service_code_fkey'
+    AND conrelid = 'education.service_requests'::regclass
+ ) THEN
+  ALTER TABLE education.service_requests
+   ADD CONSTRAINT education_service_requests_service_code_fkey
+   FOREIGN KEY (service_code) REFERENCES education.service_catalog(service_code);
+ END IF;
+END $;
 CREATE INDEX IF NOT EXISTS education_service_requests_created_idx
  ON education.service_requests (created_at DESC);
 CREATE INDEX IF NOT EXISTS education_service_requests_status_idx
