@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   try {
     const identity = await resolvePortalIdentity(req);
     if (!identity) return sendJson(res, 401, { error: "AUTH_REQUIRED" });
-    if (!identity.learner) return sendJson(res, 403, { error: "LEARNER_PROFILE_REQUIRED" });
+    if (!identity.learner || identity.staff) return sendJson(res, 403, { error: "LEARNER_PROFILE_REQUIRED" });
 
     const enrollments = identity.enrollments;
     const programs = new Set(enrollments.map(x => x.program_id).filter(Boolean));
