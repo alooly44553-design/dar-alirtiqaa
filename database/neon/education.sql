@@ -35,8 +35,20 @@ CREATE TABLE IF NOT EXISTS education.student_registrations (
  documented_at timestamptz,
  documented_by uuid,
  document_reference text,
+ consent_given boolean NOT NULL DEFAULT false,
+ consent_recorded_at timestamptz,
+ consent_text text,
  attachments jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(attachments) = 'array')
 );
+
+-- Idempotent additive migration for databases created before consent auditing was added.
+ALTER TABLE education.student_registrations
+ ADD COLUMN IF NOT EXISTS consent_given boolean NOT NULL DEFAULT false;
+ALTER TABLE education.student_registrations
+ ADD COLUMN IF NOT EXISTS consent_recorded_at timestamptz;
+ALTER TABLE education.student_registrations
+ ADD COLUMN IF NOT EXISTS consent_text text;
+
 CREATE UNIQUE INDEX IF NOT EXISTS education_student_registrations_number_uq
  ON education.student_registrations (registration_number)
  WHERE registration_number IS NOT NULL;
