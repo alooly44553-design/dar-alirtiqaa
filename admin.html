@@ -617,10 +617,11 @@ const regAdminStage=document.getElementById("regAdminStage"),regAdminGrade=docum
 const regAdminGrades={primary:["الأول الابتدائي","الثاني الابتدائي","الثالث الابتدائي","الرابع الابتدائي","الخامس الابتدائي","السادس الابتدائي"],middle:["الأول المتوسط","الثاني المتوسط","الثالث المتوسط"],secondary:["الأول الثانوي","الثاني الثانوي","الثالث الثانوي"]};
 const regAdminGradeOptions=Array.from(regAdminGrade?.options||[]).slice(1).map(o=>({label:o.textContent,value:o.value}));
 regAdminStage?.addEventListener("change",()=>{const allowed=regAdminGrades[regAdminStage.value]||[];const previous=regAdminGrade.value;regAdminGrade.innerHTML='<option value="">الصف الدراسي</option>'+regAdminGradeOptions.filter(o=>allowed.includes(o.value)).map(o=>'<option value="'+escapeHtml(o.value)+'">'+escapeHtml(o.label)+'</option>').join("");regAdminGrade.value=allowed.includes(previous)?previous:""});
+regAdminStage?.dispatchEvent(new Event("change"));
 document.getElementById("addRegistration")?.addEventListener("click",async()=>{
  const student_name=document.getElementById("regAdminName").value.trim(),gender=document.getElementById("regAdminGender").value,education_stage=regAdminStage.value,education_grade=regAdminGrade.value;
  const m=document.getElementById("registrationMsg");
- if(!student_name||!gender){m.textContent="أدخل الاسم والجنس.";return}
+ if(!student_name||!gender||!education_stage||!education_grade){m.textContent="أدخل الاسم والجنس والمرحلة والصف الدراسي المتوافقين.";return}
  try{
   await educationAdminApi("POST",{student_name,gender,education_stage,education_grade,date_of_birth:document.getElementById("regAdminDob").value||"",nationality:document.getElementById("regAdminNationality").value.trim(),phone:document.getElementById("regAdminPhone").value.trim(),guardian_name:document.getElementById("regAdminGuardian").value.trim(),guardian_phone:document.getElementById("regAdminGuardianPhone").value.trim(),notes:document.getElementById("regAdminNotes").value.trim()});
   m.className="small successText";m.textContent="تم حفظ سجل التسجيل في قاعدة التعليم المستقلة.";
