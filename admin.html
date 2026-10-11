@@ -523,9 +523,9 @@ async function loadServiceFeesAdmin(){
   sb.from("service_fee_items").select("id,service_id,fee_code,fee_name,description,amount,currency,calculation_method,is_required,payment_stage,is_active").order("display_order",{ascending:true})
  ]);
  if(sr.error||fr.error){box.innerHTML='<div class="item dangerText">تعذر تحميل الرسوم: '+escapeHtml((sr.error||fr.error).message)+'</div>';return}
- const services=sr.data||[],fees=fr.data||[];
+ const services=sr.data||[],serviceFees=fr.data||[];
  box.innerHTML=services.map(s=>{
-  const rows=fees.filter(f=>f.service_id===s.id);
+  const rows=serviceFees.filter(f=>f.service_id===s.id);
   return '<div class="item"><strong>'+escapeHtml(s.service_name)+'</strong><div class="small">'+escapeHtml(s.registration_method_label||"")+'</div><div class="list" style="margin-top:8px">'+rows.map(f=>'<div style="padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff"><div class="row between"><strong>'+escapeHtml(f.fee_name)+'</strong><span class="badge '+(f.is_required?"warn":"info")+'">'+(f.is_required?"أساسية":"حسب الحاجة")+'</span></div><div class="grid" style="margin-top:7px"><input data-fee-amount="'+f.id+'" type="number" min="0" step="0.01" value="'+(f.amount??"")+'" placeholder="المبلغ"><input data-fee-currency="'+f.id+'" value="'+escapeHtml(f.currency||"SAR")+'" placeholder="العملة"><select data-fee-required="'+f.id+'"><option value="true" '+(f.is_required?"selected":"")+'>رسوم مطلوبة</option><option value="false" '+(!f.is_required?"selected":"")+'>تطبق حسب الحاجة</option></select><button type="button" data-fee-save="'+f.id+'">حفظ الرسوم</button></div><div class="small muted" style="margin-top:5px">'+escapeHtml(f.description||"")+' · مرحلة الدفع: '+escapeHtml(f.payment_stage||"")+'</div></div>').join("")+'</div></div>';
  }).join("")||'<span class="muted">لا توجد خدمات نشطة.</span>';
 }
