@@ -1,5 +1,5 @@
 import { getDatabase, sendJson } from "../../lib/neon-db.js";
-import { resolvePortalIdentity, supabaseRows } from "../../lib/education-portal-auth.js";
+import { resolvePortalIdentity } from "../../lib/education-portal-auth.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -11,12 +11,7 @@ export default async function handler(req, res) {
     if (!identity) return sendJson(res, 401, { error: "AUTH_REQUIRED" });
     if (!identity.learner) return sendJson(res, 403, { error: "LEARNER_PROFILE_REQUIRED" });
 
-    const enrollments = await supabaseRows("enrollments", identity.token, {
-      select: "program_id,classroom_id,status",
-      learner_id: "eq." + identity.learner.id,
-      status: "eq.active",
-      limit: "500"
-    });
+    const enrollments = identity.enrollments;
     const programs = new Set(enrollments.map(x => x.program_id).filter(Boolean));
     const classrooms = new Set(enrollments.map(x => x.classroom_id).filter(Boolean));
     const sql = getDatabase("education");
