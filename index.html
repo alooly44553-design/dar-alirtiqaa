@@ -183,6 +183,10 @@ function renderForm(service){
  $("service-form-wrap").classList.add("open");
  $("service-form-wrap").scrollIntoView({behavior:"smooth",block:"start"});
  loadFees(service.id, service.service_code);
+ if(service.service_code==="university_guidance"){
+  const degreeField=$("service-fields").querySelector('[data-key="degree_level"]');
+  if(degreeField)degreeField.addEventListener("change",()=>loadFees(service.id,service.service_code));
+ }
  if(service.service_code==="student_registration"){
   const stageField=$("service-fields").querySelector('[data-key="education_stage"]');
   const gradeField=$("service-fields").querySelector('[data-key="education_grade"]');
@@ -224,12 +228,20 @@ async function loadFees(serviceId, serviceCode){
     if(rule.exclude_grade&&rule.exclude_grade===grade)return false;
     if((rule.education_stage||rule.grade||rule.exclude_grade)&&(!stage||!grade))return false;
    }
+   if(serviceCode==="university_guidance"&&rule.fee_scope==="tuition_only"){
+    const degree=$( "service-fields" ).querySelector('[data-key="degree_level"]')?.value||"";
+    const appliesTo=Array.isArray(rule.applies_to)?rule.applies_to:[];
+    const normalizedDegree=degree==="other_graduate"?"postgraduate_studies":degree;
+    if(!degree||!appliesTo.includes(normalizedDegree))return false;
+   }
    return true;
   });
   const stageNotice=serviceCode==="student_registration"&&(!stage||!grade)?"<div style='color:var(--muted);margin-top:6px'>اختر المرحلة والصف لإظهار الرسوم الدراسية المنطبقة فقط.</div>":"";
+  const degreeSelected=$("service-fields").querySelector('[data-key="degree_level"]')?.value||"";
+  const degreeNotice=serviceCode==="university_guidance"&&!degreeSelected?"<div style='color:var(--muted);margin-top:6px'>اختر الدرجة المطلوبة لإظهار الرسوم الدراسية المناسبة فقط.</div>":"";
   const policyNotice="<div style='color:var(--muted);font-size:12px;margin-top:8px'>تُعرض الأسعار المعتمدة فقط. أي خدمة إضافية غير مسعّرة لن تُضاف إلا بعد إبلاغك بها مسبقًا.</div>";
-  if(!fees.length){box.innerHTML="<strong>الرسوم المعتمدة</strong>"+stageNotice+"<div style='color:var(--muted);margin-top:5px'>لا توجد رسوم معتمدة منطبقة على الاختيارات الحالية.</div>"+policyNotice;return}
-  box.innerHTML="<strong>الرسوم المعتمدة</strong>"+stageNotice+fees.map(f=>'<div class="fee-row"><span>'+esc(f.fee_name)+(f.condition_rule?.applies_when?'<small style="display:block;color:var(--muted)">تطبق عند الحاجة فقط</small>':"")+(f.condition_rule?.note?'<small style="display:block;color:var(--muted)">'+esc(f.condition_rule.note)+'</small>':"")+(f.description?'<small style="display:block;color:var(--muted)">'+esc(f.description)+'</small>':"")+'</span><strong>'+esc(f.amount)+" "+esc(f.currency||"")+'</strong></div>').join("")+policyNotice;
+  if(!fees.length){box.innerHTML="<strong>الرسوم المعتمدة</strong>"+stageNotice+degreeNotice+"<div style='color:var(--muted);margin-top:5px'>لا توجد رسوم معتمدة منطبقة على الاختيارات الحالية.</div>"+policyNotice;return}
+  box.innerHTML="<strong>الرسوم المعتمدة</strong>"+stageNotice+degreeNotice+fees.map(f=>'<div class="fee-row"><span>'+esc(f.fee_name)+(f.condition_rule?.applies_when?'<small style="display:block;color:var(--muted)">تطبق عند الحاجة فقط</small>':"")+(f.condition_rule?.note?'<small style="display:block;color:var(--muted)">'+esc(f.condition_rule.note)+'</small>':"")+(f.description?'<small style="display:block;color:var(--muted)">'+esc(f.description)+'</small>':"")+'</span><strong>'+esc(f.amount)+" "+esc(f.currency||"")+'</strong></div>').join("")+policyNotice;
  }catch(error){
   box.innerHTML="<strong>الرسوم</strong><div style='color:var(--muted);margin-top:5px'>تعذر تحميل الرسوم الحالية؛ حاول تحديث الصفحة.</div>";
  }
