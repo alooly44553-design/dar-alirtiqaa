@@ -543,30 +543,44 @@ document.getElementById("serviceFeesAdmin")?.addEventListener("click",async e=>{
  const m=document.getElementById("serviceFeesMsg");m.className=error?"small dangerText":"small successText";m.textContent=error?"تعذر حفظ الرسوم: "+error.message:"تم تحديث رسوم الخدمة.";
  if(!error)await loadServiceFeesAdmin();
 });
+async function educationAdminApi(method,body){
+ const sessionResult=await sb.auth.getSession();
+ const token=sessionResult.data?.session?.access_token;
+ if(!token)throw new Error("انتهت جلسة الدخول؛ يرجى تسجيل الدخول مجددًا.");
+ const response=await fetch("/api/education/admin-registrations",{method,headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:method==="GET"?undefined:JSON.stringify(body||{})});
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(result.error||"تعذر الاتصال بخدمة التسجيلات.");
+ return result;
+}
 async function loadRegistrations(){
- const box=document.getElementById("registrationsList"),sum=document.getElementById("registrationsSummary"); if(!box)return;
- const {data,error}=await sb.from("student_registrations").select("id,registration_number,student_name,gender,date_of_birth,nationality,phone,guardian_name,guardian_phone,approval_status,approved_at,approval_note,documented,documented_at,document_reference,created_at").order("created_at",{ascending:false}).limit(50);
- if(error){box.innerHTML='<div class="item dangerText">تعذر تحميل سجلات التسجيل: '+escapeHtml(error.message)+'</div>';return}
- const rows=data||[]; if(sum)sum.textContent="إجمالي السجلات المعروضة: "+rows.length;
- box.innerHTML=rows.map(x=>'<div class="item"><strong>'+escapeHtml(x.student_name)+' — '+escapeHtml(x.registration_number)+'</strong><div class="small">الجنس: '+(x.gender==="female"?"طالبة":"طالب")+' · الهاتف: '+escapeHtml(x.phone||"غير مسجل")+' · ولي الأمر: '+escapeHtml(x.guardian_name||"غير مسجل")+'</div><div class="small">الحالة: <span class="badge '+(x.approval_status==="approved"?"ok":x.approval_status==="rejected"?"danger":"warn")+'">'+escapeHtml(x.approval_status)+'</span> · التوثيق: '+(x.documented?"موثق":"غير موثق")+'</div><div class="row" style="margin-top:7px"><button type="button" data-reg-approve="'+x.id+'">اعتماد</button><button type="button" class="secondary" data-reg-reject="'+x.id+'">رفض</button><button type="button" class="secondary" data-reg-doc="'+x.id+'">'+(x.documented?"تحديث التوثيق":"توثيق قبول التسجيل")+'</button></div></div>').join("")||'<span class="muted">لا توجد سجلات تسجيل.</span>';
+ const box=document.getElementById("registrationsList"),sum=document.getElementById("registrationsSummary");if(!box)return;
+ try{
+  box.innerHTML='<div class="muted">جارٍ تحميل سجلات التسجيل من قاعدة التعليم المستقلة…</div>';
+  const result=await educationAdminApi("GET");
+  const rows=result.registrations||[];if(sum)sum.textContent="إجمالي السجلات المعروضة: "+rows.length;
+  box.innerHTML=rows.map(x=>'<div class="item"><strong>'+escapeHtml(x.student_name)+' — '+escapeHtml(x.registration_number||"بانتظار الرقم")+'</strong><div class="small">الجنس: '+(x.gender==="female"?"طالبة":"طالب")+' · الهاتف: '+escapeHtml(x.phone||"غير مسجل")+' · ولي الأمر: '+escapeHtml(x.guardian_name||"غير مسجل")+'</div><div class="small">الحالة: <span class="badge '+(x.approval_status==="approved"?"ok":x.approval_status==="rejected"?"danger":"warn")+'">'+escapeHtml(x.approval_status)+'</span> · التوثيق: '+(x.documented?"موثق":"غير موثق")+'</div><div class="row" style="margin-top:7px"><button type="button" data-reg-approve="'+x.id+'">اعتماد</button><button type="button" class="secondary" data-reg-reject="'+x.id+'">رفض</button><button type="button" class="secondary" data-reg-doc="'+x.id+'">'+(x.documented?"تحديث التوثيق":"توثيق قبول التسجيل")+'</button></div></div>').join("")||'<span class="muted">لا توجد سجلات تسجيل.</span>';
+ }catch(error){box.innerHTML='<div class="item dangerText">تعذر تحميل سجلات التسجيل: '+escapeHtml(error.message)+'</div>'}
 }
 document.getElementById("addRegistration")?.addEventListener("click",async()=>{
  const student_name=document.getElementById("regAdminName").value.trim(),gender=document.getElementById("regAdminGender").value;
- if(!student_name||!gender){document.getElementById("registrationMsg").textContent="أدخل الاسم والجنس.";return}
- const {error}=await sb.from("student_registrations").insert({student_name,gender,date_of_birth:document.getElementById("regAdminDob").value||null,nationality:document.getElementById("regAdminNationality").value.trim()||null,phone:document.getElementById("regAdminPhone").value.trim()||null,guardian_name:document.getElementById("regAdminGuardian").value.trim()||null,guardian_phone:document.getElementById("regAdminGuardianPhone").value.trim()||null,notes:document.getElementById("regAdminNotes").value.trim()||null});
- const m=document.getElementById("registrationMsg");m.className=error?"small dangerText":"small successText";m.textContent=error?"تعذر حفظ السجل: "+error.message:"تم حفظ سجل التسجيل.";if(!error){document.getElementById("regAdminName").value="";document.getElementById("regAdminNotes").value="";await loadRegistrations()}
+ const m=document.getElementById("registrationMsg");
+ if(!student_name||!gender){m.textContent="أدخل الاسم والجنس.";return}
+ try{
+  await educationAdminApi("POST",{student_name,gender,date_of_birth:document.getElementById("regAdminDob").value||"",nationality:document.getElementById("regAdminNationality").value.trim(),phone:document.getElementById("regAdminPhone").value.trim(),guardian_name:document.getElementById("regAdminGuardian").value.trim(),guardian_phone:document.getElementById("regAdminGuardianPhone").value.trim(),notes:document.getElementById("regAdminNotes").value.trim()});
+  m.className="small successText";m.textContent="تم حفظ سجل التسجيل في قاعدة التعليم المستقلة.";
+  document.getElementById("regAdminName").value="";document.getElementById("regAdminNotes").value="";await loadRegistrations();
+ }catch(error){m.className="small dangerText";m.textContent="تعذر حفظ السجل: "+error.message}
 });
 document.getElementById("registrationsList")?.addEventListener("click",async e=>{
- const b=e.target.closest("button");if(!b)return;const id=b.dataset.regApprove||b.dataset.regReject||b.dataset.regDoc;if(!id)return;
- let patch={};
- if(b.dataset.regApprove!==undefined)patch={approval_status:"approved",approved_at:new Date().toISOString()};
- else if(b.dataset.regReject!==undefined)patch={approval_status:"rejected",approved_at:null};
- else patch={documented:true,documented_at:new Date().toISOString(),document_reference:window.prompt("مرجع/ملاحظة التوثيق (اختياري):")||null};
- const {data:{user}}=await sb.auth.getUser();if(!user)return;
- if(patch.approval_status)patch.approved_by=user.id;
- else if(patch.documented)patch.documented_by=user.id;
- const {error}=await sb.from("student_registrations").update(patch).eq("id",id);
- const m=document.getElementById("registrationMsg");m.className=error?"small dangerText":"small successText";m.textContent=error?"تعذر تحديث السجل: "+error.message:"تم تحديث سجل التسجيل.";await loadRegistrations();
+ const b=e.target.closest("button");if(!b)return;
+ const id=b.dataset.regApprove||b.dataset.regReject||b.dataset.regDoc;if(!id)return;
+ let action=b.dataset.regApprove!==undefined?"approve":b.dataset.regReject!==undefined?"reject":"document";
+ const m=document.getElementById("registrationMsg");
+ const document_reference=action==="document"?(window.prompt("مرجع/ملاحظة التوثيق (اختياري):")||""):"";
+ try{
+  await educationAdminApi("PATCH",{id,action,document_reference});
+  m.className="small successText";m.textContent="تم تحديث سجل التسجيل في قاعدة التعليم المستقلة.";await loadRegistrations();
+ }catch(error){m.className="small dangerText";m.textContent="تعذر تحديث السجل: "+error.message}
 });
 
 async function loadAuditDashboard(){
