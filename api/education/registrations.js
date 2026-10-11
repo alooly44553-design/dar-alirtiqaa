@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       INSERT INTO education.student_registrations
         (registration_number, student_name, full_name, gender, date_of_birth, nationality,
          identity_type, identity_number, phone, email, guardian_name, guardian_relationship,
-         guardian_phone, address, previous_education, requested_program, notes, status, approval_status)
+         guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status)
       VALUES
         (${registrationNumber}, ${studentName}, ${studentName}, ${gender},
          NULLIF(${cleanText(body.date_of_birth, 10)}, '')::date,
