@@ -13,6 +13,17 @@ export default async function handler(req, res) {
     const guardianPhone = cleanText(body.guardian_phone, 30);
     const email = cleanText(body.email, 254);
     const dateOfBirth = cleanText(body.date_of_birth, 10);
+    const educationStage = cleanText(body.education_stage, 20);
+    const educationGrade = cleanText(body.education_grade, 40);
+    const gradesByStage = {
+      primary: ["الأول الابتدائي", "الثاني الابتدائي", "الثالث الابتدائي", "الرابع الابتدائي", "الخامس الابتدائي", "السادس الابتدائي"],
+      middle: ["الأول المتوسط", "الثاني المتوسط", "الثالث المتوسط"],
+      secondary: ["الأول الثانوي", "الثاني الثانوي", "الثالث الثانوي"]
+    };
+    const stageLabels = { primary: "المرحلة الابتدائية", middle: "المرحلة المتوسطة", secondary: "المرحلة الثانوية" };
+    const requestedProgram = stageLabels[educationStage] && gradesByStage[educationStage]?.includes(educationGrade)
+      ? stageLabels[educationStage] + " — " + educationGrade
+      : "";
     const validDate = (value) => {
       if (!value) return true;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -33,7 +44,7 @@ export default async function handler(req, res) {
     }
     if (studentName.length < 2 || !gender ||
         (phone && !validPhone(phone)) || (guardianPhone && !validPhone(guardianPhone)) ||
-        !validEmail(email) || !validDate(dateOfBirth) ||
+        !validEmail(email) || !validDate(dateOfBirth) || !requestedProgram ||
         (!phone && !guardianPhone && !email)) {
       return sendJson(res, 400, { error: "INVALID_REGISTRATION_FIELDS" });
     }
@@ -56,7 +67,7 @@ export default async function handler(req, res) {
          NULLIF(${guardianPhone}, ''),
          NULLIF(${cleanText(body.address, 250)}, ''),
          NULLIF(${cleanText(body.previous_education, 200)}, ''),
-         NULLIF(${cleanText(body.requested_program, 120)}, ''),
+         NULLIF(${requestedProgram}, ''),
          NULLIF(${cleanText(body.notes, 1000)}, ''),
          ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending', true, now(), ${consentText})
       RETURNING id, registration_number, approval_status, created_at
