@@ -285,6 +285,7 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
    return result;
   }
   const box=document.getElementById("studentRegistrationsList"),msg=document.getElementById("studentRegistrationsMsg");
+  if(!box||!msg)return; // Retired panel is intentionally inactive when its UI is absent.
   const run=async()=>{
    msg.textContent="جارٍ التحميل من قاعدة التعليم المستقلة…";
    try{
