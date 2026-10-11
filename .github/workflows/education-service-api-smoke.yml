@@ -110,7 +110,7 @@ jobs:
             console.log('PASS: ' + label + ' -> ' + expected);
           }
 
-          const studentFields = { student_name: 'Synthetic Test', gender: 'male', phone: '12345678' };
+          const studentFields = { student_name: 'Synthetic Test', gender: 'male', phone: '12345678', education_stage: 'secondary', education_grade: 'الثالث الثانوي' };
           await expectError('student registration missing consent', '/api/education/registrations', {}, 'CONSENT_REQUIRED');
           await expectError('student consent mismatch', '/api/education/registrations',
             { ...studentFields, consent_given: true, consent_text: 'wrong text' }, 'CONSENT_TEXT_MISMATCH');
