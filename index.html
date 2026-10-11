@@ -170,6 +170,7 @@ function commonFields(isStudent){
 function renderForm(service){
  $("service-form-title").textContent=service.service_name+" — "+service.registration_method_label;
  $("service-form-description").textContent=service.description||"أدخل البيانات بدقة؛ الطلبات تُراجع من الإدارة.";
+ const consentText=service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.";
  const fields=[...commonFields(service.service_code==="student_registration"),...(service.form_fields||[])];
  const seen=new Set();
  const unique=fields.filter(f=>{if(seen.has(f.key))return false;seen.add(f.key);return true});
@@ -177,7 +178,7 @@ function renderForm(service){
   ? '<div class="field full"><small>سيتم تفعيل مرفقات التسجيل بعد ربط التخزين المستقل الآمن.</small></div>'
   : '<div class="field full files"><label>المرفقات (اختياري)</label><input id="serviceFiles" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"><small>يمكن إرفاق PDF أو صور أو Word أو Excel، بحد أقصى 10MB إجمالًا.</small></div>';
  $("service-fields").innerHTML=unique.map(inputField).join("")+attachmentField+
- '<div class="field full"><label><input id="serviceConsent" type="checkbox" required> أوافق على مراجعة الطلب والتواصل معي بشأنه.</label></div>'+
+ '<div class="field full"><label><input id="serviceConsent" type="checkbox" required> '+esc(consentText)+'</label></div>'+
  '<div class="field full"><button class="btn dark" id="serviceSubmit" type="submit">إرسال الطلب</button><div id="serviceStatus" class="status"></div></div>';
  $("serviceForm").dataset.serviceCode=service.service_code;
  $("service-form-wrap").classList.add("open");
@@ -227,13 +228,15 @@ $("serviceForm").addEventListener("submit",async e=>{
   if(files.length)data.attachments=files;
   let requestNumber="";
   const serviceCode=$("serviceForm").dataset.serviceCode;
+  const selectedService=services.find(s=>s.service_code===serviceCode);
+  const consentText=selectedService?.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.";
   if(serviceCode==="student_registration"){
-   const response=await fetch("/api/education/registrations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,attachments:files,consent_given:true})});
+   const response=await fetch("/api/education/registrations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,attachments:files,consent_given:true,consent_text:consentText})});
    const result=await response.json().catch(()=>({}));
    if(!response.ok)throw new Error(({CONSENT_REQUIRED:"يجب الموافقة قبل الإرسال.",INVALID_REGISTRATION_FIELDS:"يرجى إدخال اسم الطالب والجنس ووسيلة تواصل صحيحة.",DATABASE_NOT_CONFIGURED:"خدمة التسجيل المستقلة غير مهيأة بعد."})[result.error]||"تعذر إرسال طلب التسجيل. حاول مرة أخرى.");
    requestNumber=result.registration?.registration_number||result.registration?.id||"";
   }else{
-   const r=await sb.rpc("submit_service_request",{p_service_code:serviceCode,p_data:{...data,attachments:files,consent_given:true}});
+   const r=await sb.rpc("submit_service_request",{p_service_code:serviceCode,p_data:{...data,attachments:files,consent_given:true,consent_text:consentText}});
    if(r.error)throw r.error;
    requestNumber=r.data;
   }
