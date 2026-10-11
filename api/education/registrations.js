@@ -42,9 +42,12 @@ export default async function handler(req, res) {
     if (body.consent_text !== consentText) {
       return sendJson(res, 400, { error: "CONSENT_TEXT_MISMATCH" });
     }
+    if (!requestedProgram) {
+      return sendJson(res, 400, { error: "INVALID_EDUCATION_GRADE" });
+    }
     if (studentName.length < 2 || !gender ||
         (phone && !validPhone(phone)) || (guardianPhone && !validPhone(guardianPhone)) ||
-        !validEmail(email) || !validDate(dateOfBirth) || !requestedProgram ||
+        !validEmail(email) || !validDate(dateOfBirth) ||
         (!phone && !guardianPhone && !email)) {
       return sendJson(res, 400, { error: "INVALID_REGISTRATION_FIELDS" });
     }
