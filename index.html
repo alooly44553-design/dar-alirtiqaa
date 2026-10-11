@@ -173,8 +173,10 @@ function renderForm(service){
  const fields=[...commonFields(service.service_code==="student_registration"),...(service.form_fields||[])];
  const seen=new Set();
  const unique=fields.filter(f=>{if(seen.has(f.key))return false;seen.add(f.key);return true});
- $("service-fields").innerHTML=unique.map(inputField).join("")+
- '<div class="field full files"><label>المرفقات (اختياري)</label><input id="serviceFiles" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"><small>يمكن إرفاق PDF أو صور أو Word أو Excel، بحد أقصى 10MB إجمالًا.</small></div>'+
+ const attachmentField=service.service_code==="student_registration"
+  ? '<div class="field full"><small>سيتم تفعيل مرفقات التسجيل بعد ربط التخزين المستقل الآمن.</small></div>'
+  : '<div class="field full files"><label>المرفقات (اختياري)</label><input id="serviceFiles" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx"><small>يمكن إرفاق PDF أو صور أو Word أو Excel، بحد أقصى 10MB إجمالًا.</small></div>';
+ $("service-fields").innerHTML=unique.map(inputField).join("")+attachmentField+
  '<div class="field full"><label><input id="serviceConsent" type="checkbox" required> أوافق على مراجعة الطلب والتواصل معي بشأنه.</label></div>'+
  '<div class="field full"><button class="btn dark" id="serviceSubmit" type="submit">إرسال الطلب</button><div id="serviceStatus" class="status"></div></div>';
  $("serviceForm").dataset.serviceCode=service.service_code;
@@ -221,7 +223,7 @@ $("serviceForm").addEventListener("submit",async e=>{
   const data={};
   $("serviceForm").querySelectorAll("[data-key]").forEach(el=>data[el.dataset.key]=el.value.trim?el.value.trim():el.value);
   if(!$("serviceConsent").checked)throw new Error("يجب الموافقة قبل الإرسال.");
-  const files=await uploadFiles($("serviceFiles").files,"service");
+  const fileInput=$("serviceFiles");const files=await uploadFiles(fileInput?.files,"service");
   if(files.length)data.attachments=files;
   let requestNumber="";
   const serviceCode=$("serviceForm").dataset.serviceCode;
