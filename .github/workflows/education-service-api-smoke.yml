@@ -113,5 +113,12 @@ jobs:
             consent_given: true, consent_text: programConsent
           }, 'INVALID_EMAIL');
 
+          for (const path of ['/api/education/admin-service-fees', '/api/education/admin-service-requests']) {
+            const { response, body } = await request(path);
+            assert.equal(response.status, 401, path + ': unauthenticated access must be rejected');
+            assert.equal(body.error, 'ADMIN_AUTH_REQUIRED', path + ': expected explicit admin authorization error');
+            console.log('PASS: unauthenticated admin access denied -> ' + path);
+          }
+
           console.log('PASS: all negative POST tests completed; no test requests should have been written.');
           NODE
