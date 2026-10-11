@@ -28,6 +28,9 @@ export default async function handler(req, res) {
     // Never trust client-supplied attachment paths or metadata.
     const attachments = [];
     const consentText = "أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.";
+    if (body.consent_text !== consentText) {
+      return sendJson(res, 400, { error: "CONSENT_TEXT_MISMATCH" });
+    }
     if (studentName.length < 2 || !gender ||
         (phone && !validPhone(phone)) || (guardianPhone && !validPhone(guardianPhone)) ||
         !validEmail(email) || !validDate(dateOfBirth) ||
