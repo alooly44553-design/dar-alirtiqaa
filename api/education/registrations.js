@@ -12,6 +12,7 @@ export default async function handler(req, res) {
     const phone = cleanText(body.phone, 30);
     const guardianPhone = cleanText(body.guardian_phone, 30);
     const email = cleanText(body.email, 254);
+    const attachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 10).map(item => ({ path: cleanText(item?.path, 300), name: cleanText(item?.name, 160), type: cleanText(item?.type, 120), size: Math.max(0, Math.min(Number(item?.size) || 0, 10485760)) })).filter(item => item.path && item.name) : [];
     if (studentName.length < 2 || !gender ||
         (phone && !validPhone(phone)) || (guardianPhone && !validPhone(guardianPhone)) ||
         (!phone && !guardianPhone && !email)) {
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
          NULLIF(${cleanText(body.previous_education, 200)}, ''),
          NULLIF(${cleanText(body.requested_program, 120)}, ''),
          NULLIF(${cleanText(body.notes, 1000)}, ''),
-         'pending', 'pending')
+         ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending')
       RETURNING id, registration_number, approval_status, created_at
     `;
     return sendJson(res, 201, { ok: true, registration: rows[0] });
