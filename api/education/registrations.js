@@ -24,7 +24,9 @@ export default async function handler(req, res) {
         parsed.getTime() <= Date.now();
     };
     const validEmail = (value) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-    const attachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 10).map(item => ({ path: cleanText(item?.path, 300), name: cleanText(item?.name, 160), type: cleanText(item?.type, 120), size: Math.max(0, Math.min(Number(item?.size) || 0, 10485760)) })).filter(item => item.path && item.name) : [];
+    // Student attachments are disabled in the UI until private, authenticated storage is implemented.
+    // Never trust client-supplied attachment paths or metadata.
+    const attachments = [];
     if (studentName.length < 2 || !gender ||
         (phone && !validPhone(phone)) || (guardianPhone && !validPhone(guardianPhone)) ||
         !validEmail(email) || !validDate(dateOfBirth) ||
