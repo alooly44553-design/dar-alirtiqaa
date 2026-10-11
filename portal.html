@@ -51,11 +51,11 @@ async function api(path,method="GET",body){
 }
 function msg(el,t,ok=false){$(el).textContent=t;$(el).className=ok?"ok":"err";}
 async function profile(){
- const result=await api("/api/education/portal-profile");
+ const result=await api("/api/education/portal?resource=profile");
  return result.profile;
 }
 async function loadTeacher(){
- const result=await api("/api/education/portal-teacher");
+ const result=await api("/api/education/portal?resource=teacher");
  teacherLessons=result.lessons||[];
  const pr=result.programs||[],su=result.subjects||[],cl=result.classrooms||[];
  $("lessonProgram").innerHTML=pr.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join("");
@@ -70,7 +70,7 @@ async function loadTeacher(){
   const feedback=document.querySelector('[data-feedback="'+id+'"]').value;
   b.disabled=true;
   try{
-   await api("/api/education/portal-submissions","PATCH",{id,score:score===""?null:Number(score),feedback});
+   await api("/api/education/portal?resource=submissions","PATCH",{id,score:score===""?null:Number(score),feedback});
    msg("teacherMsg","تم حفظ المراجعة والنتيجة في قاعدة التعليم المستقلة.",true);
    await loadTeacher();
   }catch(error){msg("teacherMsg",error.message)}
@@ -90,7 +90,7 @@ async function saveLesson(status){
   status
  };
  try{
-  await api("/api/education/portal-teacher","POST",payload);
+  await api("/api/education/portal?resource=teacher","POST",payload);
   msg("teacherMsg","تم حفظ الدرس في قاعدة التعليم المستقلة.",true);
   await loadTeacher();
  }catch(error){msg("teacherMsg",error.message)}
@@ -111,7 +111,7 @@ $("saveAssignment").onclick=async()=>{
   max_score:Number($("assignmentMax").value||100)
  };
  try{
-  await api("/api/education/portal-assignments","POST",payload);
+  await api("/api/education/portal?resource=assignments","POST",payload);
   msg("teacherMsg","تم نشر الواجب في قاعدة التعليم المستقلة.",true);
   $("assignmentTitle").value="";
   $("assignmentInstructions").value="";
@@ -121,7 +121,7 @@ $("saveAssignment").onclick=async()=>{
 };
 
 async function loadStudent(){
- const result=await api("/api/education/portal-student");
+ const result=await api("/api/education/portal?resource=student");
  const lessons=result.lessons||[],assignments=result.assignments||[];
  $("studentLessons").innerHTML=lessons.map(x=>'<div class="item"><strong>'+esc(x.title)+'</strong><div>'+esc(x.explanation||"لا يوجد شرح بعد.")+'</div><div class="muted">'+esc(x.objectives||"")+'</div></div>').join("")||"لا توجد دروس منشورة مخصصة لتسجيلك الحالي.";
  $("studentAssignments").innerHTML=assignments.map(x=>'<div class="item"><strong>'+esc(x.title)+'</strong><div>'+esc(x.instructions||"")+'</div><div class="muted">آخر موعد: '+esc(x.due_at||"غير محدد")+' · الدرجة: '+esc(x.max_score)+'</div><button data-submit="'+esc(x.id)+'">حل وإرسال</button></div>').join("")||"لا توجد واجبات منشورة مخصصة لتسجيلك الحالي.";
@@ -138,7 +138,7 @@ $("submitAnswer").onclick=async()=>{
  if(!answer_text)return msg("studentMsg","اكتب إجابتك أولًا.");
  $("submitAnswer").disabled=true;
  try{
-  await api("/api/education/portal-submissions","POST",{assignment_id:selectedAssignment,answer_text});
+  await api("/api/education/portal?resource=submissions","POST",{assignment_id:selectedAssignment,answer_text});
   msg("studentMsg","تم إرسال الواجب بنجاح وحفظه في قاعدة التعليم المستقلة.",true);
   $("answerText").value="";
  }catch(error){msg("studentMsg",error.message)}
