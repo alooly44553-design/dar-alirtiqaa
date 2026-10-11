@@ -241,36 +241,46 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <div class="toolbar"><button id="refreshServiceSubmissions">تحديث الطلبات</button><span id="serviceSubmissionsMsg"></span></div>
 <div id="serviceSubmissionsList"></div>
 </section>
-<script>
-(async function(){
+<script>(async function(){
  const waitForSb=setInterval(async()=>{
   if(!window.sb)return;
   clearInterval(waitForSb);
   const list=document.getElementById("serviceSubmissionsList"),msg=document.getElementById("serviceSubmissionsMsg");
-  const safe=v=>String(v??"").replace(/[&<>"\']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","\'":"&#39;"}[ch]));
-  async function load(){
-   msg.textContent="جارٍ تحميل الطلبات…";
-   const {data,error}=await window.sb.from("service_submissions").select("id,submission_number,applicant_name,applicant_phone,applicant_email,submission_data,consent_given,status,management_note,documented,document_reference,created_at,service_catalog(service_name,service_category,registration_method_label)").order("created_at",{ascending:false}).limit(100);
-   if(error){msg.textContent="تعذر تحميل طلبات الخدمات.";return;}
-   list.innerHTML=(data||[]).map(x=>{
-    const s=x.service_catalog||{}; const d=x.submission_data||{};
-    const fields=Object.entries(d).filter(([k])=>k!=="consent_given").map(([k,v])=>'<div><strong>'+safe(k)+':</strong> '+safe(v)+'</div>').join("");
-    return '<article class="card" style="margin:12px 0"><h3>'+safe(s.service_name||"خدمة")+' — '+safe(x.submission_number)+'</h3><p>'+safe(x.applicant_name||"")+' | '+safe(x.applicant_phone||"")+' | '+safe(x.applicant_email||"")+'</p><p><strong>طريقة التسجيل:</strong> '+safe(s.registration_method_label||"")+' | <strong>الحالة:</strong> '+safe(x.status||"")+'</p><details><summary>بيانات الطلب</summary>'+fields+'</details><div class="toolbar" style="margin-top:10px"><button data-action="accept" data-id="'+safe(x.id)+'">اعتماد</button><button data-action="reject" data-id="'+safe(x.id)+'">رفض</button><button data-action="document" data-id="'+safe(x.id)+'">توثيق</button></div></article>';
-   }).join("")||"<p>لا توجد طلبات خدمات حتى الآن.</p>";
-   msg.textContent="تم تحديث الطلبات.";
-   list.querySelectorAll("button[data-action]").forEach(b=>b.onclick=async()=>{
-    const action=b.dataset.action,id=b.dataset.id;
-    const note=prompt(action==="document"?"مرجع/ملاحظة التوثيق:":"ملاحظة الإدارة (اختياري):")||null;
-    const update=action==="accept"?{status:"accepted",management_note:note}:action==="reject"?{status:"rejected",management_note:note}:{documented:true,documented_at:new Date().toISOString(),document_reference:note};
-    const {error}=await window.sb.from("service_submissions").update(update).eq("id",id);
-    if(error)alert("تعذر تنفيذ الإجراء."); else load();
-   });
+  const safe=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+  async function api(method,body){
+   const session=await window.sb.auth.getSession(),token=session.data?.session?.access_token;
+   if(!token)throw new Error("يرجى تسجيل الدخول مجددًا.");
+   const response=await fetch("/api/education/admin-service-requests",{method,headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:method==="GET"?undefined:JSON.stringify(body||{})});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(result.error||"تعذر الاتصال بخدمة طلبات التعليم.");
+   return result;
   }
+  async function load(){
+   msg.textContent="جارٍ تحميل طلبات الخدمات من قاعدة التعليم المستقلة…";
+   try{
+    const result=await api("GET"),data=result.requests||[];
+    list.innerHTML=data.map(x=>{
+     const s=x.service_catalog||{},d=x.submission_data||{};
+     const fields=Object.entries(d).filter(([k])=>!["consent_given","consent_text","attachments"].includes(k)).map(([k,v])=>'<div><strong>'+safe(k)+':</strong> '+safe(typeof v==="object"?JSON.stringify(v):v)+'</div>').join("");
+     return '<article class="card" style="margin:12px 0"><h3>'+safe(s.service_name||"خدمة")+' — '+safe(x.submission_number)+'</h3><p>'+safe(x.applicant_name||"")+' | '+safe(x.applicant_phone||"")+' | '+safe(x.applicant_email||"")+'</p><p><strong>طريقة التسجيل:</strong> '+safe(s.registration_method_label||"")+' | <strong>الحالة:</strong> '+safe(x.status||"")+'</p><details><summary>بيانات الطلب</summary>'+fields+'</details><div class="toolbar" style="margin-top:10px"><button data-action="accept" data-id="'+safe(x.id)+'">اعتماد</button><button data-action="reject" data-id="'+safe(x.id)+'">رفض</button><button data-action="document" data-id="'+safe(x.id)+'">توثيق</button></div></article>';
+    }).join("")||"<p>لا توجد طلبات خدمات حتى الآن.</p>";
+    msg.textContent="تم تحديث الطلبات من قاعدة التعليم المستقلة.";
+   }catch(error){msg.textContent="تعذر تحميل طلبات الخدمات: "+error.message}
+  }
+  list.addEventListener("click",async e=>{
+   const b=e.target.closest("button[data-action]");if(!b)return;
+   const action=b.dataset.action,id=b.dataset.id;
+   const promptValue=prompt(action==="document"?"مرجع/ملاحظة التوثيق:":"ملاحظة الإدارة (اختيارية):");
+   if(promptValue===null)return;
+   try{
+    await api("PATCH",{id,action,management_note:promptValue,document_reference:action==="document"?promptValue:""});
+    await load();
+   }catch(error){msg.textContent="تعذر تنفيذ الإجراء: "+error.message}
+  });
   document.getElementById("refreshServiceSubmissions").onclick=load;
   load();
  },200);
-})();
-</script>
+})();</script>
 <script>(async function(){
  const waitForSb=setInterval(async()=>{
   if(!window.sb)return;
@@ -545,18 +555,25 @@ document.getElementById("addActivityEvaluation")?.addEventListener("click",async
 document.getElementById("addActivityOutcome")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("outcomeInitiative").value,participants_count=Number(document.getElementById("outcomeParticipants").value)||0,completion_rate=Number(document.getElementById("outcomeCompletion").value)||null,achievement_rate=Number(document.getElementById("outcomeAchievement").value)||null,recommendations=document.getElementById("outcomeNotes").value.trim();if(!initiative_id)return;const{error}=await sb.from("activity_outcomes").insert({initiative_id,participants_count,completion_rate,achievement_rate,educational_impact:recommendations||null,behavioral_impact:recommendations||null,skills_gained:recommendations||null,recommendations:recommendations||null,status:"draft"});document.getElementById("operationalMsg").textContent=error?"تعذر حفظ الأثر: "+error.message:"تم حفظ تقرير الأثر والتوصيات.";});
 
 
+async function serviceFeesAdminApi(method,body){
+ const sessionResult=await sb.auth.getSession(),token=sessionResult.data?.session?.access_token;
+ if(!token)throw new Error("انتهت جلسة الدخول؛ يرجى تسجيل الدخول مجددًا.");
+ const response=await fetch("/api/education/admin-service-fees",{method,headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:method==="GET"?undefined:JSON.stringify(body||{})});
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(result.error||"تعذر الاتصال بخدمة الرسوم المستقلة.");
+ return result;
+}
 async function loadServiceFeesAdmin(){
  const box=document.getElementById("serviceFeesAdmin"); if(!box)return;
- const [sr,fr]=await Promise.all([
-  sb.from("service_catalog").select("id,service_code,service_name,registration_method_label").eq("is_active",true).order("display_order",{ascending:true}),
-  sb.from("service_fee_items").select("id,service_id,fee_code,fee_name,description,amount,currency,calculation_method,is_required,payment_stage,is_active").order("display_order",{ascending:true})
- ]);
- if(sr.error||fr.error){box.innerHTML='<div class="item dangerText">تعذر تحميل الرسوم: '+escapeHtml((sr.error||fr.error).message)+'</div>';return}
- const services=sr.data||[],serviceFees=fr.data||[];
- box.innerHTML=services.map(s=>{
-  const rows=serviceFees.filter(f=>f.service_id===s.id);
-  return '<div class="item"><strong>'+escapeHtml(s.service_name)+'</strong><div class="small">'+escapeHtml(s.registration_method_label||"")+'</div><div class="list" style="margin-top:8px">'+rows.map(f=>'<div style="padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff"><div class="row between"><strong>'+escapeHtml(f.fee_name)+'</strong><span class="badge '+(f.is_required?"warn":"info")+'">'+(f.is_required?"أساسية":"حسب الحاجة")+'</span></div><div class="grid" style="margin-top:7px"><input data-fee-amount="'+f.id+'" type="number" min="0" step="0.01" value="'+(f.amount??"")+'" placeholder="المبلغ"><input data-fee-currency="'+f.id+'" value="'+escapeHtml(f.currency||"SAR")+'" placeholder="العملة"><select data-fee-required="'+f.id+'"><option value="true" '+(f.is_required?"selected":"")+'>رسوم مطلوبة</option><option value="false" '+(!f.is_required?"selected":"")+'>تطبق حسب الحاجة</option></select><button type="button" data-fee-save="'+f.id+'">حفظ الرسوم</button></div><div class="small muted" style="margin-top:5px">'+escapeHtml(f.description||"")+' · مرحلة الدفع: '+escapeHtml(f.payment_stage||"")+'</div></div>').join("")+'</div></div>';
- }).join("")||'<span class="muted">لا توجد خدمات نشطة.</span>';
+ try{
+  const result=await serviceFeesAdminApi("GET"),services=result.services||[],serviceFees=result.fees||[];
+  box.innerHTML=services.map(s=>{
+   const rows=serviceFees.filter(f=>f.service_id===s.id);
+   return '<div class="item"><strong>'+escapeHtml(s.service_name)+'</strong><div class="small">'+escapeHtml(s.registration_method_label||"")+'</div><div class="list" style="margin-top:8px">'+rows.map(f=>'<div style="padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff"><div class="row between"><strong>'+escapeHtml(f.fee_name)+'</strong><span class="badge '+(f.is_required?"warn":"info")+'">'+(f.is_required?"أساسية":"حسب الحاجة")+'</span></div><div class="grid" style="margin-top:7px"><input data-fee-amount="'+f.id+'" type="number" min="0" step="0.01" value="'+(f.amount??"")+'" placeholder="المبلغ"><input data-fee-currency="'+f.id+'" value="'+escapeHtml(f.currency||"SAR")+'" placeholder="العملة"><select data-fee-required="'+f.id+'"><option value="true" '+(f.is_required?"selected":"")+'>رسوم مطلوبة</option><option value="false" '+(!f.is_required?"selected":"")+'>تطبق حسب الحاجة</option></select><button type="button" data-fee-save="'+f.id+'">حفظ الرسوم</button></div><div class="small muted" style="margin-top:5px">'+escapeHtml(f.description||"")+' · مرحلة الدفع: '+escapeHtml(f.payment_stage||"")+'</div></div>').join("")+'</div></div>';
+  }).join("")||'<span class="muted">لا توجد خدمات نشطة.</span>';
+ }catch(error){
+  box.innerHTML='<div class="item dangerText">تعذر تحميل الرسوم: '+escapeHtml(error.message)+'</div>';
+ }
 }
 document.getElementById("serviceFeesAdmin")?.addEventListener("click",async e=>{
  const b=e.target.closest("[data-fee-save]");if(!b)return;
@@ -567,10 +584,14 @@ document.getElementById("serviceFeesAdmin")?.addEventListener("click",async e=>{
  const amount=amountEl.value.trim()===""?null:Number(amountEl.value);
  if(amount!==null&&(!Number.isFinite(amount)||amount<0)){document.getElementById("serviceFeesMsg").className="small dangerText";document.getElementById("serviceFeesMsg").textContent="أدخل مبلغًا صحيحًا.";return}
  b.disabled=true;
- const {error}=await sb.from("service_fee_items").update({amount,currency:currencyEl.value.trim()||"SAR",is_required:requiredEl.value==="true"}).eq("id",id);
- b.disabled=false;
- const m=document.getElementById("serviceFeesMsg");m.className=error?"small dangerText":"small successText";m.textContent=error?"تعذر حفظ الرسوم: "+error.message:"تم تحديث رسوم الخدمة.";
- if(!error)await loadServiceFeesAdmin();
+ const m=document.getElementById("serviceFeesMsg");
+ try{
+  await serviceFeesAdminApi("PATCH",{id,amount,currency:currencyEl.value.trim()||"SAR",is_required:requiredEl.value==="true"});
+  m.className="small successText";m.textContent="تم تحديث الرسوم في قاعدة التعليم المستقلة.";
+  await loadServiceFeesAdmin();
+ }catch(error){
+  m.className="small dangerText";m.textContent="تعذر حفظ الرسوم: "+error.message;
+ }finally{b.disabled=false}
 });
 async function educationAdminApi(method,body){
  const sessionResult=await sb.auth.getSession();
