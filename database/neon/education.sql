@@ -1,20 +1,48 @@
 -- Neon project: dar-alirtiqaa-education
--- Schema-only bootstrap. No production data is copied by this file.
+-- Schema-only bootstrap for a fresh database. This file does not copy production data.
+-- Keep this definition aligned with the live education.student_registrations table.
 BEGIN;
 CREATE SCHEMA IF NOT EXISTS education;
 REVOKE ALL ON SCHEMA education FROM PUBLIC;
+
 CREATE TABLE IF NOT EXISTS education.student_registrations (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  full_name text NOT NULL CHECK (char_length(btrim(full_name)) BETWEEN 2 AND 120),
  guardian_name text,
- phone text NOT NULL CHECK (phone ~ '^[+0-9 ()-]{7,30}$'),
+ phone text CHECK (phone ~ '^[+0-9 ()-]{7,30}$'),
  email text,
  requested_program text,
  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','under_review','approved','rejected','enrolled')),
  notes text,
  created_at timestamptz NOT NULL DEFAULT now(),
- updated_at timestamptz NOT NULL DEFAULT now()
+ updated_at timestamptz NOT NULL DEFAULT now(),
+ registration_number text,
+ student_name text,
+ gender text CHECK (gender IS NULL OR gender IN ('male','female')),
+ date_of_birth date,
+ nationality text,
+ identity_type text,
+ identity_number text,
+ guardian_relationship text,
+ guardian_phone text,
+ address text,
+ previous_education text,
+ approval_status text NOT NULL DEFAULT 'pending' CHECK (approval_status IN ('pending','under_review','approved','rejected','enrolled')),
+ approved_at timestamptz,
+ approved_by uuid,
+ approval_note text,
+ documented boolean NOT NULL DEFAULT false,
+ documented_at timestamptz,
+ documented_by uuid,
+ document_reference text,
+ attachments jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(attachments) = 'array')
 );
+CREATE UNIQUE INDEX IF NOT EXISTS education_student_registrations_number_uq
+ ON education.student_registrations (registration_number)
+ WHERE registration_number IS NOT NULL;
+CREATE INDEX IF NOT EXISTS education_student_registrations_created_idx
+ ON education.student_registrations (created_at DESC);
+
 CREATE TABLE IF NOT EXISTS education.tasks (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  title text NOT NULL CHECK (char_length(btrim(title)) BETWEEN 2 AND 200),
