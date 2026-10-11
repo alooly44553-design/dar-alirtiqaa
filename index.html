@@ -239,9 +239,16 @@ async function loadFees(serviceId, serviceCode){
   const stageNotice=serviceCode==="student_registration"&&(!stage||!grade)?"<div style='color:var(--muted);margin-top:6px'>اختر المرحلة والصف لإظهار الرسوم الدراسية المنطبقة فقط.</div>":"";
   const degreeSelected=$("service-fields").querySelector('[data-key="degree_level"]')?.value||"";
   const degreeNotice=serviceCode==="university_guidance"&&!degreeSelected?"<div style='color:var(--muted);margin-top:6px'>اختر الدرجة المطلوبة لإظهار الرسوم الدراسية المناسبة فقط.</div>":"";
-  const policyNotice="<div style='color:var(--muted);font-size:12px;margin-top:8px'>تُعرض الأسعار المعتمدة فقط. أي خدمة إضافية غير مسعّرة لن تُضاف إلا بعد إبلاغك بها مسبقًا.</div>";
+  const isConditionalFee=f=>{const rule=f.condition_rule||{};return Boolean(rule.applies_when)||["FILE_OPENING","LEVEL_ASSESSMENT","CERTIFICATE_EQUIVALENCY"].includes(f.fee_code)||String(f.fee_name||"").includes("عند الحاجة")};
+  const baseFees=fees.filter(f=>!isConditionalFee(f));
+  const conditionalFees=fees.filter(isConditionalFee);
+  const currencies=[...new Set(baseFees.map(f=>f.currency||"SAR"))];
+  const totals=currencies.map(currency=>{const amount=baseFees.filter(f=>(f.currency||"SAR")===currency).reduce((sum,f)=>sum+(Number(f.amount)||0),0);return amount.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+" "+currency}).join(" + ");
+  const policyNotice="<div style='color:var(--muted);font-size:12px;margin-top:8px'>المجموع الأساسي يستثني رسوم فتح الملف والرسوم التي تُطبق عند الحاجة فقط. لا تُضاف رسوم مشروطة إلا بعد التحقق من انطباقها وإبلاغ المستفيد مسبقًا.</div>";
   if(!fees.length){box.innerHTML="<strong>الرسوم المعتمدة</strong>"+stageNotice+degreeNotice+"<div style='color:var(--muted);margin-top:5px'>لا توجد رسوم معتمدة منطبقة على الاختيارات الحالية.</div>"+policyNotice;return}
-  box.innerHTML="<strong>الرسوم المعتمدة</strong>"+stageNotice+degreeNotice+fees.map(f=>'<div class="fee-row"><span>'+esc(f.fee_name)+(f.condition_rule?.applies_when?'<small style="display:block;color:var(--muted)">تطبق عند الحاجة فقط</small>':"")+(f.condition_rule?.note?'<small style="display:block;color:var(--muted)">'+esc(f.condition_rule.note)+'</small>':"")+(f.description?'<small style="display:block;color:var(--muted)">'+esc(f.description)+'</small>':"")+'</span><strong>'+esc(f.amount)+" "+esc(f.currency||"")+'</strong></div>').join("")+policyNotice;
+  const feeRows=fees.map(f=>'<div class="fee-row"><span>'+esc(f.fee_name)+(isConditionalFee(f)?'<small style="display:block;color:var(--muted)">رسوم مشروطة؛ لا تدخل في المجموع الأساسي</small>':"")+(f.condition_rule?.note?'<small style="display:block;color:var(--muted)">'+esc(f.condition_rule.note)+'</small>':"")+(f.description?'<small style="display:block;color:var(--muted)">'+esc(f.description)+'</small>':"")+'</span><strong>'+esc(f.amount)+" "+esc(f.currency||"")+'</strong></div>').join("");
+  const totalRow=baseFees.length?'<div class="fee-row" style="margin-top:8px;padding-top:12px;border-top:2px solid var(--navy)"><strong>المجموع الأساسي للرسوم غير المشروطة</strong><strong>'+esc(totals)+'</strong></div>':"";
+  box.innerHTML="<strong>الرسوم المعتمدة</strong>"+stageNotice+degreeNotice+feeRows+totalRow+policyNotice;
  }catch(error){
   box.innerHTML="<strong>الرسوم</strong><div style='color:var(--muted);margin-top:5px'>تعذر تحميل الرسوم الحالية؛ حاول تحديث الصفحة.</div>";
  }
