@@ -42,8 +42,21 @@ export default async function handler(req, res) {
       const phone = cleanText(body.phone, 30);
       const guardianPhone = cleanText(body.guardian_phone, 30);
       const email = cleanText(body.email, 254);
+      const dateOfBirth = cleanText(body.date_of_birth, 10);
+      const validDate = (value) => {
+        if (!value) return true;
+        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false;
+        const [year, month, day] = value.split("-").map(Number);
+        const parsed = new Date(Date.UTC(year, month - 1, day));
+        return parsed.getUTCFullYear() === year &&
+          parsed.getUTCMonth() === month - 1 &&
+          parsed.getUTCDate() === day &&
+          parsed.getTime() <= Date.now();
+      };
+      const validEmail = (value) => !value || /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(value);
       if (name.length < 2 || !gender || (phone && !validPhone(phone)) ||
-          (guardianPhone && !validPhone(guardianPhone)) || (!phone && !guardianPhone && !email)) {
+          (guardianPhone && !validPhone(guardianPhone)) || !validEmail(email) ||
+          !validDate(dateOfBirth) || (!phone && !guardianPhone && !email)) {
         return sendJson(res, 400, { error: "INVALID_REGISTRATION_FIELDS" });
       }
       const number = "EDU-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomUUID().slice(0, 6).toUpperCase();
@@ -53,7 +66,7 @@ export default async function handler(req, res) {
            phone, email, guardian_name, guardian_phone, notes, status, approval_status)
         VALUES
           (${number}, ${name}, ${name}, ${gender},
-           NULLIF(${cleanText(body.date_of_birth, 10)}, '')::date,
+           NULLIF(${dateOfBirth}, '')::date,
            NULLIF(${cleanText(body.nationality, 80)}, ''),
            NULLIF(${phone}, ''), NULLIF(${email}, ''),
            NULLIF(${cleanText(body.guardian_name, 120)}, ''),
