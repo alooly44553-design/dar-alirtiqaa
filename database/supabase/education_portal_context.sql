@@ -2,11 +2,15 @@
 -- This migration intentionally does not use SECURITY DEFINER.
 -- All reads remain scoped by the authenticated user's own profile and center.
 
-DROP POLICY IF EXISTS school_staff_read_own_profile ON public.staff;\n\nCREATE POLICY school_staff_read_own_profile
+DROP POLICY IF EXISTS school_staff_read_own_profile ON public.staff;
+
+CREATE POLICY school_staff_read_own_profile
 ON public.staff FOR SELECT TO authenticated
 USING (auth_user_id = (SELECT auth.uid()) AND is_active = true);
 
-DROP POLICY IF EXISTS school_teacher_read_center_programs ON public.programs;\n\nCREATE POLICY school_teacher_read_center_programs
+DROP POLICY IF EXISTS school_teacher_read_center_programs ON public.programs;
+
+CREATE POLICY school_teacher_read_center_programs
 ON public.programs FOR SELECT TO authenticated
 USING (
   is_active = true AND EXISTS (
@@ -17,7 +21,9 @@ USING (
   )
 );
 
-DROP POLICY IF EXISTS school_teacher_read_center_subjects ON public.subjects;\n\nCREATE POLICY school_teacher_read_center_subjects
+DROP POLICY IF EXISTS school_teacher_read_center_subjects ON public.subjects;
+
+CREATE POLICY school_teacher_read_center_subjects
 ON public.subjects FOR SELECT TO authenticated
 USING (
   is_active = true AND EXISTS (
@@ -28,7 +34,9 @@ USING (
   )
 );
 
-DROP POLICY IF EXISTS school_teacher_read_center_classrooms ON public.classrooms;\n\nCREATE POLICY school_teacher_read_center_classrooms
+DROP POLICY IF EXISTS school_teacher_read_center_classrooms ON public.classrooms;
+
+CREATE POLICY school_teacher_read_center_classrooms
 ON public.classrooms FOR SELECT TO authenticated
 USING (
   is_active = true AND EXISTS (
@@ -39,7 +47,9 @@ USING (
   )
 );
 
-DROP POLICY IF EXISTS school_learner_read_own_enrollments ON public.enrollments;\n\nCREATE POLICY school_learner_read_own_enrollments
+DROP POLICY IF EXISTS school_learner_read_own_enrollments ON public.enrollments;
+
+CREATE POLICY school_learner_read_own_enrollments
 ON public.enrollments FOR SELECT TO authenticated
 USING (
   status = 'active' AND EXISTS (
