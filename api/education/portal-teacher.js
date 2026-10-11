@@ -1,18 +1,12 @@
 import { getDatabase, sendJson, cleanText } from "../../lib/neon-db.js";
-import { resolvePortalIdentity, supabaseRows } from "../../lib/education-portal-auth.js";
+import { resolvePortalIdentity } from "../../lib/education-portal-auth.js";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
-async function activeReference(table, id, token) {
+function activeReference(catalogRows, id) {
   if (!id) return true;
   if (!UUID.test(id)) return false;
-  const rows = await supabaseRows(table, token, {
-    select: "id",
-    id: "eq." + id,
-    is_active: "eq.true",
-    limit: "1"
-  });
-  return rows.length === 1;
+  return catalogRows.some(row => row.id.toLowerCase() === id.toLowerCase());
 }
 
 export default async function handler(req, res) {
@@ -27,16 +21,7 @@ export default async function handler(req, res) {
     const sql = getDatabase("education");
 
     if (req.method === "GET") {
-      const [programs, subjects, classrooms, lessons, submissions] = await Promise.all([
-        supabaseRows("programs", identity.token, {
-          select: "id,name", is_active: "eq.true", order: "name.asc", limit: "500"
-        }),
-        supabaseRows("subjects", identity.token, {
-          select: "id,name", is_active: "eq.true", order: "name.asc", limit: "500"
-        }),
-        supabaseRows("classrooms", identity.token, {
-          select: "id,name", is_active: "eq.true", order: "name.asc", limit: "500"
-        }),
+      const [lessons, submissions] = await Promise.all([
         sql`
           SELECT id, title, status, created_at
           FROM education.school_lessons
@@ -58,9 +43,9 @@ export default async function handler(req, res) {
       ]);
       return sendJson(res, 200, {
         ok: true,
-        programs,
-        subjects,
-        classrooms,
+        programs: identity.catalog.programs,
+        subjects: identity.catalog.subjects,
+        classrooms: identity.catalog.classrooms,
         lessons,
         submissions: submissions.map(x => ({
           ...x,
@@ -84,9 +69,9 @@ export default async function handler(req, res) {
       return sendJson(res, 400, { error: "INVALID_LESSON_REFERENCE" });
     }
     const refs = await Promise.all([
-      activeReference("programs", programId, identity.token),
-      activeReference("subjects", subjectId, identity.token),
-      activeReference("classrooms", classroomId, identity.token)
+      activeReference(identity.catalog.programs, programId),
+      activeReference(identity.catalog.subjects, subjectId),
+      activeReference(identity.catalog.classrooms, classroomId)
     ]);
     if (refs.some(x => !x)) return sendJson(res, 400, { error: "INVALID_LESSON_REFERENCE" });
 
