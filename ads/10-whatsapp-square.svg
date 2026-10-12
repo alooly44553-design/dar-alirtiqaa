@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080" role="img" aria-labelledby="t d">
+<title id="t">دار الارتقاء — بطاقة واتساب التعليمية</title><desc id="d">تصميم مربع للمشاركة في WhatsApp.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061F3A"/><stop offset=".6" stop-color="#0D477C"/><stop offset="1" stop-color="#0F7B83"/></linearGradient><linearGradient id="gold"><stop stop-color="#F5D879"/><stop offset="1" stop-color="#C89B2C"/></linearGradient></defs>
+<rect width="1080" height="1080" rx="35" fill="url(#bg)"/><circle cx="900" cy="140" r="220" fill="#fff" opacity=".04"/><circle cx="160" cy="850" r="250" fill="#fff" opacity=".035"/>
+<g transform="translate(80 75)" fill="none" stroke="#F5D879" stroke-width="5" opacity=".75"><path d="M62 0C20-20 0 22 0 62s20 70 62 50l24-20 24 20c42 20 62-10 62-50S152-20 110 0L86 20Z"/><path d="M45 50h83M45 70h60"/></g>
+<text x="1000" y="285" text-anchor="end" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="30" fill="#F5D879" font-weight="800">منظومة دار الارتقاء الفكري التعليمية</text>
+<text x="1000" y="405" text-anchor="end" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="58" fill="#fff" font-weight="900">التعلّم يبدأ بخطوة</text>
+<text x="1000" y="475" text-anchor="end" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="58" fill="#fff" font-weight="900">ومسار واضح</text>
+<rect x="410" y="520" width="590" height="5" rx="2" fill="url(#gold)"/>
+<g direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="27" fill="#E2EFF9">
+<text x="1000" y="600" text-anchor="end">🎓 التعليم العام والمناهج</text><text x="1000" y="657" text-anchor="end">📖 العربية واللغات والقرآن</text><text x="1000" y="714" text-anchor="end">💻 التقنية والتدريب والمهارات</text><text x="1000" y="771" text-anchor="end">🎨 الأنشطة والمهارات الحياتية</text></g>
+<rect x="80" y="835" width="920" height="100" rx="18" fill="url(#gold)"/><text x="540" y="895" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="26" fill="#082F57" font-weight="900">استكشف المنصة عبر الرابط الرسمي</text>
+<text x="540" y="975" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" fill="#fff">https://alirtiqaa-educational-platform.vercel.app</text>
+<text x="540" y="1035" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#fff" opacity=".6">التعلم عن بُعد • تحقق من التوفر قبل التسجيل</text></svg>
