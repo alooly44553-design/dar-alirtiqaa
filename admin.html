@@ -227,7 +227,7 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <input id="attendanceNotes" placeholder="ملاحظات اختيارية" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin:5px 0">
 <button id="addAttendance" type="button">حفظ الحضور</button></div></div>
 <div id="staffMsg" class="small muted" style="margin-top:8px"></div><div id="scheduleMsg" class="small muted" style="margin-top:8px"></div><div id="attendanceMsg" class="small muted" style="margin-top:8px"></div>
-<div id="staffList" class="list" style="margin-top:10px"></div><div id="schedulesList" class="list" style="margin-top:10px"></div></section>
+<div id="staffList" class="list" style="margin-top:10px"></div><div id="schedulesList" class="list" style="margin-top:10px"></div><hr style="margin:18px 0;border:0;border-top:1px solid #e5e7eb"><h3>غرف Zoom للشعب التعليمية</h3><p class="small muted">روابط متكررة مخصصة لكل شعبة. تعرض هنا للإدارة فقط إلى أن يكتمل ربط حسابات الطلاب المقبولين بصلاحيات آمنة. يجب حضور مضيف Zoom فعلي لتشغيل الحصة.</p><div id="zoomClassroomsList" class="list" style="margin-top:10px"><span class="muted">تظهر الروابط بعد دخول الإدارة المعتمدة.</span></div></section>
 <section class="card full"><h2>الجداول الزمنية لبقية الخدمات التعليمية — صباحي ومسائي</h2><p class="muted">قوالب أسبوعية مبدئية من الأحد إلى الخميس، موزعة بحسب طبيعة الخدمة وإسناد الطاقم المتخصص. تبقى القوالب غير منشورة حتى مراجعتها واعتمادها إداريًا.</p><div class="row"><select id="serviceScheduleFilter" style="flex:1;padding:10px;border:1px solid #cbd5e1;border-radius:10px"><option value="">كل الخدمات</option></select><button id="serviceScheduleRefresh" type="button">تحديث الجداول</button></div><div id="serviceScheduleSummary" class="grid" style="margin-top:10px"></div><div id="serviceScheduleList" class="list" style="margin-top:10px"></div><div id="serviceScheduleMsg" class="small muted" style="margin-top:8px"></div></section>
 <section class="card full"><h2>حضور وتأخر وإجازات الموظفين والمعلمين</h2>
 <p class="muted">سجل مستقل لحضور جميع الموظفين والمعلمين، التأخر، الغياب والإجازات، مع إدخال كل سجل تلقائيًا إلى متابعة المشرف الذكي.</p>
@@ -917,5 +917,29 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
 })();
 </script>
 
+<script>
+(function(){
+ let tries=0;
+ const timer=setInterval(async()=>{
+  if(!window.sb){if(++tries>120)clearInterval(timer);return;}
+  let session=null;
+  try{const r=await window.sb.auth.getSession();session=r.data&&r.data.session;}catch(e){}
+  if(!session){if(++tries>120)clearInterval(timer);return;}
+  let isAdmin=false;
+  try{const r=await window.sb.rpc("is_center_management_admin");isAdmin=!r.error&&r.data===true;}catch(e){}
+  const box=document.getElementById("zoomClassroomsList");
+  if(!isAdmin){if(box)box.textContent="لا توجد صلاحية لعرض روابط غرف Zoom.";clearInterval(timer);return;}
+  clearInterval(timer);
+  if(!box)return;
+  try{
+   const r=await window.sb.from("edu_class_sections").select("section_code,section_name,academic_year,zoom_meeting_id,zoom_join_url,virtual_staff_names,zoom_host_required,zoom_access_scope").eq("is_active",true).order("section_code");
+   if(r.error)throw r.error;
+   const rows=r.data||[];
+   const esc=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+   box.innerHTML=rows.map(x=>'<article class="item"><strong>'+esc(x.section_name||x.section_code)+'</strong><div class="small">'+esc(x.section_code)+' · '+esc(x.academic_year||"2026/2027")+' · '+esc(x.zoom_meeting_id||"بدون رقم اجتماع")+'</div><div class="small">الطاقم الافتراضي المساند: '+esc((x.virtual_staff_names||["علي سليمان الأهدل","أمل محمد برديني"]).join("، "))+'</div>'+(x.zoom_join_url?'<p style="margin:8px 0"><a href="'+esc(x.zoom_join_url)+'" target="_blank" rel="noopener noreferrer" class="btn primary">فتح غرفة الشعبة في Zoom</a></p>':'<p class="small dangerText">لم تُنشأ غرفة Zoom لهذه الشعبة.</p>')+'<div class="small muted">حضور المضيف الفعلي مطلوب. الرابط مخصص لتوزيعه على المسجلين المقبولين بعد التحقق من هويتهم.</div></article>').join("")||'<span class="muted">لا توجد شعب نشطة.</span>';
+  }catch(e){box.innerHTML='<span class="small dangerText">تعذر تحميل روابط Zoom: '+esc(e.message||"خطأ غير معروف")+'</span>';}
+ },1500);
+})();
+</script>
 </body>
 </html>
