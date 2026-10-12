@@ -919,12 +919,11 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
 
 <script>
 (function(){
- let tries=0;
  const timer=setInterval(async()=>{
-  if(!window.sb){if(++tries>120)clearInterval(timer);return;}
+  if(!window.sb)return;
   let session=null;
   try{const r=await window.sb.auth.getSession();session=r.data&&r.data.session;}catch(e){}
-  if(!session){if(++tries>120)clearInterval(timer);return;}
+  if(!session)return;
   let isAdmin=false;
   try{const r=await window.sb.rpc("is_center_management_admin");isAdmin=!r.error&&r.data===true;}catch(e){}
   const box=document.getElementById("zoomClassroomsList");
