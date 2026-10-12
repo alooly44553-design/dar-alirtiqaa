@@ -85,7 +85,28 @@ export default async function handler(req, res) {
          ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending', true, now(), ${consentText})
       RETURNING id, registration_number, approval_status, created_at
     `;
-    return sendJson(res, 201, { ok: true, registration: rows[0] });
+    let followUpQueued = false;
+    try {
+      await sql`
+        INSERT INTO education.tasks (title, description, assigned_to, due_at, status)
+        VALUES (
+          ${"مراجعة تسجيل طالب/طالبة — " + registrationNumber},
+          ${"رقم التسجيل: " + registrationNumber + "\nالمطلوب: مراجعة المرحلة والصف وبيانات ولي الأمر ووسائل التواصل، تحديد أي نقص، ثم متابعة القبول وفق إجراء الإدارة. لا يُعد استلام الطلب قبولًا نهائيًا."},
+          ${"منسق القبول والسجلات التعليمية — ذكاء اصطناعي"},
+          now() + interval '1 day',
+          'open'
+        )
+      `;
+      followUpQueued = true;
+    } catch (taskError) {
+      console.error("STUDENT_REGISTRATION_FOLLOWUP_TASK_FAILED", taskError?.code || "unknown");
+    }
+    return sendJson(res, 201, {
+      ok: true,
+      registration: rows[0],
+      follow_up_queued: followUpQueued,
+      message: "تم استلام طلب التسجيل لإجراء المراجعة الإدارية؛ الاستلام لا يعني القبول النهائي."
+    });
   } catch (error) {
     const status = error.statusCode || 500;
     return sendJson(res, status, { error: status === 503 ? error.message : "REGISTRATION_FAILED" });
