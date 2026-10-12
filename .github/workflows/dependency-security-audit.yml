@@ -6,11 +6,13 @@ on:
     paths:
       - "package.json"
       - "package-lock.json"
+      - "api/public-services/requests.js"
       - ".github/workflows/dependency-security-audit.yml"
   pull_request:
     paths:
       - "package.json"
       - "package-lock.json"
+      - "api/public-services/requests.js"
       - ".github/workflows/dependency-security-audit.yml"
   workflow_dispatch:
 
@@ -32,6 +34,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Check public service API syntax
+        run: node --check api/public-services/requests.js
       - name: Generate lockfile without running package scripts
         run: npm install --package-lock-only --ignore-scripts
       - name: Audit production dependencies for high and critical advisories
