@@ -43,7 +43,7 @@ jobs:
         run: |
           set -e
           mkdir -p www
-          cp index.html admin.html portal.html app.webmanifest logo.svg icon.svg www/
+          cp index.html admin.html portal.html student.html parent.html teacher.html reports.html app.webmanifest logo.svg icon.svg www/
           npx cap add android
           sed -i 's/versionCode [0-9]*/versionCode 2/' android/app/build.gradle
           sed -i 's/versionName "[^"]*"/versionName "1.0.1"/' android/app/build.gradle
