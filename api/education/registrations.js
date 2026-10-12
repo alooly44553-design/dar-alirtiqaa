@@ -25,11 +25,12 @@ export default async function handler(req, res) {
     const educationStage = cleanText(body.education_stage, 20);
     const educationGrade = cleanText(body.education_grade, 40);
     const gradesByStage = {
+      early_childhood: ["الحضانة", "تمهيدي 1 KG1", "تمهيدي 2 KG2", "تمهيدي 3 KG3"],
       primary: ["الأول الابتدائي", "الثاني الابتدائي", "الثالث الابتدائي", "الرابع الابتدائي", "الخامس الابتدائي", "السادس الابتدائي"],
       middle: ["الأول المتوسط", "الثاني المتوسط", "الثالث المتوسط"],
       secondary: ["الأول الثانوي", "الثاني الثانوي", "الثالث الثانوي"]
     };
-    const stageLabels = { primary: "المرحلة الابتدائية", middle: "المرحلة المتوسطة", secondary: "المرحلة الثانوية" };
+    const stageLabels = { early_childhood: "مرحلة الطفولة المبكرة", primary: "المرحلة الابتدائية", middle: "المرحلة المتوسطة", secondary: "المرحلة الثانوية" };
     const requestedProgram = stageLabels[educationStage] && gradesByStage[educationStage]?.includes(educationGrade)
       ? stageLabels[educationStage] + " — " + educationGrade
       : "";
