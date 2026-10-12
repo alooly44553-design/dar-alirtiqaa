@@ -683,11 +683,11 @@ async function loadOperationalChain(){
 }
 async function loadAIStaffRoster(){
  const box=document.getElementById("aiStaffRoster");if(!box)return;
- const {data,error}=await sb.from("ai_staff_roster").select("id,agent_id,department,specialty,substitution_rules,priority,availability,requires_management_approval,is_ready").order("priority",{ascending:true});
+ const {data,error}=await sb.from("ai_staff_roster").select("id,agent_id,department,specialty,service_scope,substitution_rules,priority,availability,requires_management_approval,is_ready").order("priority",{ascending:true});
  if(error){box.innerHTML='<div class="item">تعذر تحميل طاقم الذكاء الاصطناعي: '+escapeHtml(error.message)+'</div>';return}
  const ids=(data||[]).map(x=>x.agent_id);let agents=[];
  if(ids.length){const r=await sb.from("ai_agents").select("id,name,role,is_active,autonomy_level").in("id",ids);agents=r.data||[]}
- box.innerHTML=(data||[]).map(x=>{const a=agents.find(y=>y.id===x.agent_id)||{};return '<div class="item"><strong>'+escapeHtml(a.name||"عضو ذكاء اصطناعي")+'</strong><span class="small">'+escapeHtml(x.specialty||"")+' · '+(x.is_ready?"جاهز":"غير جاهز")+' · أولوية '+x.priority+(x.requires_management_approval?" · موافقة الإدارة":"")+'</span></div>'}).join("")||'<div class="item">لا يوجد أعضاء مسجلون.</div>';
+ box.innerHTML=(data||[]).map(x=>{const a=agents.find(y=>y.id===x.agent_id)||{};const gender=x.service_scope?.presentation_gender;const genderLabel=gender==="female"?"شخصية ذكاء اصطناعي نسائية":gender==="male"?"شخصية ذكاء اصطناعي رجالية":"تمثيل النوع غير محدد";return '<div class="item"><strong>'+escapeHtml(a.name||"عضو ذكاء اصطناعي")+'</strong><span class="small">'+escapeHtml(x.department||"")+' · '+genderLabel+' · '+escapeHtml(x.specialty||"")+' · '+(x.is_ready?"سجل جاهز":"بحاجة للمراجعة")+' · أولوية '+x.priority+(x.requires_management_approval?" · موافقة الإدارة":"")+'</span></div>'}).join("")||'<div class="item">لا يوجد أعضاء مسجلون.</div>';
 }
 async function loadOperationalPlans(){const box=document.getElementById("planList"),sum=document.getElementById("planSummary");if(!box)return;const{data,error}=await sb.from("activity_plans").select("*").order("created_at",{ascending:false});if(error){box.innerHTML='<div class="item dangerText">تعذر تحميل الخطط: '+error.message+'</div>';return}sum.textContent='إجمالي الخطط التشغيلية: '+(data?.length||0);box.innerHTML=(data||[]).map(x=>'<div class="item"><strong>'+escapeHtml(x.plan_name)+'</strong><span class="badge info">'+escapeHtml(x.term_name||'سنوية')+'</span> <span class="badge">'+escapeHtml(x.status||'draft')+'</span><div class="small">السنة: '+x.plan_year+' · '+escapeHtml(x.delivery_mode||'both')+' · '+escapeHtml(x.start_date||'')+' → '+escapeHtml(x.end_date||'')+'</div></div>').join('')||'<span class="muted">لا توجد خطط بعد.</span>'}
 document.getElementById("addPlan")?.addEventListener("click",async()=>{const plan_name=document.getElementById("planName").value.trim(),plan_year=Number(document.getElementById("planYear").value),term_name=document.getElementById("planTerm").value.trim(),start_date=document.getElementById("planStart").value||null,end_date=document.getElementById("planEnd").value||null,delivery_mode=document.getElementById("planMode").value,objectives=document.getElementById("planObjectives").value.trim();if(!plan_name||!plan_year){document.getElementById("planMsg").className="small dangerText";document.getElementById("planMsg").textContent="أدخل اسم الخطة والسنة.";return}const{error}=await sb.from("activity_plans").insert({plan_name,plan_year,term_name:term_name||null,start_date,end_date,delivery_mode,objectives:objectives||null,status:"planned"});if(error){document.getElementById("planMsg").className="small dangerText";document.getElementById("planMsg").textContent="تعذر حفظ الخطة: "+error.message;return}document.getElementById("planName").value="";document.getElementById("planObjectives").value="";document.getElementById("planMsg").className="small successText";document.getElementById("planMsg").textContent="تم حفظ الخطة التشغيلية.";await loadOperationalPlans()});
@@ -701,6 +701,10 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
 <div class="card"><h3>البرامج الأخرى</h3><div id="eduOtherScheduleSummary" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
 </div>
 <div class="card full" style="margin-top:14px"><h3>قالب الحصص الأسبوعي — 30 حصة</h3><div id="edu30SlotGrid" class="grid"></div></div>
+<div class="card full" style="margin-top:14px"><h3>توزيع الجدول الفعلي داخل قاعدة البيانات — العام 2026/2027</h3>
+<p class="small muted">التوزيع التالي مسودة تشغيلية على شخصيات تعليمية افتراضية للذكاء الاصطناعي؛ لا يعني أن الدروس الحية أو ربط الطلاب قد فُعِّل. لا يظهر كجدول معتمد للمتعلمين قبل توصيل خدمة الدروس والتحقق من الكادر.</p>
+<div class="grid"><div><label for="eduAssignmentSectionFilter" class="small">اختر الشعبة لعرض جدولها</label><select id="eduAssignmentSectionFilter" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin-top:5px"><option value="">اختر الشعبة…</option></select></div><div><h4 style="margin:4px 0">ملخص التوزيع</h4><div id="eduAssignmentsSummary" class="list"><span class="muted">جارٍ تحميل التوزيع...</span></div></div></div>
+<div id="eduTeacherAssignmentsList" class="list" style="margin-top:10px"></div></div>
 <div class="card full" style="margin-top:14px"><h3>توزيع الطاقم التعليمي المطلوب</h3><div id="eduRoleTemplates" class="list"></div></div>
 </section><script>
 (async function(){
@@ -730,7 +734,7 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
  const timer=setInterval(async()=>{
   if(!window.sb)return; clearInterval(timer);
   const e=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-  const [settings,periods,roles,staff,uni,voc,events,courses]=await Promise.all([
+  const [settings,periods,roles,staff,uni,voc,events,courses,assignments,sections,subjects,teachers]=await Promise.all([
    window.sb.from("edu_schedule_settings").select("weekly_periods,school_days_per_week,periods_per_day,default_lesson_minutes,source_reference").eq("is_active",true).order("created_at",{ascending:false}).limit(1).maybeSingle(),
    window.sb.from("edu_schedule_periods").select("day_of_week,period_number,start_time,end_time,period_type").eq("is_active",true).order("day_of_week").order("period_number"),
    window.sb.from("edu_staffing_role_templates").select("role_name_ar,grade_scope,expected_weekly_slots,regulatory_reference_slots,is_homeroom").eq("is_active",true).order("id"),
@@ -738,7 +742,11 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
    window.sb.from("edu_university_schedule").select("id").limit(1000),
    window.sb.from("edu_vocational_schedule").select("id").limit(1000),
    window.sb.from("edu_activities_events").select("id").limit(1000),
-   window.sb.from("edu_elearning_schedule").select("id").limit(1000)
+   window.sb.from("edu_elearning_schedule").select("id").limit(1000),
+   window.sb.from("edu_teacher_schedule_assignments").select("id,academic_year,term,teacher_id,period_id,section_id,subject_id,assignment_type,title_ar,notes").eq("academic_year","2026/2027").eq("term","all").order("period_id").limit(1000),
+   window.sb.from("edu_class_sections").select("id,section_code,section_name,grade_level_id").eq("academic_year","2026/2027").eq("term","all").eq("is_active",true).order("section_code"),
+   window.sb.from("subjects").select("id,name").eq("is_active",true),
+   window.sb.from("staff").select("id,full_name,job_title").eq("is_active",true)
   ]);
   const set=settings.data||{weekly_periods:30,school_days_per_week:5,periods_per_day:6,default_lesson_minutes:45};
   const ps=periods.data||[],rs=roles.data||[],sl=staff.data||[];
@@ -748,10 +756,19 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
    '<div class="item">الجامعي: '+((uni.data||[]).length)+' جلسة</div>',
    '<div class="item">المهني والتقني: '+((voc.data||[]).length)+' جلسة</div>',
    '<div class="item">الأنشطة والفعاليات: '+((events.data||[]).length)+' فعالية</div>',
-   '<div class="item">التعلم الإلكتروني: '+((courses.data||[]).length)+' جلسة</div>'
+   '<div class="item">التعلم الإلكتروني: '+((courses.data||[]).length)+' جلسة</div>',
+   '<div class="item">تعيينات الحصص المسجلة: '+((assignments.data||[]).length)+' — مسودة افتراضية</div>'
   ].join("");
   const days=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
   document.getElementById("edu30SlotGrid").innerHTML=ps.map(p=>'<div class="item"><strong>'+days[p.day_of_week]+' — الحصة '+p.period_number+'</strong><div class="small">'+String(p.start_time).slice(0,5)+' → '+String(p.end_time).slice(0,5)+'</div></div>').join("");
+  const assignmentRows=assignments.data||[],sectionRows=sections.data||[],subjectRows=subjects.data||[],teacherRows=teachers.data||[];
+  const sectionSelect=document.getElementById("eduAssignmentSectionFilter");
+  sectionSelect.innerHTML='<option value="">اختر الشعبة…</option>'+sectionRows.map(s=>'<option value="'+e(s.id)+'">'+e(s.section_code)+' — '+e(s.section_name)+'</option>').join("");
+  const teacherById=new Map(teacherRows.map(x=>[x.id,x])),subjectById=new Map(subjectRows.map(x=>[x.id,x])),sectionById=new Map(sectionRows.map(x=>[x.id,x])),periodById=new Map(ps.map(x=>[x.id,x]));
+  const collisionKeys=new Set();const seenTeacherPeriods=new Set();for(const a of assignmentRows){const key=a.teacher_id+"|"+a.period_id;if(seenTeacherPeriods.has(key))collisionKeys.add(key);seenTeacherPeriods.add(key)}
+  document.getElementById("eduAssignmentsSummary").innerHTML='<div class="item"><strong>'+assignmentRows.length+' تعيين حصة</strong><div class="small">16 شعبة ضمن العام 2026/2027</div></div><div class="item"><strong>'+new Set(assignmentRows.map(a=>a.teacher_id)).size+' أعضاء تعليم افتراضيون</strong><div class="small">تعيينات مخطط لها وليست جلسات حية</div></div><div class="item"><strong>'+(collisionKeys.size===0?"لا تعارضات داخل التوزيع":"تعارضات تحتاج مراجعة: "+collisionKeys.size)+'</strong></div>';
+  const renderSectionAssignments=()=>{const sectionId=sectionSelect.value;const box=document.getElementById("eduTeacherAssignmentsList");if(!sectionId){box.innerHTML='<div class="item">اختر شعبة من القائمة لعرض الحصص والمواد والمعلم الافتراضي لكل خانة.</div>';return}const rows=assignmentRows.filter(a=>a.section_id===sectionId).sort((a,b)=>{const x=periodById.get(a.period_id)||{},y=periodById.get(b.period_id)||{};return (x.day_of_week-y.day_of_week)||(x.period_number-y.period_number)});box.innerHTML=rows.map(a=>{const p=periodById.get(a.period_id)||{},s=sectionById.get(a.section_id)||{},sub=subjectById.get(a.subject_id)||{},teacher=teacherById.get(a.teacher_id)||{};return '<div class="item"><strong>'+e(days[p.day_of_week]||"")+' — الحصة '+e(p.period_number||"")+' · '+e(a.title_ar||sub.name||"مادة")+'</strong><div class="small">'+e(String(p.start_time||"").slice(0,5))+' → '+e(String(p.end_time||"").slice(0,5))+' · الشعبة '+e(s.section_code||"")+'</div><div class="small">المادة: '+e(sub.name||a.title_ar||"غير محدد")+' · عضو التعليم الافتراضي: '+e(teacher.full_name||"غير محدد")+'</div><div class="small muted">حالة الجدول: تخطيطي — لا توجد جلسة مباشرة مفعلة في هذا السجل.</div></div>'}).join("")||'<div class="item">لا توجد حصص مسجلة لهذه الشعبة.</div>'};
+  sectionSelect.addEventListener("change",renderSectionAssignments);renderSectionAssignments();
   document.getElementById("eduRoleTemplates").innerHTML=rs.map(r=>'<div class="item"><strong>'+e(r.role_name_ar)+'</strong><div class="small">'+e(r.grade_scope||"")+' · الهدف '+r.expected_weekly_slots+' · المرجع النظامي المخزن: '+(r.regulatory_reference_slots??"غير محدد")+'</div></div>').join("")||'<span class="muted">لا توجد قوالب.</span>';
  },200);
 })();
@@ -779,7 +796,7 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
     '<div class="item"><strong>منشور</strong><div class="small">'+(counts.published||0)+'</div></div>',
     '<div class="item"><strong>استفسارات حديثة</strong><div class="small">'+inquiries.length+'</div></div>'
    ].join("");
-   document.getElementById("smartContentList").innerHTML=rows.map(x=>'<div class="item"><strong>'+esc(x.title||"بدون عنوان")+'</strong><div class="small">'+esc(x.status)+' · '+esc(x.scheduled_for||"بدون جدولة")+' · '+esc(channels.find(y=>y.id===x.channel_id)?.channel_name||"بدون قناة")+'</div><div class="small">'+esc((x.body||"").slice(0,220))+'</div>'+(Array.isArray(x.media)&&x.media[0]?'<div class="small muted" style="margin-top:5px">تصوّر التصميم: '+esc(x.media[0].design_direction||"")+' · '+esc(x.media[0].format||"")+'</div><div class="small muted">ملاحظة: هذا موجز إرشادي للتصميم وليس ملف صورة جاهزًا.</div>':'')+'</div>').join("")||'<span class="muted">لا يوجد محتوى بعد.</span>';
+   document.getElementById("smartContentList").innerHTML=rows.map(x=>'<div class="item"><strong>'+esc(x.title||"بدون عنوان")+'</strong><div class="small">'+esc(x.status)+' · '+esc(x.scheduled_for||"بدون جدولة")+' · '+esc(channels.find(y=>y.id===x.channel_id)?.channel_name||"بدون قناة")+'</div><div class="small">'+esc((x.body||"").slice(0,220))+'</div>'+(Array.isArray(x.media)&&x.media[0]?'<div class="small muted" style="margin-top:5px">تصوّر التصميم: '+esc(x.media[0].design_direction||"")+' · '+esc(x.media[0].format||"")+'</div>'+(x.media[0].asset_url?'<div class="small" style="margin-top:6px"><a href="'+esc(x.media[0].asset_url)+'" target="_blank" rel="noopener noreferrer">فتح ملف الإعلان الجاهز ↗</a></div>':'')+'<div class="small muted">المسودة معتمدة داخليًا؛ النشر الخارجي لم يتم بعد.</div>':'')+'</div>').join("")||'<span class="muted">لا يوجد محتوى بعد.</span>';
  }
  async function saveSmart(status){
   const body=document.getElementById("smartBody").value.trim(),title=document.getElementById("smartTitle").value.trim(),channel_id=document.getElementById("smartChannel").value||null,sv=document.getElementById("smartSchedule").value;
