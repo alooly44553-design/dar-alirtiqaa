@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="627" viewBox="0 0 1200 627" role="img" aria-labelledby="t d">
+<title id="t">رؤية تعليمية رقمية — دار الارتقاء</title><desc id="d">بطاقة أفقية مهنية لمنصة دار الارتقاء الفكري التعليمية.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061F3A"/><stop offset=".65" stop-color="#0D477C"/><stop offset="1" stop-color="#0F7B83"/></linearGradient><linearGradient id="gold"><stop stop-color="#F6DF91"/><stop offset="1" stop-color="#C89B2C"/></linearGradient><pattern id="p" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#fff" opacity=".12"/></pattern></defs>
+<rect width="1200" height="627" rx="24" fill="url(#bg)"/><rect width="1200" height="627" rx="24" fill="url(#p)"/><path d="M0 0H1200V12Q600 68 0 12Z" fill="url(#gold)"/>
+<circle cx="170" cy="250" r="145" fill="#fff" opacity=".045"/><circle cx="170" cy="250" r="115" fill="none" stroke="#F6DF91" stroke-width="3" opacity=".6"/>
+<g transform="translate(85 165)" fill="none" stroke="#F6DF91" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M85 0C48-28 0-12 0 35v122c32-22 59-20 85 0 26-20 53-22 85 0V35c0-47-48-63-85-35Z"/><path d="M85 5v150M25 45h40M25 70h40M105 45h40M105 70h40" stroke-width="4"/></g>
+<g direction="rtl" text-anchor="end" font-family="Tahoma,Arial,sans-serif">
+<text x="1115" y="118" font-size="24" fill="#F6DF91" font-weight="800">منظومة دار الارتقاء الفكري التعليمية</text>
+<text x="1115" y="205" font-size="48" fill="#fff" font-weight="900">مسارات تعلّم</text><text x="1115" y="267" font-size="48" fill="#fff" font-weight="900">متعددة في منصة واحدة</text>
+<rect x="640" y="296" width="475" height="4" rx="2" fill="url(#gold)"/>
+<text x="1115" y="353" font-size="25" fill="#E0EDF8">التعليم العام • العربية واللغات • القرآن</text>
+<text x="1115" y="394" font-size="25" fill="#E0EDF8">المهارات الرقمية • التدريب • الأنشطة التعليمية</text>
+<text x="1115" y="465" font-size="19" fill="#BDD5E7">تعرّف على المسارات وتحقق من التوفر قبل التسجيل</text>
+</g>
+<rect x="570" y="502" width="545" height="66" rx="16" fill="url(#gold)"/><text x="842" y="544" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="23" fill="#082F57" font-weight="900">https://alirtiqaa-educational-platform.vercel.app</text>
+<text x="600" y="600" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#fff" opacity=".62">DAR AL-IRTIQAA • EDUCATIONAL PLATFORM</text></svg>
