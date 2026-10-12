@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-labelledby="title desc">
+<title id="title">Learning pathways. One digital platform.</title><desc id="desc">Dar Al-Irtiqaa Educational Platform. General education • Arabic • Languages • Digital skills. Explore learning pathways and verify availability before enrolment.</desc>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#061F3A"/><stop offset=".6" stop-color="#0D477C"/><stop offset="1" stop-color="#0F7B83"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#F5D879"/><stop offset="1" stop-color="#C89B2C"/></linearGradient>
+<pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#FFFFFF" opacity=".12"/></pattern>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#00152A" flood-opacity=".24"/></filter>
+</defs>
+<rect width="1080" height="1350" rx="32" fill="url(#bg)"/>
+<rect width="1080" height="1350" rx="32" fill="url(#dots)"/>
+<g opacity=".15" fill="none" stroke="#F5D879" stroke-width="3"><circle cx="880" cy="170" r="90"/><ellipse cx="880" cy="170" rx="40" ry="90"/><ellipse cx="880" cy="170" rx="90" ry="35"/><path d="M790 170 h180"/></g>
+<path d="M0 0 H1080 V28 Q540 115 0 28Z" fill="url(#gold)" opacity=".95"/>
+<g transform="translate(70 55)">
+<rect width="940" height="385" rx="35" fill="#FFFFFF" opacity=".075" stroke="#FFFFFF" stroke-opacity=".22" filter="url(#shadow)"/>
+<circle cx="170" cy="182" r="110" fill="#FFFFFF" opacity=".06"/>
+<circle cx="170" cy="182" r="75" fill="none" stroke="#F5D879" stroke-width="3" opacity=".7"/>
+<g transform="translate(110 105)" stroke="#F5D879" stroke-width="6" stroke-linecap="round" fill="none">
+<path d="M0 0 C-55 -35 -100 -6 -100 50 V145 C-50 110 -22 124 0 145 C22 124 50 110 100 145 V50 C100 -6 55 -35 0 0Z"/>
+<path d="M0 5 V143"/>
+<path d="M-72 34 h45 M-72 65 h45 M28 34 h45 M28 65 h45" stroke-width="4" opacity=".8"/>
+</g>
+<text x="300" y="122" text-anchor="start" fill="#F6DA82" font-size="25" font-weight="800" direction="ltr">Dar Al-Irtiqaa Educational Platform</text>
+<text x="300" y="200" text-anchor="start" fill="#FFFFFF" font-size="29" font-weight="700" direction="ltr">LEARN • GROW • CONNECT</text>
+<text x="300" y="258" text-anchor="start" fill="#C9DDEA" font-size="22" direction="ltr">Multiple learning paths. One digital home.</text>
+<path d="M300 310 h350" stroke="url(#gold)" stroke-width="4" stroke-linecap="round"/>
+</g>
+
+ <text x="80" y="575" direction="ltr" text-anchor="start" fill="#FFFFFF" font-size="59" font-weight="900">Learning pathways. One digital platform.</text>
+ <rect x="80" y="610" width="555" height="5" rx="3" fill="url(#gold)"/>
+ <text x="80" y="680" direction="ltr" text-anchor="start" fill="#F5D879" font-size="29" font-weight="800">Dar Al-Irtiqaa Educational Platform</text>
+ <text x="80" y="765" direction="ltr" text-anchor="start" fill="#E4F1FC" font-size="29" font-weight="700">General education • Arabic • Languages • Digital skills</text>
+ <text x="80" y="830" direction="ltr" text-anchor="start" fill="#C5D8E8" font-size="25">Explore learning pathways and verify availability before enrolment.</text>
+ <rect x="80" y="900" width="385" height="82" rx="20" fill="url(#gold)" filter="url(#shadow)"/>
+ <text x="272" y="952" text-anchor="middle" fill="#082F57" font-size="27" font-weight="900">Explore the platform</text>
+ <rect x="80" y="1050" width="920" height="112" rx="20" fill="#FFFFFF" opacity=".09" stroke="#FFFFFF" stroke-opacity=".2"/>
+ <text x="540" y="1095" text-anchor="middle" fill="#F5D879" font-size="23" font-weight="800">Official platform</text>
+ <text x="540" y="1137" text-anchor="middle" fill="#FFFFFF" font-size="20">https://alirtiqaa-educational-platform.vercel.app</text>
+ <text x="540" y="1230" text-anchor="middle" fill="#AFC9DC" font-size="19">Online learning • Verify availability before enrolment</text>
+<circle cx="80" cy="1260" r="5" fill="#F5D879"/><circle cx="1000" cy="1260" r="5" fill="#F5D879"/>
+<text x="540" y="1305" text-anchor="middle" fill="#FFFFFF" opacity=".65" font-size="16">DAR AL-IRTIQAA • EDUCATIONAL PLATFORM</text>
+</svg>
