@@ -21,6 +21,48 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Verify public pages and API contracts
+        env:
+          EDUCATION_BASE_URL: https://alirtiqaa-educational-platform.vercel.app
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+
+          const base = process.env.EDUCATION_BASE_URL;
+          const pages = [
+            '/', '/admin.html', '/portal.html', '/student.html',
+            '/teacher.html', '/parent.html', '/reports.html',
+            '/app.webmanifest', '/sw.js',
+          ];
+
+          for (const path of pages) {
+            const response = await fetch(base + path, { redirect: 'follow', cache: 'no-store' });
+            assert.equal(response.status, 200, path + ' must return HTTP 200');
+            console.log('PASS: ' + path + ' -> HTTP ' + response.status);
+          }
+
+          const statusResponse = await fetch(base + '/api/education/status', { cache: 'no-store' });
+          assert.equal(statusResponse.status, 200, 'education status endpoint must return HTTP 200');
+          const status = await statusResponse.json();
+          assert.equal(status.ok, true, 'education status must be healthy');
+          assert.equal(status.database, 'connected', 'education database must be connected');
+
+          const servicesResponse = await fetch(base + '/api/education/services', { cache: 'no-store' });
+          assert.equal(servicesResponse.status, 200, 'service catalog must return HTTP 200');
+          const services = await servicesResponse.json();
+          assert.equal(services.ok, true, 'service catalog must report ok=true');
+          assert.ok(Array.isArray(services.services), 'service catalog must be an array');
+          assert.ok(services.services.length >= 1, 'service catalog must not be empty');
+          console.log('PASS: education status and service catalog');
+
+          const methodResponse = await fetch(base + '/api/education/registrations', {
+            method: 'GET', cache: 'no-store',
+          });
+          assert.equal(methodResponse.status, 405, 'registrations endpoint must reject GET');
+          assert.match(methodResponse.headers.get('allow') || '', /POST/i, 'registrations endpoint must advertise POST');
+          console.log('PASS: registrations endpoint only permits POST');
+          NODE
+
       - name: Verify API validation without creating records
         env:
           EDUCATION_BASE_URL: https://alirtiqaa-educational-platform.vercel.app
