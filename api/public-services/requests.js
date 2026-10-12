@@ -9,16 +9,25 @@ export default async function handler(req, res) {
     const email = cleanText(body.email, 254);
     const serviceCode = cleanText(body.service_code, 80);
     const payload = body.payload && typeof body.payload === "object" && !Array.isArray(body.payload) ? body.payload : {};
-    if (applicantName.length < 2 || !serviceCode || (phone && !validPhone(phone))) {
+    const validEmail = (value) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    const serializedPayload = JSON.stringify(payload);
+
+    if (applicantName.length < 2 || !serviceCode ||
+        (phone && !validPhone(phone)) || !validEmail(email)) {
       return sendJson(res, 400, { error: "INVALID_SERVICE_REQUEST_FIELDS" });
     }
+    // Bound user-supplied JSON to reduce abuse and prevent oversized request payloads.
+    if (Buffer.byteLength(serializedPayload, "utf8") > 12000) {
+      return sendJson(res, 413, { error: "SERVICE_REQUEST_PAYLOAD_TOO_LARGE" });
+    }
+
     const requestNumber = "PS-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomUUID().slice(0, 8).toUpperCase();
     const sql = getDatabase("public-services");
     const rows = await sql`
       INSERT INTO public_services.service_requests
         (request_number, applicant_name, phone, email, service_code, payload)
       VALUES
-        (${requestNumber}, ${applicantName}, ${phone || null}, ${email || null}, ${serviceCode}, ${JSON.stringify(payload)}::jsonb)
+        (${requestNumber}, ${applicantName}, ${phone || null}, ${email || null}, ${serviceCode}, ${serializedPayload}::jsonb)
       RETURNING id, request_number, status, created_at
     `;
     return sendJson(res, 201, { ok: true, request: rows[0] });
