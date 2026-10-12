@@ -116,7 +116,30 @@ export default async function handler(req, res) {
          'new', true, now(), ${service.consent_text})
       RETURNING id, request_number, status, created_at
     `;
-    return sendJson(res, 201, { ok: true, request: rows[0] });
+    // Queue a minimal follow-up task without copying applicant PII into the task list.
+    // Request intake remains successful if the task queue is temporarily unavailable.
+    let followUpQueued = false;
+    try {
+      await sql`
+        INSERT INTO education.tasks (title, description, assigned_to, due_at, status)
+        VALUES (
+          ${"مراجعة طلب خدمة " + service.service_name + " — " + requestNumber},
+          ${"رقم الطلب: " + requestNumber + "\nرمز الخدمة: " + serviceCode + "\nالمطلوب: مراجعة البيانات والمرفقات عند إتاحتها، تحديد النواقص، ثم متابعة الطلب وفق إجراء الإدارة. لا يُعد الاستلام قبولًا نهائيًا."},
+          ${"منسق القبول والسجلات التعليمية — ذكاء اصطناعي"},
+          now() + interval '1 day',
+          'open'
+        )
+      `;
+      followUpQueued = true;
+    } catch (taskError) {
+      console.error("SERVICE_REQUEST_FOLLOWUP_TASK_FAILED", taskError?.code || "unknown");
+    }
+    return sendJson(res, 201, {
+      ok: true,
+      request: rows[0],
+      follow_up_queued: followUpQueued,
+      message: "تم استلام الطلب وإرساله للمراجعة الإدارية؛ الاستلام لا يعني القبول النهائي."
+    });
   } catch (error) {
     const status = error.statusCode || 500;
     return sendJson(res, status, {
