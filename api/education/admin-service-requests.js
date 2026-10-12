@@ -35,6 +35,9 @@ export default async function handler(req, res) {
                r.applicant_name, r.phone AS applicant_phone, r.applicant_email,
                r.payload AS submission_data, r.consent_given, r.status,
                r.management_note, r.documented, r.document_reference, r.created_at,
+               followup.status AS follow_up_status,
+               followup.due_at AS follow_up_due_at,
+               followup.assigned_to AS follow_up_assigned_to,
                json_build_object(
                  'service_name', s.service_name,
                  'service_category', s.service_category,
@@ -42,6 +45,13 @@ export default async function handler(req, res) {
                ) AS service_catalog
         FROM education.service_requests r
         JOIN education.service_catalog s ON s.service_code = r.service_code
+        LEFT JOIN LATERAL (
+          SELECT t.status, t.due_at, t.assigned_to
+          FROM education.tasks t
+          WHERE POSITION(r.request_number IN COALESCE(t.description, '')) > 0
+          ORDER BY t.created_at DESC
+          LIMIT 1
+        ) AS followup ON true
         ORDER BY r.created_at DESC
         LIMIT 100
       `;
@@ -85,6 +95,18 @@ export default async function handler(req, res) {
       return sendJson(res, 400, { error: "INVALID_ACTION" });
     }
     if (!changed.length) return sendJson(res, 404, { error: "SERVICE_REQUEST_NOT_FOUND" });
+    if (action === "accept" || action === "reject") {
+      try {
+        await sql`
+          UPDATE education.tasks
+          SET status = 'completed', updated_at = now()
+          WHERE status IN ('open', 'in_progress')
+            AND POSITION(${changed[0].request_number} IN COALESCE(description, '')) > 0
+        `;
+      } catch (taskError) {
+        console.error("SERVICE_REQUEST_FOLLOWUP_CLOSE_FAILED", taskError?.code || "unknown");
+      }
+    }
     return sendJson(res, 200, { ok: true, request: changed[0] });
   } catch (error) {
     const status = error.statusCode || 500;
