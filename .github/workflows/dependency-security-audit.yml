@@ -1,0 +1,38 @@
+name: Dependency security audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/dependency-security-audit.yml"
+  pull_request:
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/dependency-security-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-security-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  production-dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate lockfile without running package scripts
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Audit production dependencies for high and critical advisories
+        run: npm audit --omit=dev --audit-level=high
