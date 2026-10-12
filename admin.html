@@ -736,7 +736,7 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
   const e=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
   const [settings,periods,roles,staff,uni,voc,events,courses,assignments,sections,subjects,teachers]=await Promise.all([
    window.sb.from("edu_schedule_settings").select("weekly_periods,school_days_per_week,periods_per_day,default_lesson_minutes,source_reference").eq("is_active",true).order("created_at",{ascending:false}).limit(1).maybeSingle(),
-   window.sb.from("edu_schedule_periods").select("day_of_week,period_number,start_time,end_time,period_type").eq("is_active",true).order("day_of_week").order("period_number"),
+   window.sb.from("edu_schedule_periods").select("id,day_of_week,period_number,start_time,end_time,period_type").eq("is_active",true).order("day_of_week").order("period_number"),
    window.sb.from("edu_staffing_role_templates").select("role_name_ar,grade_scope,expected_weekly_slots,regulatory_reference_slots,is_homeroom").eq("is_active",true).order("id"),
    window.sb.from("edu_staff_weekly_load").select("id,staff_id,target_slots,regulatory_reference_slots,academic_year,term"),
    window.sb.from("edu_university_schedule").select("id").limit(1000),
