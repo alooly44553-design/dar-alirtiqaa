@@ -308,7 +308,7 @@ $("serviceForm").addEventListener("submit",async e=>{
    })[result.error]||"تعذر إرسال الطلب. حاول مرة أخرى.");
    requestNumber=result.request?.request_number||"";
   }
-  status.className="status show ok";status.textContent="تم استلام الطلب بنجاح. رقم الطلب: "+requestNumber;
+  status.className="status show ok";status.textContent="تم استلام الطلب بنجاح. سيخضع للمراجعة الإدارية ولا يعني الاستلام القبول النهائي. رقم الطلب: "+requestNumber;
   toast("تم إرسال الطلب بنجاح",true);$("serviceForm").reset();
  }catch(err){console.error(err);status.className="status show err";status.textContent=err.message||"تعذر إرسال الطلب. حاول مرة أخرى.";toast("تعذر إرسال الطلب")}
  finally{btn.disabled=false}
