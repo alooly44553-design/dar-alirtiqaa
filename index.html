@@ -195,6 +195,7 @@ function renderForm(service){
   const refreshFees=()=>loadFees(service.id, service.service_code);
   const gradeOptions=gradeField?Array.from(gradeField.options).slice(1).map(o=>({label:o.textContent,value:o.value})):[];
   const gradesByStage={
+   early_childhood:["الحضانة","تمهيدي 1 KG1","تمهيدي 2 KG2","تمهيدي 3 KG3"],
    primary:["الأول الابتدائي","الثاني الابتدائي","الثالث الابتدائي","الرابع الابتدائي","الخامس الابتدائي","السادس الابتدائي"],
    middle:["الأول المتوسط","الثاني المتوسط","الثالث المتوسط"],
    secondary:["الأول الثانوي","الثاني الثانوي","الثالث الثانوي"]
