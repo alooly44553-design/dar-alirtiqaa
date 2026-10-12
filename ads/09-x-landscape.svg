@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="t d">
+<title id="t">منصة واحدة — مسارات تعلّم متنوعة</title><desc id="d">بطاقة أفقية لمنشورات X ووسائل العرض الواسعة.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061F3A"/><stop offset=".65" stop-color="#0D477C"/><stop offset="1" stop-color="#0F7B83"/></linearGradient><linearGradient id="g"><stop stop-color="#F5D879"/><stop offset="1" stop-color="#C89B2C"/></linearGradient><pattern id="p" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="#fff" opacity=".1"/></pattern></defs>
+<rect width="1600" height="900" rx="28" fill="url(#bg)"/><rect width="1600" height="900" rx="28" fill="url(#p)"/><path d="M0 0H1600V20Q800 90 0 20Z" fill="url(#g)"/>
+<g opacity=".18" fill="none" stroke="#F5D879" stroke-width="5"><circle cx="270" cy="320" r="155"/><circle cx="270" cy="320" r="110"/><path d="M115 320h310M270 165v310"/></g>
+<g direction="rtl" text-anchor="end" font-family="Tahoma,Arial,sans-serif">
+<text x="1460" y="185" font-size="30" fill="#F5D879" font-weight="800">دار الارتقاء الفكري التعليمية</text>
+<text x="1460" y="310" font-size="78" fill="#fff" font-weight="900">مسارات تعلّم</text>
+<text x="1460" y="405" font-size="78" fill="#fff" font-weight="900">في منصة رقمية واحدة</text>
+<rect x="660" y="455" width="800" height="5" rx="2" fill="url(#g)"/>
+<text x="1460" y="540" font-size="36" fill="#E2EFF9">التعليم • اللغات • القرآن • التقنية • التدريب</text>
+<text x="1460" y="603" font-size="30" fill="#BDD5E7">استكشف المجالات، ثم تحقق من توفر البرنامج والجدول.</text>
+</g>
+<g transform="translate(180 545)"><rect width="350" height="170" rx="26" fill="#fff" opacity=".08" stroke="#fff" stroke-opacity=".22"/><text x="175" y="60" text-anchor="middle" font-size="32" fill="#F5D879">📚</text><text x="175" y="110" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="22" fill="#fff">التعليم والمهارات</text><text x="175" y="145" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="18" fill="#D4E4F2">عن بُعد فقط</text></g>
+<rect x="650" y="690" width="810" height="85" rx="20" fill="url(#g)"/><text x="1055" y="744" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#082F57" font-weight="900">alirtiqaa-educational-platform.vercel.app</text>
+<text x="800" y="845" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" fill="#fff" opacity=".65">DAR AL-IRTIQAA • LEARN • GROW • CONNECT</text></svg>
