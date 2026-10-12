@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img" aria-labelledby="t d">
+<title id="t">قصة عمودية — مسارات تعلم متعددة</title><desc id="d">قصة عمودية مناسبة لإنستغرام وسناب شات كصورة ثابتة وليست فيديو.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061F3A"/><stop offset=".6" stop-color="#0D477C"/><stop offset="1" stop-color="#0F7B83"/></linearGradient><linearGradient id="gold"><stop stop-color="#F5D879"/><stop offset="1" stop-color="#C89B2C"/></linearGradient><pattern id="p" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.2" fill="#fff" opacity=".11"/></pattern></defs>
+<rect width="1080" height="1920" rx="32" fill="url(#bg)"/><rect width="1080" height="1920" rx="32" fill="url(#p)"/><path d="M0 0H1080V28Q540 100 0 28Z" fill="url(#gold)"/>
+<circle cx="900" cy="280" r="190" fill="#fff" opacity=".04"/><circle cx="170" cy="1540" r="250" fill="#fff" opacity=".03"/>
+<g transform="translate(360 135)" fill="none" stroke="#F5D879" stroke-width="7" stroke-linecap="round"><path d="M180 0C105-38 15-4 15 88v202c58-42 110-30 165 0 55-30 107-42 165 0V88C345-4 255-38 180 0Z"/><path d="M180 12v270M66 93h80M66 135h80M214 93h80M214 135h80" stroke-width="5"/></g>
+<text x="540" y="540" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="29" fill="#F5D879" font-weight="800">منظومة دار الارتقاء الفكري التعليمية</text>
+<text x="540" y="690" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="64" fill="#fff" font-weight="900">مسارات تعلّم</text><text x="540" y="775" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="64" fill="#fff" font-weight="900">في منصة واحدة</text>
+<rect x="130" y="825" width="820" height="5" rx="2" fill="url(#gold)"/>
+<g direction="rtl" text-anchor="middle" font-family="Tahoma,Arial,sans-serif" font-size="32" fill="#E1EEF8">
+<text x="540" y="925">🎓 التعليم العام والمناهج</text><text x="540" y="1005">📖 العربية واللغات والقرآن</text><text x="540" y="1085">💻 المهارات الرقمية والتدريب</text><text x="540" y="1165">🎨 الأنشطة التعليمية والتربوية</text></g>
+<rect x="110" y="1285" width="860" height="170" rx="25" fill="#fff" opacity=".08" stroke="#fff" stroke-opacity=".2"/>
+<text x="540" y="1355" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="25" fill="#F5D879" font-weight="800">استكشف الموقع الرسمي</text>
+<text x="540" y="1415" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" fill="#fff">alirtiqaa-educational-platform.vercel.app</text>
+<text x="540" y="1535" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="24" fill="#D5E4F0">تحقق من توفر البرنامج والجدول قبل التسجيل</text>
+<rect x="205" y="1630" width="670" height="100" rx="23" fill="url(#gold)"/><text x="540" y="1692" text-anchor="middle" direction="rtl" font-family="Tahoma,Arial,sans-serif" font-size="28" fill="#082F57" font-weight="900">افتح المنصة الآن ↗</text>
+<text x="540" y="1825" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" fill="#fff" opacity=".62">DAR AL-IRTIQAA • EDUCATIONAL PLATFORM</text></svg>
