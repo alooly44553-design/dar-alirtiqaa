@@ -66,13 +66,24 @@ jobs:
           cp android/app/build/outputs/apk/debug/app-debug.apk downloads/dar-alirtiqaa-v1.0.1.apk
           sha256sum downloads/dar-alirtiqaa.apk > downloads/dar-alirtiqaa.apk.sha256
 
+      - name: Prepare minimal public Pages directory
+        shell: bash
+        run: |
+          set -e
+          mkdir -p site/downloads
+          cp index.html admin.html portal.html student.html parent.html teacher.html reports.html brochure.html marketing.html app.webmanifest logo.svg icon.svg sw.js site/
+          for dir in lib assets; do
+            if [ -d "$dir" ]; then cp -R "$dir" site/; fi
+          done
+          cp downloads/dar-alirtiqaa.apk downloads/dar-alirtiqaa-v1.0.1.apk downloads/dar-alirtiqaa.apk.sha256 site/downloads/
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .
+          path: site
 
       - name: Deploy to GitHub Pages
         id: deployment
