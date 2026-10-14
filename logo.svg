@@ -10,7 +10,7 @@
 <path d="M235 155 Q270 108 318 96 M505 155 Q470 108 422 96" fill="none" stroke="#c89b2c" stroke-width="13" stroke-linecap="round"/>
 <path d="M370 22 l11 27 29 4-22 19 6 29-24-14-24 14 6-29-22-19 29-4z" fill="#c89b2c"/>
 </g>
-<text x="865" y="125" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="58" font-weight="800" fill="#0b4d91">مدارس</text>
+<text x="865" y="125" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="48" font-weight="800" fill="#0b4d91">منظومة</text>
 <text x="865" y="195" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="57" font-weight="800" fill="#0b4d91">دار الارتقاء الفكري</text>
 <line x1="555" y1="225" x2="855" y2="225" stroke="#c89b2c" stroke-width="4"/>
 <text x="855" y="270" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="31" font-weight="700" fill="#c89b2c">تعليم .. بناء .. مستقبل أفضل</text>
