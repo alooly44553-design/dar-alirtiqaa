@@ -395,11 +395,15 @@ const setView=logged=>{$("login").style.display=logged?"none":"block";$('app').s
 function renderAgent(id,a){$(id).innerHTML=a?`<strong>${esc(a.name)}</strong><div class="row" style="margin-top:5px"><span class="badge ok">نشط</span><span class="badge">${esc(a.autonomy_level||"supervised")}</span></div><div class="small" style="margin-top:6px">${esc(a.system_role||"")}</div>`:'<span class="muted">غير متاح حاليًا.</span>'}
 function render(rows,id,empty,fn){$(id).innerHTML=rows?.length?rows.map(fn).join(""):`<span class="muted">${empty}</span>`}
 let adminLoadersStarted=false;
+let dashboardLoadInProgress=false;
+let dashboardLoadPending=false;
 async function load(){
+ if(dashboardLoadInProgress){dashboardLoadPending=true;return;}
+ dashboardLoadInProgress=true;
+ try{
  const session=await getSession(); if(!session?.user){window.sb=null;setView(false);return}
  const admin=await isAdmin(); if(!admin){window.sb=null;await sb.auth.signOut();setView(false);$("loginMsg").textContent="هذا الحساب غير مصرح له بدخول لوحة الإدارة.";return}
- window.sb=sb; setView(true); $("who").textContent=session.user.email||"حساب الإدارة";
- if(!adminLoadersStarted){adminLoadersStarted=true;loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();loadServiceFeesAdmin();loadGlobalOperations();}
+ setView(true); $("who").textContent=session.user.email||"حساب الإدارة";
  const [c,a,t,cmd,logs,l,e,p,su,cl,at,st,dep,sc,prg,rec,msgs,ev,acc,tx,fees,ass,res,aiq,sta,initiatives,mt]=await Promise.all([
   sb.from("centers").select("id,name,is_active,created_at").order("created_at",{ascending:false}),
   sb.from("ai_agents").select("id,name,role,is_active,system_role,autonomy_level").eq("is_active",true).order("role"),
@@ -429,7 +433,7 @@ async function load(){
   sb.from("staff_attendance").select("id,staff_id,center_id,attendance_date,status,check_in,check_out,notes,created_at").order("attendance_date",{ascending:false}).limit(100),
   sb.from("member_tasks").select("id,title,task_type,due_at,status,priority,assigned_agent_id,description,created_at").order("created_at",{ascending:false}).limit(50)
  ]);
- const failed=[["المراكز",c.error],["الوكلاء",a.error],["المهام",t.error],["الأوامر",cmd.error],["السجل",logs.error],["الطلاب",l.error],["التسجيلات",e.error],["البرامج",p.error],["المعلمون",st.error],["الأقسام",dep.error],["الجداول",sc.error],["التقييمات",ass.error],["النتائج",res.error],["الإشراف الذكي",aiq.error],["حضور الموظفين",sta.error],["برامج التطوير",initiatives.error],["المهام التشغيلية",mt.error]].filter(x=>x[1]);
+ const failed=[["المراكز",c.error],["الوكلاء",a.error],["المهام",t.error],["الأوامر",cmd.error],["سجل النشاط",logs.error],["المتعلمون",l.error],["التسجيلات",e.error],["البرامج",p.error],["المواد",su.error],["الفصول",cl.error],["الحضور",at.error],["المعلمون",st.error],["الأقسام",dep.error],["الجداول",sc.error],["التقدم التعليمي",prg.error],["سجلات الموظفين",rec.error],["تواصل أولياء الأمور",msgs.error],["الأنشطة والفعاليات",ev.error],["الحسابات المالية",acc.error],["الحركات المالية",tx.error],["الرسوم",fees.error],["التقييمات",ass.error],["النتائج",res.error],["الإشراف الذكي",aiq.error],["حضور الموظفين",sta.error],["مبادرات التطوير",initiatives.error],["المهام التشغيلية",mt.error]].filter(x=>x[1]);
  if(failed.length){console.error(failed);globalMsg("تعذر تحميل بعض بيانات اللوحة: "+failed.map(x=>x[0]).join("، "),"error")}else globalMsg("");
  render(c.data,"centers","لا توجد مراكز مسجلة بعد.",x=>`<div class="item"><strong>${esc(x.name)}</strong><span class="badge ${statusClass(x.is_active?"active":"inactive")}">${esc(statusLabel(x.is_active?"active":"inactive"))}</span></div>`);
  const agents=a.data||[]; renderAgent("supervisor",agents.find(x=>x.role==="supervisor")); renderAgent("teacher",agents.find(x=>x.role==="teacher"));
@@ -480,6 +484,19 @@ $("schedulesList").innerHTML=schedules.map(x=>{const sbj=subjects.find(y=>y.id==
  $("enrollProgram").innerHTML=programs.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")||`<option value="">لا توجد برامج نشطة</option>`;
  render(learners,"learners","لا يوجد طلاب مسجلون بعد.",x=>{const count=enrollments.filter(e=>e.learner_id===x.id).length;return `<div class="item"><strong>${esc(x.full_name)}</strong><div class="small">ولي الأمر: ${esc(x.guardian_name||"—")} · الهاتف: ${esc(x.guardian_phone||"—")}</div><div class="row" style="margin-top:5px"><span class="badge ${statusClass(x.is_active?"active":"inactive")}">${statusLabel(x.is_active?"active":"inactive")}</span><span class="badge info">${count} تسجيل</span></div></div>`});
  render(logs.data,"logs","لا يوجد نشاط مسجل بعد.",x=>{let d="";try{d=typeof x.details==="string"?x.details:JSON.stringify(x.details||{})}catch{}return`<div class="item"><strong>${esc(x.action||"نشاط")}</strong><div class="small">${esc(d)}</div><div class="small muted" style="margin-top:5px">${fmt(x.created_at)}</div></div>`});
+ window.sb=sb;
+ if(!adminLoadersStarted){
+  adminLoadersStarted=true;
+  const backgroundLoaders=[loadOperationalPlans,loadOperationalChain,loadAIStaffRoster,loadAuditDashboard,loadServiceFeesAdmin,loadGlobalOperations];
+  (async()=>{for(const loader of backgroundLoaders){try{await loader()}catch(error){console.error("Admin background loader failed",error)}await new Promise(resolve=>setTimeout(resolve,700));}})();
+ }
+ }catch(error){
+  console.error("Admin dashboard load failed",error);
+  globalMsg("تعذر تحديث لوحة الإدارة: "+String(error?.message||error),"error");
+ }finally{
+  dashboardLoadInProgress=false;
+  if(dashboardLoadPending){dashboardLoadPending=false;setTimeout(()=>load(),400);}
+ }
 }
 $("aiSupervisionList").addEventListener("click",async e=>{const b=e.target.closest("[data-ai-review]");if(!b)return;const note=window.prompt("ملاحظة المراجعة أو الإجراء (اختيارية):");if(note===null)return;b.disabled=true;const id=b.dataset.aiReview,next=b.dataset.aiNext;const{error}=await sb.from("ai_supervision_queue").update({status:next,findings:note.trim()||null,reviewed_at:next==="in_review"?null:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",id);if(error){alert("تعذر تحديث المراجعة: "+error.message);b.disabled=false;return}await load()});
 $("addInitiative").onclick=async()=>{const title=$("initiativeTitle").value.trim(),initiative_type=$("initiativeType").value,delivery_mode=$("initiativeMode").value,audience=$("initiativeAudience").value.trim(),objectives=$("initiativeObjectives").value.trim();if(!title){$("initiativeMsg").className="small dangerText";$("initiativeMsg").textContent="اكتب اسم البرنامج أو المبادرة.";return}const{data:{user}}=await sb.auth.getUser();const{error}=await sb.from("development_initiatives").insert({title,initiative_type,delivery_mode,audience:audience||null,objectives:objectives||null,status:"planned"});if(error){$("initiativeMsg").className="small dangerText";$("initiativeMsg").textContent="تعذر الحفظ: "+error.message;return}$("initiativeTitle").value="";$("initiativeObjectives").value="";$("initiativeMsg").className="small successText";$("initiativeMsg").textContent="تمت إضافة البرنامج وإحالته للمشرف الذكي للتخطيط والمتابعة.";await load()};
@@ -591,7 +608,7 @@ document.getElementById("globalApprovals")?.addEventListener("click",async e=>{
   box.textContent="تم تسجيل القرار. راجع حالة الموافقة في اللوحة.";
  }
 });
-let timer=null;function autoRefresh(){if(timer)clearInterval(timer);timer=setInterval(async()=>{if((await getSession())?.user)await load()},30000)}
+let timer=null;function autoRefresh(){if(timer)clearInterval(timer);timer=setInterval(async()=>{if((await getSession())?.user)await load()},120000)}
 sb.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){window.sb=null;window.location.reload();return}if(["SIGNED_IN","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();
 document.getElementById("linkPlanInitiative")?.addEventListener("click",async()=>{const plan_id=document.getElementById("linkInitiativePlan").value,id=document.getElementById("linkInitiative").value;if(!plan_id||!id)return;const{error}=await sb.from("development_initiatives").update({plan_id}).eq("id",id);document.getElementById("operationalMsg").textContent=error?"تعذر الربط: "+error.message:"تم ربط البرنامج بالخطة.";await loadOperationalChain()});
 document.getElementById("addOperationalActivity")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("activityInitiative").value,title=document.getElementById("activityTitle").value.trim(),activity_date=document.getElementById("activityDate").value,session_start=document.getElementById("activityStart").value||null,session_end=document.getElementById("activityEnd").value||null,responsible_staff_id=document.getElementById("activityStaff").value||null,classroom_id=document.getElementById("activityClassroom").value||null,delivery_mode=document.getElementById("activityMode").value,objectives=document.getElementById("activityObjectives").value.trim();if(!initiative_id||!title||!activity_date){document.getElementById("operationalMsg").textContent="أكمل البرنامج وعنوان الجلسة والتاريخ.";return}const{error}=await sb.from("initiative_activities").insert({initiative_id,title,activity_date,session_start,session_end,responsible_staff_id,classroom_id,delivery_mode,objectives:objectives||null,status:"planned"});document.getElementById("operationalMsg").textContent=error?"تعذر إضافة الجلسة: "+error.message:"تمت إضافة الجلسة إلى التقويم.";if(!error)document.getElementById("activityTitle").value="";await loadOperationalChain()});
