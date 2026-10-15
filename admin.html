@@ -683,24 +683,48 @@ document.getElementById("registrationsList")?.addEventListener("click",async e=>
 });
 
 async function loadAuditDashboard(){
- const summary=document.getElementById("auditSummary"),box=document.getElementById("auditFindings");if(!summary)return;
- const [runs,findings,checks]=await Promise.all([
-  sb.from("audit_runs").select("id,run_type,status,total_checks,passed_checks,failed_checks,warning_checks,started_at,completed_at,summary").order("started_at",{ascending:false}).limit(1),
-  sb.from("audit_findings").select("id,status,severity,title,details,created_at").order("created_at",{ascending:false}).limit(12),
-  sb.from("audit_checks").select("id,name,frequency,active").eq("active",true)
- ]);
- const r=(runs.data||[])[0], f=findings.data||[];
- summary.innerHTML=r
- ? '<strong>آخر تدقيق: '+escapeHtml(r.run_type||"")+'</strong><div class="small">الحالة: '+escapeHtml(r.status||"")+' · إجمالي الفحوص: '+r.total_checks+' · ناجح آليًا: '+r.passed_checks+' · إخفاقات: '+r.failed_checks+' · تنبيهات: '+r.warning_checks+'</div><div class="small">'+escapeHtml(r.summary||"")+'</div>'
- : '<span class="muted">لم يبدأ تدقيق بعد.</span>';
- box.innerHTML=f.map(x=>'<div class="item"><strong>'+escapeHtml(x.title||"")+'</strong><span class="badge '+(x.status==="open"?"danger":x.status==="pending_review"?"warn":"ok")+'">'+escapeHtml(x.status||"")+'</span> <span class="badge">'+escapeHtml(x.severity||"")+'</span><div class="small">'+escapeHtml(x.details||"")+'</div></div>').join("")||'<span class="muted">لا توجد نتائج تدقيق مسجلة.</span>';
+ const summary=document.getElementById("auditSummary"),box=document.getElementById("auditFindings");
+ if(!summary||!box)return;
+ summary.textContent="جارٍ تحميل آخر نتيجة تدقيق...";
+ const runs=await sb.from("audit_runs").select("id,run_type,status,total_checks,passed_checks,failed_checks,warning_checks,started_at,completed_at,summary").order("started_at",{ascending:false}).limit(1);
+ if(runs.error){
+  summary.textContent="تعذر تحميل نتائج التدقيق: "+runs.error.message;
+  box.innerHTML="";
+  return;
+ }
+ const r=(runs.data||[])[0];
+ if(!r){
+  summary.innerHTML='<span class="muted">لم يبدأ تدقيق بعد.</span>';
+  box.innerHTML='<span class="muted">لا توجد نتائج تدقيق مسجلة.</span>';
+  return;
+ }
+ const findings=await sb.from("audit_findings").select("id,status,severity,title,details,recommendation,evidence,created_at").eq("run_id",r.id).order("created_at",{ascending:false}).limit(30);
+ if(findings.error){
+  summary.textContent="تعذر تحميل تفاصيل آخر تدقيق: "+findings.error.message;
+  box.innerHTML="";
+  return;
+ }
+ const statusText={passed:"اجتاز الفحص الآلي",open:"يتطلب معالجة",pending_review:"بانتظار مراجعة بشرية",resolved:"تمت المعالجة",in_progress:"قيد المعالجة"};
+ const statusBadge={passed:"ok",open:"danger",pending_review:"warn",resolved:"ok",in_progress:"info"};
+ summary.innerHTML=
+  '<strong>آخر تدقيق: '+escapeHtml(r.run_type||"")+'</strong>'+
+  '<div class="small">الحالة: '+escapeHtml(r.status||"")+' · إجمالي الفحوص: '+Number(r.total_checks||0)+
+  ' · اجتازت الفحص الآلي: '+Number(r.passed_checks||0)+' · بنود مفتوحة: '+Number(r.failed_checks||0)+
+  ' · تحتاج مراجعة: '+Number(r.warning_checks||0)+'</div>'+
+  '<div class="small">'+escapeHtml(r.summary||"")+'</div>'+
+  '<div class="small muted">تاريخ التدقيق: '+fmt(r.completed_at||r.started_at)+'</div>';
+ box.innerHTML=(findings.data||[]).map(x=>{
+  const status=String(x.status||"pending_review");
+  const evidence=x.evidence&&typeof x.evidence==="object"?JSON.stringify(x.evidence):"";
+  return '<div class="item"><strong>'+escapeHtml(x.title||"")+'</strong>'+
+   '<span class="badge '+(statusBadge[status]||"info")+'">'+escapeHtml(statusText[status]||status)+'</span> '+
+   '<span class="badge">'+escapeHtml(x.severity||"")+'</span>'+
+   '<div class="small" style="margin-top:6px">'+escapeHtml(x.details||"")+'</div>'+
+   (x.recommendation?'<div class="small"><b>الإجراء التالي:</b> '+escapeHtml(x.recommendation)+'</div>':"")+
+   (evidence?'<div class="small muted">دليل الفحص: '+escapeHtml(evidence)+'</div>':"")+
+   '</div>';
+ }).join("")||'<span class="muted">لا توجد نتائج مرتبطة بآخر تدقيق.</span>';
 }
-document.getElementById("runAudit")?.addEventListener("click",async()=>{
- const btn=document.getElementById("runAudit"),msg=document.getElementById("auditMsg");btn.disabled=true;msg.className="small muted";msg.textContent="جارٍ تشغيل التدقيق الشامل...";
- const {data,error}=await sb.rpc("run_management_audit",{p_run_type:"manual"});
- if(error){msg.className="small dangerText";msg.textContent="تعذر تشغيل التدقيق: "+error.message;btn.disabled=false;return}
- msg.className="small successText";msg.textContent="تم تشغيل التدقيق وتسجيل نتائجه.";btn.disabled=false;await loadAuditDashboard();
-});
 async function loadOperationalChain(){
  const [p,i,a,l,s,c]=await Promise.all([
   sb.from("activity_plans").select("id,plan_name,plan_year,term_name").order("created_at",{ascending:false}),
