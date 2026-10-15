@@ -4,13 +4,28 @@ async function adminUser(req) {
   const auth = req.headers.authorization || "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
   if (!token || !process.env.SUPABASE_URL || !process.env.SUPABASE_PUBLISHABLE_KEY) return null;
-  const headers = { apikey: process.env.SUPABASE_PUBLISHABLE_KEY, Authorization: "Bearer " + token, "Content-Type": "application/json" };
-  const userRes = await fetch(process.env.SUPABASE_URL + "/auth/v1/user", { headers });
-  if (!userRes.ok) return null;
-  const user = await userRes.json();
-  const roleRes = await fetch(process.env.SUPABASE_URL + "/rest/v1/rpc/is_center_management_admin", { method: "POST", headers, body: "{}" });
-  if (!roleRes.ok || await roleRes.json() !== true) return null;
-  return user;
+  const headers = {
+    apikey: process.env.SUPABASE_PUBLISHABLE_KEY,
+    Authorization: "Bearer " + token,
+    "Content-Type": "application/json"
+  };
+  try {
+    // Validate the bearer token and the administrative role concurrently.
+    // Sequential Supabase round-trips could exhaust Vercel's 10-second runtime.
+    const [userRes, roleRes] = await Promise.all([
+      fetch(process.env.SUPABASE_URL + "/auth/v1/user", { headers }),
+      fetch(process.env.SUPABASE_URL + "/rest/v1/rpc/is_center_management_admin", {
+        method: "POST", headers, body: "{}"
+      })
+    ]);
+    if (!userRes.ok || !roleRes.ok) return null;
+    const [user, isAdmin] = await Promise.all([userRes.json(), roleRes.json()]);
+    if (isAdmin !== true) return null;
+    return user;
+  } catch (error) {
+    console.error("ADMIN_AUTH_CHECK_FAILED", error?.name || "unknown");
+    return null;
+  }
 }
 
 export default async function handler(req, res) {
