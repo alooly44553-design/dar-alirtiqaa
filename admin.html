@@ -384,6 +384,7 @@ const SUPABASE_URL="https://oisfclsgcjofxzeraqpb.supabase.co";
 const SUPABASE_KEY="sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk";
 const sb=createClient(SUPABASE_URL,SUPABASE_KEY); window.sb=sb; const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const escapeHtml=esc;
 const fmt=v=>{if(!v)return"—";const d=new Date(v);return Number.isNaN(d.getTime())?esc(v):d.toLocaleString("ar",{dateStyle:"medium",timeStyle:"short"})};
 const statusLabel=v=>({active:"نشط",inactive:"غير نشط",pending:"معلّق",open:"مفتوحة",in_progress:"قيد التنفيذ",waiting_approval:"بانتظار الموافقة",approved:"تمت الموافقة",rejected:"مرفوض",queued:"في قائمة التنفيذ",running:"قيد التنفيذ",completed:"مكتمل",failed:"فشل",cancelled:"ملغي"}[String(v||"").toLowerCase()]||String(v||"غير محدد"));
 const statusClass=v=>{v=String(v||"").toLowerCase();if(["active","approved","completed"].includes(v))return"ok";if(["pending","waiting_approval","queued","running"].includes(v))return"warn";if(["rejected","failed","cancelled","inactive"].includes(v))return"danger";return"info"};
