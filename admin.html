@@ -382,7 +382,7 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL="https://oisfclsgcjofxzeraqpb.supabase.co";
 const SUPABASE_KEY="sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk";
-const sb=createClient(SUPABASE_URL,SUPABASE_KEY); window.sb=sb; const $=id=>document.getElementById(id);
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY); window.sb=null; const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 const escapeHtml=esc;
 const fmt=v=>{if(!v)return"—";const d=new Date(v);return Number.isNaN(d.getTime())?esc(v):d.toLocaleString("ar",{dateStyle:"medium",timeStyle:"short"})};
@@ -394,10 +394,12 @@ const isAdmin=async()=>{const{data,error}=await sb.rpc("is_center_management_adm
 const setView=logged=>{$("login").style.display=logged?"none":"block";$('app').style.display=logged?"block":"none"};
 function renderAgent(id,a){$(id).innerHTML=a?`<strong>${esc(a.name)}</strong><div class="row" style="margin-top:5px"><span class="badge ok">نشط</span><span class="badge">${esc(a.autonomy_level||"supervised")}</span></div><div class="small" style="margin-top:6px">${esc(a.system_role||"")}</div>`:'<span class="muted">غير متاح حاليًا.</span>'}
 function render(rows,id,empty,fn){$(id).innerHTML=rows?.length?rows.map(fn).join(""):`<span class="muted">${empty}</span>`}
+let adminLoadersStarted=false;
 async function load(){
- const session=await getSession(); if(!session?.user){setView(false);return}
- const admin=await isAdmin(); if(!admin){await sb.auth.signOut();setView(false);$("loginMsg").textContent="هذا الحساب غير مصرح له بدخول لوحة الإدارة.";return}
- setView(true); $("who").textContent=session.user.email||"حساب الإدارة";
+ const session=await getSession(); if(!session?.user){window.sb=null;setView(false);return}
+ const admin=await isAdmin(); if(!admin){window.sb=null;await sb.auth.signOut();setView(false);$("loginMsg").textContent="هذا الحساب غير مصرح له بدخول لوحة الإدارة.";return}
+ window.sb=sb; setView(true); $("who").textContent=session.user.email||"حساب الإدارة";
+ if(!adminLoadersStarted){adminLoadersStarted=true;loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();loadServiceFeesAdmin();loadGlobalOperations();}
  const [c,a,t,cmd,logs,l,e,p,su,cl,at,st,dep,sc,prg,rec,msgs,ev,acc,tx,fees,ass,res,aiq,sta,initiatives,mt]=await Promise.all([
   sb.from("centers").select("id,name,is_active,created_at").order("created_at",{ascending:false}),
   sb.from("ai_agents").select("id,name,role,is_active,system_role,autonomy_level").eq("is_active",true).order("role"),
@@ -590,7 +592,7 @@ document.getElementById("globalApprovals")?.addEventListener("click",async e=>{
  }
 });
 let timer=null;function autoRefresh(){if(timer)clearInterval(timer);timer=setInterval(async()=>{if((await getSession())?.user)await load()},30000)}
-sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();loadServiceFeesAdmin();loadGlobalOperations();
+sb.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){window.sb=null;window.location.reload();return}if(["SIGNED_IN","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();
 document.getElementById("linkPlanInitiative")?.addEventListener("click",async()=>{const plan_id=document.getElementById("linkInitiativePlan").value,id=document.getElementById("linkInitiative").value;if(!plan_id||!id)return;const{error}=await sb.from("development_initiatives").update({plan_id}).eq("id",id);document.getElementById("operationalMsg").textContent=error?"تعذر الربط: "+error.message:"تم ربط البرنامج بالخطة.";await loadOperationalChain()});
 document.getElementById("addOperationalActivity")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("activityInitiative").value,title=document.getElementById("activityTitle").value.trim(),activity_date=document.getElementById("activityDate").value,session_start=document.getElementById("activityStart").value||null,session_end=document.getElementById("activityEnd").value||null,responsible_staff_id=document.getElementById("activityStaff").value||null,classroom_id=document.getElementById("activityClassroom").value||null,delivery_mode=document.getElementById("activityMode").value,objectives=document.getElementById("activityObjectives").value.trim();if(!initiative_id||!title||!activity_date){document.getElementById("operationalMsg").textContent="أكمل البرنامج وعنوان الجلسة والتاريخ.";return}const{error}=await sb.from("initiative_activities").insert({initiative_id,title,activity_date,session_start,session_end,responsible_staff_id,classroom_id,delivery_mode,objectives:objectives||null,status:"planned"});document.getElementById("operationalMsg").textContent=error?"تعذر إضافة الجلسة: "+error.message:"تمت إضافة الجلسة إلى التقويم.";if(!error)document.getElementById("activityTitle").value="";await loadOperationalChain()});
 document.getElementById("addInitiativeEnrollment")?.addEventListener("click",async()=>{const initiative_id=document.getElementById("enrollInitiative").value,learner_id=document.getElementById("enrollInitiativeLearner").value;if(!initiative_id||!learner_id)return;const{error}=await sb.from("initiative_enrollments").insert({initiative_id,learner_id,status:"active"});document.getElementById("operationalMsg").textContent=error?"تعذر التسجيل: "+error.message:"تم تسجيل الطالب في البرنامج.";await loadOperationalChain()});
