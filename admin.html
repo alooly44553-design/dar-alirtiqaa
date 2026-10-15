@@ -530,14 +530,36 @@ document.getElementById("submitGlobalCommand")?.addEventListener("click",async()
  const btn=document.getElementById("submitGlobalCommand"),box=document.getElementById("globalCommandMsg");
  const type=document.getElementById("globalCommandType").value,textValue=document.getElementById("globalCommandText").value.trim();
  if(!textValue){box.className="small dangerText";box.textContent="اكتب الأمر أولًا.";return}
- btn.disabled=true;box.className="small muted";box.textContent="جارٍ تسجيل الأمر وتطبيق قاعدة الصلاحيات...";
- const {data,error}=await sb.rpc("submit_global_operation_command",{p_command_text:textValue,p_command_type:type});
- btn.disabled=false;
- if(error){box.className="small dangerText";box.textContent="تعذر تسجيل الأمر: "+error.message;return}
- document.getElementById("globalCommandText").value="";
- box.className="small successText";
- box.textContent=(type==="read"||type==="draft")?"تم تسجيل الأمر ضمن التنفيذ المسموح به.":"تم تسجيل الأمر وإرساله إلى طابور اعتماد المدير.";
- await loadGlobalOperations();
+ btn.disabled=true;box.className="small muted";box.textContent="جارٍ التحقق من جلسة الإدارة ثم تسجيل الأمر...";
+ try{
+  let {data:sessionData,error:sessionError}=await sb.auth.getSession();
+  let session=sessionData?.session;
+  if(sessionError)throw new Error("تعذر التحقق من جلسة الدخول: "+sessionError.message);
+  if(!session?.access_token){
+   const refreshed=await sb.auth.refreshSession();
+   session=refreshed.data?.session;
+   if(refreshed.error||!session?.access_token)throw new Error("انتهت جلسة الإدارة. سجّل الخروج ثم ادخل مجددًا بحساب المدير.");
+  } else if(session.expires_at && session.expires_at*1000 < Date.now()+60000){
+   const refreshed=await sb.auth.refreshSession();
+   session=refreshed.data?.session;
+   if(refreshed.error||!session?.access_token)throw new Error("تعذر تجديد جلسة الإدارة. سجّل الخروج ثم ادخل مجددًا.");
+  }
+  const {data:adminAllowed,error:adminCheckError}=await sb.rpc("is_center_management_admin");
+  if(adminCheckError)throw new Error("تعذر التحقق من صلاحية المدير: "+adminCheckError.message);
+  if(adminAllowed!==true)throw new Error("الحساب الحالي لا يحمل صلاحية المدير الإداري. استخدم حساب الإدارة المعتمد.");
+  const {data,error}=await sb.rpc("submit_global_operation_command_v2",{p_command_text:textValue,p_command_type:type});
+  if(error)throw new Error(error.message);
+  document.getElementById("globalCommandText").value="";
+  box.className="small successText";
+  box.textContent="تم تسجيل الأمر بنجاح (رقم المرجع: "+String(data)+"). "+((type==="read"||type==="draft")?"أُضيف إلى طابور المهام المسموح بها.":"أُرسل إلى طابور الاعتماد؛ لم يبدأ التنفيذ الحساس قبل الموافقة.");
+  await loadGlobalOperations();
+ }catch(error){
+  box.className="small dangerText";
+  const detail=String(error?.message||error);
+  box.textContent=detail.includes("permission denied for function")
+   ?"ما زالت واجهة قاعدة البيانات ترفض RPC. تم تحديث مسار الأمر إلى الدالة الجديدة؛ أعد تحميل الصفحة بالكامل ثم سجّل الخروج والدخول. التفاصيل: "+detail
+   :"تعذر تسجيل الأمر: "+detail;
+ }finally{btn.disabled=false}
 });
 document.getElementById("globalApprovals")?.addEventListener("click",async e=>{
  const b=e.target.closest("button[data-global-approve],button[data-global-reject]");if(!b)return;
