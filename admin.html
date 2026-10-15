@@ -567,13 +567,26 @@ document.getElementById("globalApprovals")?.addEventListener("click",async e=>{
  const approve=b.dataset.globalApprove!==undefined;
  const note=window.prompt(approve?"ملاحظة الاعتماد (اختياري):":"سبب الرفض (اختياري):")||null;
  b.disabled=true;
- const {data,error}=await sb.rpc("decide_agent_command",{p_command_id:commandId,p_approve:approve,p_note:note});
- b.disabled=false;
  const box=document.getElementById("globalOperationsMsg");
+ box.className="small muted";
+ box.textContent="جارٍ تسجيل القرار والتحقق من عدد المعتمدين...";
+ const {data,error}=await sb.rpc("decide_agent_command_v2",{p_command_id:commandId,p_approve:approve,p_note:note});
+ b.disabled=false;
  if(error){box.className="small dangerText";box.textContent="تعذر اتخاذ القرار: "+error.message;return}
- box.className="small successText";
- box.textContent=approve?"تم اعتماد الأمر وتسجيل القرار باسم المدير الإداري.":"تم رفض الأمر وتسجيل القرار باسم المدير الإداري.";
  await loadGlobalOperations();
+ if(data?.status==="awaiting_second_approval"){
+  box.className="small warn";
+  box.textContent="تم تسجيل اعتماد أول ("+String(data.approvals_received||1)+" من 2). لن يُدرج الأمر للتنفيذ حتى يوافق مدير إداري آخر بحساب مختلف.";
+ }else if(data?.status==="approved"){
+  box.className="small successText";
+  box.textContent="اكتمل الاعتماد المطلوب ("+String(data.approvals_received||1)+" من "+String(data.required||1)+") ووُضع الأمر في طابور المهام. هذا لا يعني أن المهمة نُفّذت بالفعل.";
+ }else if(data?.status==="rejected"){
+  box.className="small dangerText";
+  box.textContent="تم رفض الأمر وتسجيل سبب القرار.";
+ }else{
+  box.className="small muted";
+  box.textContent="تم تسجيل القرار. راجع حالة الموافقة في اللوحة.";
+ }
 });
 let timer=null;function autoRefresh(){if(timer)clearInterval(timer);timer=setInterval(async()=>{if((await getSession())?.user)await load()},30000)}
 sb.auth.onAuthStateChange(event=>{if(["SIGNED_IN","SIGNED_OUT","TOKEN_REFRESHED"].includes(event))load()});autoRefresh();load();loadOperationalPlans();loadOperationalChain();loadAIStaffRoster();loadAuditDashboard();loadServiceFeesAdmin();loadGlobalOperations();
