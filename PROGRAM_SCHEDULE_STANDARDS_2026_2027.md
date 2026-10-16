@@ -47,7 +47,7 @@
 
 ## وضع قاعدة البيانات الحالي
 
-آخر فحص أظهر: `edu_global_program_blueprints` فيها 5 برامج بحالة `template`؛ و`edu_program_schedule_rules` فيها 3 قواعد كلها مرتبطة بقالب بكالوريوس علوم الحاسب والذكاء الاصطناعي. الجداول الفعلية `edu_university_schedule`, `edu_vocational_schedule`, `edu_elearning_schedule`, `edu_program_schedules` فارغة، وكذلك `edu_university_programs`, `edu_vocational_programs`, و`edu_elearning_courses`. لذلك تنشئ هذه الوثيقة سياسة مرجعية فقط؛ لا يوجد دليل أن هذه المقررات وجلساتها الفعلية قد جُدولت.
+آخر فحص أظهر: `edu_global_program_blueprints` فيها 5 برامج بحالة `template`؛ و`edu_program_schedule_rules` فيها 15 قاعدة عبر خمسة قوالب، بواقع ثلاث نوافذ لكل قالب: صباحي ومسائي وتعلم إلكتروني. وهي قواعد مقترحة لا جداول جلسات فعلية أو إثبات اعتماد أكاديمي. الجداول الفعلية `edu_university_schedule`, `edu_vocational_schedule`, `edu_elearning_schedule`, `edu_program_schedules` فارغة، وكذلك `edu_university_programs`, `edu_vocational_programs`, و`edu_elearning_courses`. لذلك تنشئ هذه الوثيقة سياسة مرجعية فقط؛ لا يوجد دليل أن هذه المقررات وجلساتها الفعلية قد جُدولت.
 
 ## بوابة الاعتماد
 
