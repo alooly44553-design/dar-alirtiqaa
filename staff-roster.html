@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>سجل طواقم الذكاء الاصطناعي — دار الارتقاء</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:#f5f7fb;color:#172033}
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb}header{padding:18px 20px;background:#13233f;color:#fff}header h1{margin:0;font-size:21px}header p{margin:6px 0 0;color:#cbd5e1;font-size:13px}
+main{width:min(1100px,calc(100% - 28px));margin:auto;padding:18px 0 36px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 16px #0f172a0a}.muted{color:#64748b;font-size:13px}.small{font-size:12px;line-height:1.7}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.stat{padding:12px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}.stat strong{display:block;font-size:22px}.status{padding:10px 12px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;margin-bottom:12px}.error{background:#fef2f2;border-color:#fecaca;color:#991b1b}.success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+input,select,button{font:inherit;padding:10px;border-radius:10px;border:1px solid #cbd5e1}input,select{background:white;min-width:160px}button{background:#13233f;color:#fff;border:0;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:680px}th,td{text-align:right;padding:10px;border-bottom:1px solid #e2e8f0;font-size:13px}th{background:#f8fafc;position:sticky;top:0}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#e2e8f0;font-size:12px}.active{background:#dcfce7;color:#166534}.inactive{background:#fef3c7;color:#92400e}
+</style>
+</head>
+<body>
+<header><h1>سجل طواقم الذكاء الاصطناعي</h1><p>دار الارتقاء الفكري — عرض إداري للترقيم والتصنيفات الحالية دون إنشاء حسابات دخول</p></header>
+<main>
+<div id="status" class="status" role="status" aria-live="polite">جارٍ التحقق من جلسة الإدارة والصلاحيات...</div>
+<section id="content" hidden>
+<div class="card">
+<h2>ملخص السجل</h2>
+<p class="muted">البريد الإداري المالك لا يُنسخ إلى سجلات الطواقم. هذه السجلات هويات تشغيلية افتراضية وليست حسابات دخول مستقلة.</p>
+<div id="stats" class="stats"></div>
+</div>
+<div class="card">
+<div class="row" style="justify-content:space-between">
+<h2 style="margin:0">قائمة الطواقم</h2>
+<div class="row"><input id="search" type="search" placeholder="ابحث بالاسم أو المسمى" aria-label="بحث في الطواقم"><select id="group" aria-label="تصفية المجموعة"><option value="all">كل المجموعات</option><option value="admin">الإدارة 1–60</option><option value="edu">التعليم 61 فما بعد</option></select><button id="refresh" type="button">تحديث</button></div>
+</div>
+<p id="count" class="muted"></p>
+<div class="tablewrap"><table><thead><tr><th>الرقم</th><th>الاسم التشغيلي</th><th>المسمى الحالي</th><th>المجموعة</th><th>الحالة</th><th>حساب دخول</th></tr></thead><tbody id="rows"><tr><td colspan="6">جارٍ التحميل...</td></tr></tbody></table></div>
+</div>
+</section>
+</main>
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+let all=[];
+function groupOf(n){return n>=1&&n<=60?"admin":n>=61?"edu":"other"}
+function render(){
+ const q=$("search").value.trim().toLocaleLowerCase("ar"),g=$("group").value;
+ const data=all.filter(x=>(g==="all"||groupOf(x.roster_number)===g)&&(!q||String(x.full_name||"").toLocaleLowerCase("ar").includes(q)||String(x.job_title||"").toLocaleLowerCase("ar").includes(q)));
+ $("count").textContent="المعروض: "+data.length+" من "+all.length+" سجلًا.";
+ $("rows").innerHTML=data.map(x=>'<tr><td><strong>'+esc(x.roster_number)+'</strong></td><td>'+esc(x.full_name||"—")+'</td><td>'+esc(x.job_title||"—")+'</td><td>'+(groupOf(x.roster_number)==="admin"?"الإدارة والإشراف والأنشطة والفعاليات":groupOf(x.roster_number)==="edu"?"التعليم والتدريب":"يحتاج مراجعة")+'</td><td><span class="pill '+(x.is_active?"active":"inactive")+'">'+(x.is_active?"نشط في السجل":"غير نشط")+'</span></td><td>'+(x.auth_user_id?"مرتبط — يحتاج تدقيق صلاحيات":"غير مرتبط")+'</td></tr>').join("")||'<tr><td colspan="6">لا توجد نتائج مطابقة.</td></tr>';
+}
+async function load(){
+ $("refresh").disabled=true;$("status").className="status";$("status").textContent="جارٍ تحميل سجل الطواقم...";
+ try{
+  const {data,error}=await sb.from("staff").select("roster_number,full_name,job_title,is_active,auth_user_id").order("roster_number",{ascending:true});
+  if(error)throw error;
+  all=data||[];
+  const admin=all.filter(x=>x.roster_number>=1&&x.roster_number<=60),edu=all.filter(x=>x.roster_number>=61);
+  $("stats").innerHTML=[["إجمالي السجلات",all.length],["الإدارة والإشراف",admin.length],["التعليم والتدريب",edu.length],["حسابات الدخول المرتبطة",all.filter(x=>x.auth_user_id).length]].map(([a,b])=>'<div class="stat"><span class="muted">'+esc(a)+'</span><strong>'+esc(b)+'</strong></div>').join("");
+  render();$("content").hidden=false;$("status").className="status success";$("status").textContent="تم التحقق من الصلاحيات وتحميل السجل للعرض فقط. لم تُعدّل أي سجلات.";
+ }catch(e){$("status").className="status error";$("status").textContent="تعذر تحميل السجل: "+(e?.message||"خطأ غير معروف");$("content").hidden=true;}
+ finally{$("refresh").disabled=false;}
+}
+$("search").addEventListener("input",render);$("group").addEventListener("change",render);$("refresh").addEventListener("click",load);
+const {data:{session}}=await sb.auth.getSession();
+if(!session){$("status").className="status error";$("status").textContent="يلزم تسجيل الدخول أولًا بحساب إداري معتمد. لا تنشئ هذه الصفحة حسابات جديدة."; }
+else{
+ const {data:isAdmin,error}=await sb.rpc("is_center_management_admin");
+ if(error||isAdmin!==true){$("status").className="status error";$("status").textContent="تم منع الوصول: هذه الصفحة مخصصة للإدارة المعتمدة فقط.";}
+ else await load();
+}
+</script>
+</body>
+</html>
