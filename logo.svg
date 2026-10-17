@@ -1,28 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" role="img" aria-labelledby="title desc">
-<title id="title">شعار مدارس ومراكز دار الارتقاء الفكري التعليمية</title>
-<desc id="desc">ريشة زرقاء فوق يد ترمز إلى المعرفة والرعاية، مع اسم المنظومة ورسالتها التعليمية.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc">
+<title id="title">شعار مدرسة دار الإرتقاء الفكري لتعليم الجاليات</title>
+<desc id="desc">ريشة زرقاء في يد ترمز إلى المعرفة، ضمن أقواس زرقاء، مع اسم المدرسة ورسالتها التعليمية من التمهيدي إلى الثانوي بنين وبنات.</desc>
 <defs>
- <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#23b8e8"/><stop offset=".48" stop-color="#0878bd"/><stop offset="1" stop-color="#082f73"/></linearGradient>
- <linearGradient id="navy" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#123f83"/><stop offset="1" stop-color="#082b5d"/></linearGradient>
- <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffdbb5"/><stop offset="1" stop-color="#d98d65"/></linearGradient>
+ <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#36c5f0"/><stop offset=".42" stop-color="#0878d1"/><stop offset="1" stop-color="#073b88"/></linearGradient>
+ <linearGradient id="deep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#103e83"/><stop offset="1" stop-color="#061f52"/></linearGradient>
+ <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe0c3"/><stop offset="1" stop-color="#d98a61"/></linearGradient>
+ <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0b4d91" flood-opacity=".13"/></filter>
 </defs>
-<rect width="1000" height="480" rx="24" fill="#fff"/>
-<g transform="translate(22 24)">
- <path d="M30 270C62 169 143 94 251 70C191 105 142 150 110 208C83 256 73 306 84 356" fill="none" stroke="url(#blue)" stroke-width="17" stroke-linecap="round"/>
- <path d="M48 310C83 361 141 390 213 394C172 370 143 340 126 304" fill="none" stroke="#0d5c91" stroke-width="15" stroke-linecap="round"/>
- <path d="M224 306C247 267 259 220 265 165C272 104 303 44 355 8C350 61 333 110 306 152C284 187 266 224 260 263C256 285 244 305 224 306Z" fill="url(#blue)"/>
- <path d="M282 214C300 176 320 125 342 47M276 233L320 188M290 188L333 148M302 151L340 116M313 113L348 84M266 261L306 230" fill="none" stroke="#a9edff" stroke-width="5" stroke-linecap="round"/>
- <path d="M235 303C220 290 205 283 189 283C174 283 164 291 165 302C167 312 183 319 200 322L234 331C249 338 261 351 277 360C299 373 327 374 351 361L389 339C403 331 418 326 433 324C447 322 456 313 452 303C448 293 434 291 420 295L389 306L411 291C424 282 427 270 419 264C411 257 400 263 389 270L359 291C349 297 339 299 329 294L292 276C278 269 263 274 257 286Z" fill="url(#skin)" stroke="#bf7657" stroke-width="3" stroke-linejoin="round"/>
- <path d="M189 303L225 313M263 300L302 317M302 317L332 325M348 315L382 306" fill="none" stroke="#fce1cb" stroke-width="5" stroke-linecap="round"/>
- <circle cx="288" cy="282" r="5" fill="#fff1df"/>
+<rect width="1200" height="430" rx="28" fill="#fff"/>
+<g transform="translate(24 12)" filter="url(#soft)">
+ <path d="M28 250C20 139 105 42 225 23C150 64 93 130 81 204C74 250 84 298 112 338" fill="none" stroke="url(#blue)" stroke-width="18" stroke-linecap="round"/>
+ <path d="M48 278C93 348 161 374 245 369C185 345 142 308 123 261" fill="none" stroke="url(#blue)" stroke-width="15" stroke-linecap="round"/>
+ <path d="M206 276C239 227 257 164 265 105C272 57 302 20 343 1C337 53 319 98 293 137C266 179 251 220 246 255C242 278 227 292 206 276Z" fill="url(#blue)"/>
+ <path d="M244 244C274 188 303 120 330 38M253 225L294 202M268 191L310 163M285 153L320 126M300 115L330 91M315 77L337 57M238 261L276 244" fill="none" stroke="#b9f0ff" stroke-width="5" stroke-linecap="round"/>
+ <path d="M195 277C179 265 164 259 147 263C134 266 129 277 136 287C143 297 163 301 183 306L221 316C239 323 253 340 273 352C297 367 326 365 349 352L388 330C404 321 420 317 438 317C454 317 462 308 457 298C452 288 438 286 422 290L389 299L412 284C427 274 430 262 421 256C412 250 400 256 388 264L356 282C346 288 337 288 327 283L292 266C277 259 260 263 251 276L241 291Z" fill="url(#skin)" stroke="#c77d5b" stroke-width="3" stroke-linejoin="round"/>
+ <path d="M147 283L185 295M253 285L294 302M294 302L327 310M352 300L386 291" fill="none" stroke="#fff0df" stroke-width="5" stroke-linecap="round"/>
+ <path d="M207 286C219 271 230 259 246 249" fill="none" stroke="#d98a61" stroke-width="5" stroke-linecap="round"/>
+ <circle cx="287" cy="273" r="5" fill="#fff6e8"/>
 </g>
-<path d="M485 70V410" stroke="#d7e5f2" stroke-width="3"/>
-<g text-anchor="end" direction="rtl" font-family="Tahoma, Arial, sans-serif">
- <text x="950" y="130" fill="#0b4d91" font-size="43" font-weight="700">مدارس ومراكز</text>
- <text x="950" y="204" fill="url(#navy)" font-size="59" font-weight="900">دار الارتقاء الفكري</text>
- <text x="950" y="262" fill="#0878bd" font-size="38" font-weight="800">لتعليم الجاليات</text>
- <path d="M590 291H950" stroke="#c89b2c" stroke-width="4" stroke-linecap="round"/>
- <text x="950" y="337" fill="#0b4d91" font-size="27" font-weight="700">تعليم • تدريب • تأهيل</text>
- <text x="950" y="379" fill="#64748b" font-size="24" font-weight="600">معًا نحو المعرفة وبناء المستقبل</text>
+<path d="M505 55V375" stroke="#d7e7f7" stroke-width="3"/>
+<g font-family="Tahoma, Arial, sans-serif" text-anchor="end" direction="rtl">
+ <text x="1150" y="104" fill="#0b4d91" font-size="45" font-weight="700">مدرسة</text>
+ <text x="1150" y="190" fill="url(#deep)" font-size="68" font-weight="900">دار الإرتقاء الفكري</text>
+ <text x="1150" y="252" fill="#0878bd" font-size="48" font-weight="800">لتعليم الجاليات</text>
+ <path d="M625 280H1150" stroke="#27a9e0" stroke-width="4" stroke-linecap="round"/>
+ <text x="1150" y="328" fill="#0b4d91" font-size="31" font-weight="700">من التمهيدي إلى الثانوي</text>
+ <text x="1150" y="371" fill="#0878bd" font-size="30" font-weight="700">بنين • بنات</text>
 </g>
 </svg>
