@@ -274,7 +274,7 @@ async function loadServices(){
   const requestedService=new URLSearchParams(window.location.search).get("service");
   if(requestedService){
    const match=services.find(s=>s.service_code===requestedService);
-   if(match){renderForm(match);}
+   if(match){renderForm(match);const packageName=new URLSearchParams(window.location.search).get("package");if(packageName){const noteField=$("service-fields").querySelector('[data-key="notes"]');if(noteField){noteField.value="الحزمة التعليمية المطلوبة: "+packageName;}}}
    else{toast("الخدمة المطلوبة غير متاحة حاليًا؛ اختر خدمة من القائمة.");}
   }
  }catch(error){
