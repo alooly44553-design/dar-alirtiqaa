@@ -1,17 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430">
-<rect width="900" height="430" fill="none"/>
-<g transform="translate(20,35)">
-<path d="M35 235 Q180 145 330 205 L370 260 L410 205 Q560 145 705 235 L690 345 Q550 285 420 320 L370 350 L320 320 Q190 285 50 345Z" fill="#0d477c"/>
-<path d="M50 220 Q190 125 330 190 L370 245 L410 190 Q550 125 690 220 L680 285 Q545 230 420 270 L370 305 L320 270 Q195 230 60 285Z" fill="#0f7b83"/>
-<path d="M65 205 Q190 125 320 177 L370 225 L420 177 Q550 125 675 205" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round"/>
-<circle cx="370" cy="82" r="39" fill="#0b4d91"/>
-<path d="M370 121 C354 154 340 180 326 208 L370 248 L414 208 C400 180 386 154 370 121Z" fill="#0b4d91"/>
-<path d="M328 151 Q286 115 244 105 M412 151 Q454 115 496 105" fill="none" stroke="#0b4d91" stroke-width="19" stroke-linecap="round"/>
-<path d="M235 155 Q270 108 318 96 M505 155 Q470 108 422 96" fill="none" stroke="#c89b2c" stroke-width="13" stroke-linecap="round"/>
-<path d="M370 22 l11 27 29 4-22 19 6 29-24-14-24 14 6-29-22-19 29-4z" fill="#c89b2c"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" role="img" aria-labelledby="title desc">
+<title id="title">شعار مدارس ومراكز دار الارتقاء الفكري التعليمية</title>
+<desc id="desc">ريشة زرقاء فوق يد ترمز إلى المعرفة والرعاية، مع اسم المنظومة ورسالتها التعليمية.</desc>
+<defs>
+ <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#23b8e8"/><stop offset=".48" stop-color="#0878bd"/><stop offset="1" stop-color="#082f73"/></linearGradient>
+ <linearGradient id="navy" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#123f83"/><stop offset="1" stop-color="#082b5d"/></linearGradient>
+ <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffdbb5"/><stop offset="1" stop-color="#d98d65"/></linearGradient>
+</defs>
+<rect width="1000" height="480" rx="24" fill="#fff"/>
+<g transform="translate(22 24)">
+ <path d="M30 270C62 169 143 94 251 70C191 105 142 150 110 208C83 256 73 306 84 356" fill="none" stroke="url(#blue)" stroke-width="17" stroke-linecap="round"/>
+ <path d="M48 310C83 361 141 390 213 394C172 370 143 340 126 304" fill="none" stroke="#0d5c91" stroke-width="15" stroke-linecap="round"/>
+ <path d="M224 306C247 267 259 220 265 165C272 104 303 44 355 8C350 61 333 110 306 152C284 187 266 224 260 263C256 285 244 305 224 306Z" fill="url(#blue)"/>
+ <path d="M282 214C300 176 320 125 342 47M276 233L320 188M290 188L333 148M302 151L340 116M313 113L348 84M266 261L306 230" fill="none" stroke="#a9edff" stroke-width="5" stroke-linecap="round"/>
+ <path d="M235 303C220 290 205 283 189 283C174 283 164 291 165 302C167 312 183 319 200 322L234 331C249 338 261 351 277 360C299 373 327 374 351 361L389 339C403 331 418 326 433 324C447 322 456 313 452 303C448 293 434 291 420 295L389 306L411 291C424 282 427 270 419 264C411 257 400 263 389 270L359 291C349 297 339 299 329 294L292 276C278 269 263 274 257 286Z" fill="url(#skin)" stroke="#bf7657" stroke-width="3" stroke-linejoin="round"/>
+ <path d="M189 303L225 313M263 300L302 317M302 317L332 325M348 315L382 306" fill="none" stroke="#fce1cb" stroke-width="5" stroke-linecap="round"/>
+ <circle cx="288" cy="282" r="5" fill="#fff1df"/>
 </g>
-<text x="865" y="125" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="48" font-weight="800" fill="#0b4d91">منظومة</text>
-<text x="865" y="195" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="57" font-weight="800" fill="#0b4d91">دار الارتقاء الفكري</text>
-<line x1="555" y1="225" x2="855" y2="225" stroke="#c89b2c" stroke-width="4"/>
-<text x="855" y="270" text-anchor="end" direction="rtl" font-family="Arial,Tahoma,sans-serif" font-size="31" font-weight="700" fill="#c89b2c">تعليم .. بناء .. مستقبل أفضل</text>
+<path d="M485 70V410" stroke="#d7e5f2" stroke-width="3"/>
+<g text-anchor="end" direction="rtl" font-family="Tahoma, Arial, sans-serif">
+ <text x="950" y="130" fill="#0b4d91" font-size="43" font-weight="700">مدارس ومراكز</text>
+ <text x="950" y="204" fill="url(#navy)" font-size="59" font-weight="900">دار الارتقاء الفكري</text>
+ <text x="950" y="262" fill="#0878bd" font-size="38" font-weight="800">لتعليم الجاليات</text>
+ <path d="M590 291H950" stroke="#c89b2c" stroke-width="4" stroke-linecap="round"/>
+ <text x="950" y="337" fill="#0b4d91" font-size="27" font-weight="700">تعليم • تدريب • تأهيل</text>
+ <text x="950" y="379" fill="#64748b" font-size="24" font-weight="600">معًا نحو المعرفة وبناء المستقبل</text>
+</g>
 </svg>
