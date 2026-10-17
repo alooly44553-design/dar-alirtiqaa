@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", ...fieldsByKey.keys()]);
+    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", "notes", ...fieldsByKey.keys()]);
     const payload = {};
     for (const key of allowedKeys) {
       if (!(key in body)) continue;
