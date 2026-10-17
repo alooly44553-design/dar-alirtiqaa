@@ -271,6 +271,12 @@ async function loadServices(){
   services=result.services||[];
   $("services-list").innerHTML=services.map((s,i)=>'<article class="service"><div class="sicon">'+(icons[s.service_code]||"📋")+'</div><h3>'+esc(s.service_name)+'</h3><p>'+esc(s.description||"خدمة إلكترونية من منظومة دار الارتقاء الفكري.")+'</p><button class="btn dark" type="button" data-service="'+i+'">فتح الاستمارة</button></article>').join("");
   $("services-list").querySelectorAll("[data-service]").forEach(b=>b.addEventListener("click",()=>renderForm(services[Number(b.dataset.service)])));
+  const requestedService=new URLSearchParams(window.location.search).get("service");
+  if(requestedService){
+   const match=services.find(s=>s.service_code===requestedService);
+   if(match){renderForm(match);}
+   else{toast("الخدمة المطلوبة غير متاحة حاليًا؛ اختر خدمة من القائمة.");}
+  }
  }catch(error){
   $("services-list").innerHTML='<div class="card"><strong>تعذر تحميل الخدمات.</strong><p>يرجى تحديث الصفحة لاحقًا.</p></div>';
  }
