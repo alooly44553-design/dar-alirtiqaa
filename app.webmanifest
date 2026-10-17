@@ -6,12 +6,12 @@
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f6f8fc",
-  "theme_color": "#10213d",
+  "theme_color": "#082f57",
   "description": "منظومة تعليمية ذكية متكاملة للمدارس والمراكز والتعليم الإلكتروني والتعليم العالي والتدريب المهني.",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "icons": [
     {
-      "src": "icon.svg?v=20261017-1",
+      "src": "icon.svg?v=20261018-1",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
