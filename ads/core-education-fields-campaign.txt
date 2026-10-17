@@ -18,10 +18,10 @@ Telegram https://t.me/DarAlIrtiqaAlFikri
 1. الطفولة والتأسيس — https://alirtiqaa-educational-platform.vercel.app/early-learning.html — الاستعداد للتعلم، اللغة والأعداد والأنشطة.
 2. التعليم الأساسي والعام — https://alirtiqaa-educational-platform.vercel.app/general-education.html — المواد الأساسية، المراجعة والواجبات والمتابعة.
 3. التعليم الجامعي والعالي — https://alirtiqaa-educational-platform.vercel.app/higher-education.html — الاستفسار والتوجيه واستكشاف المسارات.
-4. التدريب التقني والمهني — https://alirtiqaa-educational-platform.vercel.app/vocational-training.html — مهارات تطبيقية ومشروعات وتطوير وظيفي.
-5. القرآن الكريم والدراسات الإسلامية — https://alirtiqaa-educational-platform.vercel.app/quran-islamic-studies.html — التلاوة والحفظ والمراجعة والتجويد.
-6. التقوية والدعم الأكاديمي — https://alirtiqaa-educational-platform.vercel.app/academic-support.html — مراجعة الدروس وسد الفجوات والاستعداد للاختبارات.
-7. الإرشاد الأكاديمي والمهني — https://alirtiqaa-educational-platform.vercel.app/academic-career-guidance.html — الميول والأهداف ومقارنة المسارات.
+4. التدريب المهني والتقني — https://alirtiqaa-educational-platform.vercel.app/vocational-training.html — مهارات تطبيقية ومشروعات وتطوير وظيفي.
+5. القرآن والإسلامية — https://alirtiqaa-educational-platform.vercel.app/quran-islamic-studies.html — التلاوة والحفظ والمراجعة والتجويد.
+6. التقوية والعربية والتأهيل — https://alirtiqaa-educational-platform.vercel.app/academic-support.html — مراجعة الدروس وسد الفجوات والاستعداد للاختبارات.
+7. الإرشاد الأكاديمي — https://alirtiqaa-educational-platform.vercel.app/academic-career-guidance.html — الميول والأهداف ومقارنة المسارات.
 8. التعليم الدولي — https://alirtiqaa-educational-platform.vercel.app/international-education.html — دعم المتعلم حسب المنهج الذي يدرسه فعليًا.
 9. اللغات والتواصل — https://alirtiqaa-educational-platform.vercel.app/languages-communication.html — العربية لغير الناطقين بها والإنجليزية والتواصل.
 10. المهارات الرقمية والتقنية — https://alirtiqaa-educational-platform.vercel.app/digital-technology.html — المهارات الرقمية والبرمجة والإنتاجية والسلامة الرقمية.
@@ -51,10 +51,10 @@ Telegram https://t.me/DarAlIrtiqaAlFikri
 28 أكتوبر: الطفولة والتأسيس.
 30 أكتوبر: التعليم الأساسي والعام.
 1 نوفمبر: التعليم الجامعي والعالي.
-3 نوفمبر: التدريب التقني والمهني.
-5 نوفمبر: القرآن الكريم والدراسات الإسلامية.
-7 نوفمبر: التقوية والدعم الأكاديمي.
-9 نوفمبر: الإرشاد الأكاديمي والمهني.
+3 نوفمبر: التدريب المهني والتقني.
+5 نوفمبر: القرآن والإسلامية.
+7 نوفمبر: التقوية والعربية والتأهيل.
+9 نوفمبر: الإرشاد الأكاديمي.
 11 نوفمبر: التعليم الدولي.
 13 نوفمبر: اللغات والتواصل.
 15 نوفمبر: المهارات الرقمية والتقنية.
