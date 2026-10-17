@@ -35,6 +35,7 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <main id="app" class="wrap">
 <div class="row between" style="margin-bottom:14px"><div><strong id="who"></strong><span class="badge ok" style="margin-right:7px">إدارة</span></div><button id="logout" class="secondary" type="button">تسجيل الخروج</button></div>
 <div id="globalMsg" class="small notice" style="display:none" aria-live="polite"></div>
+<section class="card full" id="staffRosterAccess" style="margin-bottom:14px"><h2>👥 سجل طواقم الذكاء الاصطناعي</h2><p class="muted">عرض إداري للترقيم والتصنيفات وحالة ربط حساب الدخول، دون تعديل السجلات أو إنشاء حسابات.</p><a href="staff-roster.html" style="display:inline-block;background:#13233f;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none">فتح سجل الطواقم</a></section>
 <section class="card full" style="margin-bottom:14px">
 <h2>مركز التدقيق الشامل والمستمر 🔎🛡️</h2>
 <p class="muted">تدقيق موحد للإدارة والتعليم والتربية والأنشطة والفعاليات والذكاء الاصطناعي والمراسلات والشكاوى والتسويق والإعلانات والنشر والسجلات والمستندات والخطط والمالية والموارد البشرية والتقنية. الفحوص الحساسة تبقى تحت اعتماد الإدارة.</p>
@@ -79,6 +80,32 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 <div><h3 style="font-size:14px">الوحدات والوكلاء</h3><div id="globalAgents" class="list"><span class="muted">جارٍ التحميل...</span></div></div>
 </div>
 <div id="globalOperationsMsg" class="small muted" style="margin-top:8px"></div>
+</section>
+<section class="card full" id="directivesCenter" style="margin:14px 0">
+<h2>🎯 مركز التوجيه المباشر والمتابعة</h2>
+<p class="muted">توجيه داخلي موحد عبر المجالات التعليمية والإدارية والتربوية. تُسجّل الخيارات داخل هذه اللوحة دون فتح روابط أو نقل المستخدم إلى صفحة أخرى، ولا يُظهر أزرار الإجراء إلا للحساب المقصود.</p>
+<div class="grid" style="margin-top:10px">
+ <div class="item">
+  <h3 style="font-size:14px;margin-top:0">إنشاء توجيه جديد</h3>
+  <label class="small muted" for="directiveTitle">عنوان المهمة أو موضوع التوجيه</label>
+  <input id="directiveTitle" maxlength="180" placeholder="مثال: مراجعة خطة الأنشطة الأسبوعية" style="display:block;width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin:5px 0 10px">
+  <label class="small muted" for="directiveDetails">التفاصيل أو المطلوب مراجعته</label>
+  <textarea id="directiveDetails" maxlength="8000" placeholder="اكتب المطلوب بوضوح، وحدد ما يحتاج إلى اطلاع أو مراجعة أو مناقشة..." style="min-height:100px"></textarea>
+  <div class="grid" style="margin-top:8px">
+   <div><label class="small muted" for="directivePriority">الأولوية</label><select id="directivePriority" style="display:block;width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin:5px 0"><option value="normal">عادية</option><option value="high">عالية</option><option value="urgent">عاجلة</option><option value="low">منخفضة</option></select></div>
+   <div><label class="small muted" for="directiveDue">موعد المتابعة (اختياري)</label><input id="directiveDue" type="datetime-local" style="display:block;width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;margin:5px 0"></div>
+  </div>
+  <p class="small muted">المقصود حاليًا: حساب المدير الإداري المسجّل دخوله. الطواقم التشغيلية غير المرتبطة بحساب موثّق لا تُمنح دخولًا مستقلًا ولا تُنشأ لها حسابات تلقائيًا.</p>
+  <button id="createDirectiveBtn" type="button" style="margin-top:8px">تسجيل التوجيه</button>
+  <div id="directiveCreateMsg" class="small muted" role="status" aria-live="polite" style="margin-top:8px"></div>
+ </div>
+ <div>
+  <div class="row between" style="margin-bottom:8px"><h3 style="font-size:14px;margin:0">التوجيهات والمتابعة</h3><button id="refreshDirectivesBtn" type="button" class="secondary">تحديث القائمة</button></div>
+  <div id="directiveSummary" class="grid" style="margin-bottom:10px"></div>
+  <div id="directiveList" class="list"><span class="muted">تظهر التوجيهات بعد التحقق من صلاحيات الإدارة.</span></div>
+  <div id="directiveListMsg" class="small muted" role="status" aria-live="polite" style="margin-top:8px"></div>
+ </div>
+</div>
 </section>
 <div class="grid">
 <section class="card"><h2>حالة المراكز</h2><div id="centers" class="list"><span class="muted">جارٍ التحميل...</span></div></section>
@@ -1020,5 +1047,83 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
  },1500);
 })();
 </script>
+
+<script>
+(function(){
+ const waitForSb=setInterval(function(){if(!window.sb)return;clearInterval(waitForSb);start();},200);
+ function start(){
+  const sb=window.sb,$=id=>document.getElementById(id);
+  const list=$("directiveList"),summary=$("directiveSummary"),listMsg=$("directiveListMsg"),createMsg=$("directiveCreateMsg"),createBtn=$("createDirectiveBtn");
+  if(!list||!createBtn)return;
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const statusLabels={pending:"بانتظار الإجراء",viewed:"تم الاطلاع",in_review:"قيد المراجعة",discussion_requested:"طلب مناقشة",update_requested:"طلب تحديث",accepted:"مقبول بقرار نهائي",rejected:"مرفوض بقرار نهائي"};
+  const actionLabels={created:"إنشاء التوجيه",view:"اطلاع",review:"مراجعة",discuss:"مناقشة",update:"تحديث",accept:"قبول",reject:"رفض"};
+  const priorityLabels={low:"منخفضة",normal:"عادية",high:"عالية",urgent:"عاجلة"};
+  const buttons=[["view","اطلاع"],["review","مراجعة"],["discuss","مناقشة"],["update","تحديث"],["accept","قبول"],["reject","رفض"]];
+  let userId=null,loading=false;
+  const date=v=>{if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?"—":d.toLocaleString("ar",{dateStyle:"medium",timeStyle:"short"});};
+  async function checkAdmin(){
+   const {data:{user}={},error:userError}=await sb.auth.getUser();
+   if(userError||!user)throw new Error("انتهت جلسة الدخول. سجّل الدخول بحساب الإدارة مجددًا.");
+   const {data,error}=await sb.rpc("is_center_management_admin");
+   if(error||data!==true)throw new Error("هذه الوظيفة مخصصة لحساب مدير إداري معتمد فقط.");
+   userId=user.id;
+  }
+  function render(rows,events){
+   const latest=new Map();(events||[]).forEach(ev=>{if(!latest.has(ev.directive_id))latest.set(ev.directive_id,ev);});
+   const open=rows.filter(x=>!["accepted","rejected"].includes(x.status)).length,final=rows.length-open,urgent=rows.filter(x=>x.priority==="urgent").length;
+   summary.innerHTML=[["إجمالي التوجيهات",rows.length],["تحتاج متابعة",open],["قرارات نهائية",final],["عاجلة",urgent]].map(x=>'<div class="item"><span class="small muted">'+esc(x[0])+'</span><strong style="font-size:20px">'+x[1]+'</strong></div>').join("");
+   list.innerHTML=rows.map(t=>{
+    const own=t.recipient_user_id===userId,closed=["accepted","rejected"].includes(t.status),ev=latest.get(t.id);
+    const controls=own?'<label class="small muted" for="directiveNote-'+t.id+'">ملاحظة الإجراء (اختيارية)</label><textarea id="directiveNote-'+t.id+'" data-note-for="'+t.id+'" maxlength="2000" placeholder="ملاحظة المراجعة أو المناقشة أو التحديث أو سبب القرار..." style="min-height:65px;margin:5px 0"></textarea><div class="row" style="margin-top:6px">'+buttons.filter(x=>!closed||x[0]==="view").map(x=>'<button type="button" data-directive-id="'+t.id+'" data-directive-action="'+x[0]+'" class="'+(x[0]==="reject"?"secondary":"")+'">'+x[1]+'</button>').join("")+'</div>':'<div class="small muted">الإجراء متاح للحساب المقصود فقط.</div>';
+    return '<article class="item" data-directive-card="'+t.id+'"><div class="row between"><strong>'+esc(t.title)+'</strong><span class="badge '+(t.status==="accepted"?"ok":t.status==="rejected"?"danger":(t.priority==="urgent"||t.priority==="high")?"warn":"info")+'">'+esc(statusLabels[t.status]||t.status)+'</span></div><div class="small muted" style="margin:5px 0">الأولوية: '+esc(priorityLabels[t.priority]||t.priority)+' · المقصود: '+(own?"حسابك الإداري":"حساب آخر مخوّل")+' · الإنشاء: '+esc(date(t.created_at))+'</div>'+(t.due_at?'<div class="small">موعد المتابعة: '+esc(date(t.due_at))+'</div>':'')+(t.details?'<div style="white-space:pre-wrap;margin-top:7px">'+esc(t.details)+'</div>':'')+(t.response_note?'<div class="small" style="margin-top:7px"><strong>آخر ملاحظة:</strong> '+esc(t.response_note)+'</div>':'')+(ev?'<div class="small muted" style="margin-top:7px">آخر سجل: '+esc(actionLabels[ev.action]||ev.action)+' · '+esc(date(ev.created_at))+(ev.note?' · '+esc(ev.note):"")+'</div>':'')+controls+'</article>';
+   }).join("")||'<div class="item muted">لا توجد توجيهات محفوظة لهذا الحساب حتى الآن. أنشئ توجيهًا جديدًا من النموذج.</div>';
+  }
+  async function load(){
+   if(loading)return;loading=true;listMsg.className="small muted";listMsg.textContent="جارٍ جلب التوجيهات والتحقق من الوصول...";
+   try{
+    await checkAdmin();
+    const {data:rows,error}=await sb.from("edu_directive_tasks").select("id,title,details,priority,recipient_user_id,created_by,status,selected_action,response_note,due_at,last_action_at,created_at,final_decision_at").or("created_by.eq."+userId+",recipient_user_id.eq."+userId).order("created_at",{ascending:false}).limit(100);
+    if(error)throw error;
+    const ids=(rows||[]).map(t=>t.id);let events=[];
+    if(ids.length){const {data:eventRows,error:eventError}=await sb.from("edu_directive_events").select("id,directive_id,actor_user_id,action,note,created_at").in("directive_id",ids).order("created_at",{ascending:false}).limit(300);if(eventError)throw eventError;events=eventRows||[];}
+    render(rows||[],events);listMsg.className="small successText";listMsg.textContent="تم تحديث القائمة وسجل الإجراءات. الخيارات تسجّل القرار على التوجيه ولا تعدّل السجلات الأخرى.";
+   }catch(e){list.innerHTML='<div class="item dangerText">تعذر تحميل التوجيهات: '+esc(e.message||"خطأ غير معروف")+'</div>';summary.innerHTML="";listMsg.className="small dangerText";listMsg.textContent="تحقق من جلسة الإدارة واتصال قاعدة البيانات.";}
+   finally{loading=false;}
+  }
+  createBtn.addEventListener("click",async()=>{
+   const title=$("directiveTitle").value.trim(),details=$("directiveDetails").value.trim(),priority=$("directivePriority").value,due=$("directiveDue").value;
+   if(title.length<3){createMsg.className="small dangerText";createMsg.textContent="اكتب عنوانًا واضحًا من 3 أحرف على الأقل.";return;}
+   createBtn.disabled=true;createMsg.className="small muted";createMsg.textContent="جارٍ حفظ التوجيه في سجل المتابعة الداخلي...";
+   try{
+    await checkAdmin();
+    const {data,error}=await sb.rpc("create_edu_directive",{p_title:title,p_details:details,p_recipient_staff_id:null,p_priority:priority,p_due_at:due?new Date(due).toISOString():null});
+    if(error)throw error;
+    $("directiveTitle").value="";$("directiveDetails").value="";$("directiveDue").value="";
+    createMsg.className="small successText";createMsg.textContent="تم تسجيل التوجيه بنجاح. الرقم المرجعي: "+String(data)+". لم تُعدّل أي سجلات أخرى.";
+    await load();
+   }catch(e){createMsg.className="small dangerText";createMsg.textContent="تعذر تسجيل التوجيه: "+(e.message||"خطأ غير معروف");}
+   finally{createBtn.disabled=false;}
+  });
+  list.addEventListener("click",async e=>{
+   const btn=e.target.closest("button[data-directive-id][data-directive-action]");if(!btn)return;
+   const id=btn.dataset.directiveId,action=btn.dataset.directiveAction,card=btn.closest("[data-directive-card]"),noteBox=card&&card.querySelector("[data-note-for]"),note=noteBox?noteBox.value.trim():"";
+   if(action==="accept"||action==="reject"){
+    if(!window.confirm(action==="accept"?"تأكيد قبول هذا التوجيه؟ سيتم تسجيل القرار على التوجيه فقط.":"تأكيد رفض هذا التوجيه؟ سيتم تسجيل القرار على التوجيه فقط."))return;
+   }
+   btn.disabled=true;listMsg.className="small muted";listMsg.textContent="جارٍ التحقق من الحساب المقصود وتسجيل الإجراء...";
+   try{
+    await checkAdmin();
+    const {error}=await sb.rpc("act_on_edu_directive",{p_directive_id:id,p_action:action,p_note:note||null});if(error)throw error;
+    listMsg.className="small successText";listMsg.textContent="تم تسجيل خيار «"+(actionLabels[action]||action)+"» وتوثيقه في سجل الإجراءات.";
+    await load();
+   }catch(err){listMsg.className="small dangerText";listMsg.textContent="لم يُسجّل الإجراء: "+(err.message||"خطأ غير معروف");btn.disabled=false;}
+  });
+  $("refreshDirectivesBtn").addEventListener("click",load);
+  load();setInterval(load,90000);
+ }
+})();
+</script>
+
 </body>
 </html>
