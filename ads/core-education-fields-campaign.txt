@@ -1,3 +1,5 @@
+تنبيه تنفيذ: طُبّق الترتيب المرجعي في هذه الخطة. جدول Metricool الحالي لم يُعدّل في هذه الخطوة؛ يجب مراجعته منفصلًا قبل اعتماد الجدولة النهائية، وعدم اعتبار وجود التصميم في Canva دليلًا على إرفاق الصور بالمنشورات.
+
 حملة المجالات التعليمية الأساسية — دار الإرتقاء الفكري
 صفحة الحزم المستقلة: https://alirtiqaa-educational-platform.vercel.app/education-packages.html
 الصفحة الرئيسية: https://alirtiqaa-educational-platform.vercel.app/
@@ -15,15 +17,15 @@ Telegram https://t.me/DarAlIrtiqaAlFikri
 الحقول الأساسية وروابطها:
 1. الطفولة والتأسيس — https://alirtiqaa-educational-platform.vercel.app/early-learning.html — الاستعداد للتعلم، اللغة والأعداد والأنشطة.
 2. التعليم الأساسي والعام — https://alirtiqaa-educational-platform.vercel.app/general-education.html — المواد الأساسية، المراجعة والواجبات والمتابعة.
-3. التعليم الدولي — https://alirtiqaa-educational-platform.vercel.app/international-education.html — دعم المتعلم حسب المنهج الذي يدرسه فعليًا.
-4. اللغات والتواصل — https://alirtiqaa-educational-platform.vercel.app/languages-communication.html — العربية لغير الناطقين بها والإنجليزية والتواصل.
+3. التعليم الجامعي والعالي — https://alirtiqaa-educational-platform.vercel.app/higher-education.html — الاستفسار والتوجيه واستكشاف المسارات.
+4. التدريب التقني والمهني — https://alirtiqaa-educational-platform.vercel.app/vocational-training.html — مهارات تطبيقية ومشروعات وتطوير وظيفي.
 5. القرآن الكريم والدراسات الإسلامية — https://alirtiqaa-educational-platform.vercel.app/quran-islamic-studies.html — التلاوة والحفظ والمراجعة والتجويد.
 6. التقوية والدعم الأكاديمي — https://alirtiqaa-educational-platform.vercel.app/academic-support.html — مراجعة الدروس وسد الفجوات والاستعداد للاختبارات.
-7. التعليم الجامعي والعالي — https://alirtiqaa-educational-platform.vercel.app/higher-education.html — الاستفسار والتوجيه واستكشاف المسارات.
-8. المهارات الرقمية والتقنية — https://alirtiqaa-educational-platform.vercel.app/digital-technology.html — المهارات الرقمية والبرمجة والإنتاجية والسلامة الرقمية.
-9. التدريب التقني والمهني — https://alirtiqaa-educational-platform.vercel.app/vocational-training.html — مهارات تطبيقية ومشروعات وتطوير وظيفي.
-10. إعداد المعلمين والتطوير التربوي — https://alirtiqaa-educational-platform.vercel.app/teacher-development.html — تخطيط الدروس والتقويم والتعليم عن بُعد.
-11. الإرشاد الأكاديمي والمهني — https://alirtiqaa-educational-platform.vercel.app/academic-career-guidance.html — الميول والأهداف ومقارنة المسارات.
+7. الإرشاد الأكاديمي والمهني — https://alirtiqaa-educational-platform.vercel.app/academic-career-guidance.html — الميول والأهداف ومقارنة المسارات.
+8. التعليم الدولي — https://alirtiqaa-educational-platform.vercel.app/international-education.html — دعم المتعلم حسب المنهج الذي يدرسه فعليًا.
+9. اللغات والتواصل — https://alirtiqaa-educational-platform.vercel.app/languages-communication.html — العربية لغير الناطقين بها والإنجليزية والتواصل.
+10. المهارات الرقمية والتقنية — https://alirtiqaa-educational-platform.vercel.app/digital-technology.html — المهارات الرقمية والبرمجة والإنتاجية والسلامة الرقمية.
+11. إعداد المعلمين والتطوير التربوي — https://alirtiqaa-educational-platform.vercel.app/teacher-development.html — تخطيط الدروس والتقويم والتعليم عن بُعد.
 12. التعلم المستمر وتنمية المهارات — https://alirtiqaa-educational-platform.vercel.app/lifelong-learning.html — التعلم الذاتي والتفكير والتواصل.
 13. العلوم الصحية والطبية — https://alirtiqaa-educational-platform.vercel.app/health-medical-sciences.html — تهيئة أكاديمية ومعرفة صحية؛ لا ترخيص مهني.
 14. الهندسة والعلوم التطبيقية — https://alirtiqaa-educational-platform.vercel.app/engineering-applied-sciences.html — الرياضيات والعلوم والتصميم وحل المشكلات.
@@ -45,18 +47,18 @@ Telegram https://t.me/DarAlIrtiqaAlFikri
 - التدريب المهني: تعرّف على نطاقات المهارات التطبيقية والتطوير المهني؛ تُتحقق الشهادات والجهات المانحة قبل الإعلان. https://alirtiqaa-educational-platform.vercel.app/vocational-training.html
 - الإرشاد الجامعي: استكشف المسارات الأكاديمية ومتطلبات الاستفسار الأولي دون وعد بقبول مضمون. https://alirtiqaa-educational-platform.vercel.app/higher-education.html
 
-خطة الجدولة الفعلية بتوقيت الرياض — 22 منشورًا على Facebook وLinkedIn، منشور مستقل كل يومين، الساعة 10:00 صباحًا:
+الترتيب المعتمد للجدولة بتوقيت الرياض — 22 منشورًا على Facebook وLinkedIn، منشور مستقل كل يومين، الساعة 10:00 صباحًا. هذه قائمة الترتيب المرجعية؛ لا تعني وحدها أن مواعيد Metricool الحالية قد عُدّلت.
 28 أكتوبر: الطفولة والتأسيس.
 30 أكتوبر: التعليم الأساسي والعام.
-1 نوفمبر: التعليم الدولي.
-3 نوفمبر: اللغات والتواصل.
+1 نوفمبر: التعليم الجامعي والعالي.
+3 نوفمبر: التدريب التقني والمهني.
 5 نوفمبر: القرآن الكريم والدراسات الإسلامية.
 7 نوفمبر: التقوية والدعم الأكاديمي.
-9 نوفمبر: التعليم الجامعي والعالي.
-11 نوفمبر: المهارات الرقمية والتقنية.
-13 نوفمبر: التدريب التقني والمهني.
-15 نوفمبر: إعداد المعلمين والتطوير التربوي.
-17 نوفمبر: الإرشاد الأكاديمي والمهني.
+9 نوفمبر: الإرشاد الأكاديمي والمهني.
+11 نوفمبر: التعليم الدولي.
+13 نوفمبر: اللغات والتواصل.
+15 نوفمبر: المهارات الرقمية والتقنية.
+17 نوفمبر: إعداد المعلمين والتطوير التربوي.
 19 نوفمبر: التعلم المستمر وتنمية المهارات.
 21 نوفمبر: العلوم الصحية والطبية.
 23 نوفمبر: الهندسة والعلوم التطبيقية.
