@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc">
-<title id="title">شعار مدرسة دار الإرتقاء الفكري لتعليم الجاليات</title>
-<desc id="desc">ريشة زرقاء في يد ترمز إلى المعرفة، ضمن أقواس زرقاء، مع اسم المدرسة ورسالتها التعليمية من التمهيدي إلى الثانوي بنين وبنات.</desc>
+<title id="title">الشعار الموحد لمنظومة دار الارتقاء الفكري التعليمية</title>
+<desc id="desc">يد تحمل ريشة ترمز إلى المعرفة والكتابة، ضمن أقواس زرقاء وكحلية، مع الهوية الموحدة لمنظومة دار الارتقاء الفكري التعليمية.</desc>
 <defs>
- <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#36c5f0"/><stop offset=".42" stop-color="#0878d1"/><stop offset="1" stop-color="#073b88"/></linearGradient>
- <linearGradient id="deep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#103e83"/><stop offset="1" stop-color="#061f52"/></linearGradient>
+ <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2daed8"/><stop offset=".42" stop-color="#0d5c91"/><stop offset="1" stop-color="#082f57"/></linearGradient>
+ <linearGradient id="deep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d477c"/><stop offset="1" stop-color="#061f3a"/></linearGradient>
  <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe0c3"/><stop offset="1" stop-color="#d98a61"/></linearGradient>
  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0b4d91" flood-opacity=".13"/></filter>
 </defs>
@@ -20,11 +20,12 @@
 </g>
 <path d="M505 55V375" stroke="#d7e7f7" stroke-width="3"/>
 <g font-family="Tahoma, Arial, sans-serif" text-anchor="end" direction="rtl">
- <text x="1150" y="104" fill="#0b4d91" font-size="45" font-weight="700">مدرسة</text>
- <text x="1150" y="190" fill="url(#deep)" font-size="68" font-weight="900">دار الإرتقاء الفكري</text>
- <text x="1150" y="252" fill="#0878bd" font-size="48" font-weight="800">لتعليم الجاليات</text>
- <path d="M625 280H1150" stroke="#27a9e0" stroke-width="4" stroke-linecap="round"/>
- <text x="1150" y="328" fill="#0b4d91" font-size="31" font-weight="700">من التمهيدي إلى الثانوي</text>
- <text x="1150" y="371" fill="#0878bd" font-size="30" font-weight="700">بنين • بنات</text>
+ <text x="1150" y="88" fill="#0d5c91" font-size="35" font-weight="800">منظومة مدارس ومراكز</text>
+ <text x="1150" y="157" fill="url(#deep)" font-size="49" font-weight="900">دار الارتقاء الفكري التعليمية</text>
+ <text x="1150" y="213" fill="#0d5c91" font-size="30" font-weight="800">لتعليم الجاليات • التعليم عن بُعد</text>
+ <path d="M625 244H1150" stroke="#c89b2c" stroke-width="4" stroke-linecap="round"/>
+ <text x="1150" y="291" fill="#082f57" font-size="23" font-weight="800">الطفولة والتأسيس • التعليم الأساسي والعام</text>
+ <text x="1150" y="330" fill="#0d5c91" font-size="22" font-weight="700">الجامعي • المهني والتقني • القرآن والإسلامية</text>
+ <text x="1150" y="369" fill="#082f57" font-size="22" font-weight="700">التقوية والتأهيل • الإرشاد الأكاديمي • ومجالات أخرى</text>
 </g>
 </svg>
