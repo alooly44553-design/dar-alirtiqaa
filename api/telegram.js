@@ -14,10 +14,66 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
 
   if (req.method === "GET") {
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+
+    if (!token || !expectedSecret) {
+      return res.status(200).json({
+        ok: true,
+        service: "telegram-channel",
+        configured: false,
+        destination: CHANNEL_ID
+      });
+    }
+
+    // Optional read-only diagnostic. It never returns either secret.
+    if (req.query?.diagnose === "1") {
+      try {
+        const meResponse = await fetch(`${TELEGRAM_API}/bot${token}/getMe`);
+        const me = await meResponse.json().catch(() => null);
+        if (!meResponse.ok || !me?.ok || !me.result?.id) {
+          return res.status(200).json({
+            ok: true,
+            configured: true,
+            botTokenValid: false,
+            destination: CHANNEL_ID
+          });
+        }
+
+        const memberUrl = new URL(`${TELEGRAM_API}/bot${token}/getChatMember`);
+        memberUrl.searchParams.set("chat_id", CHANNEL_ID);
+        memberUrl.searchParams.set("user_id", String(me.result.id));
+        const memberResponse = await fetch(memberUrl);
+        const member = await memberResponse.json().catch(() => null);
+        const status = member?.ok ? member.result?.status : null;
+        const isAdmin = status === "administrator" || status === "creator";
+        const canPost = status === "creator" ||
+          (status === "administrator" && member.result?.can_post_messages !== false);
+
+        return res.status(200).json({
+          ok: true,
+          configured: true,
+          botTokenValid: true,
+          botUsername: me.result.username ?? null,
+          destination: CHANNEL_ID,
+          channelMembershipChecked: Boolean(member?.ok),
+          botIsAdmin: isAdmin,
+          canPostMessages: Boolean(canPost)
+        });
+      } catch {
+        return res.status(200).json({
+          ok: true,
+          configured: true,
+          diagnosticUnavailable: true,
+          destination: CHANNEL_ID
+        });
+      }
+    }
+
     return res.status(200).json({
       ok: true,
       service: "telegram-channel",
-      configured: Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_WEBHOOK_SECRET),
+      configured: true,
       destination: CHANNEL_ID
     });
   }
