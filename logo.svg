@@ -11,13 +11,13 @@
 <g transform="translate(24 12)" filter="url(#soft)">
  <path d="M28 250C20 139 105 42 225 23C150 64 93 130 81 204C74 250 84 298 112 338" fill="none" stroke="url(#blue)" stroke-width="18" stroke-linecap="round"/>
  <path d="M48 278C93 348 161 374 245 369C185 345 142 308 123 261" fill="none" stroke="url(#blue)" stroke-width="15" stroke-linecap="round"/>
- <path d="M206 276C239 227 257 164 265 105C272 57 302 20 343 1C337 53 319 98 293 137C266 179 251 220 246 255C242 278 227 292 206 276Z" fill="url(#blue)"/>
- <path d="M244 244C274 188 303 120 330 38M253 225L294 202M268 191L310 163M285 153L320 126M300 115L330 91M315 77L337 57M238 261L276 244" fill="none" stroke="#b9f0ff" stroke-width="5" stroke-linecap="round"/>
- <path d="M195 277C179 265 164 259 147 263C134 266 129 277 136 287C143 297 163 301 183 306L221 316C239 323 253 340 273 352C297 367 326 365 349 352L388 330C404 321 420 317 438 317C454 317 462 308 457 298C452 288 438 286 422 290L389 299L412 284C427 274 430 262 421 256C412 250 400 256 388 264L356 282C346 288 337 288 327 283L292 266C277 259 260 263 251 276L241 291Z" fill="url(#skin)" stroke="#c77d5b" stroke-width="3" stroke-linejoin="round"/>
- <path d="M147 283L185 295M253 285L294 302M294 302L327 310M352 300L386 291" fill="none" stroke="#fff0df" stroke-width="5" stroke-linecap="round"/>
- <path d="M207 286C219 271 230 259 246 249" fill="none" stroke="#d98a61" stroke-width="5" stroke-linecap="round"/>
- <circle cx="287" cy="273" r="5" fill="#fff6e8"/>
-</g>
+ <path d="M222 281C228 230 237 181 252 133C265 91 295 46 343 1C339 55 320 101 294 141C273 173 257 211 250 248C246 268 237 282 222 281Z" fill="url(#blue)"/>
+ <path d="M239 259C268 199 302 122 330 38M249 239L291 211M263 207L305 177M278 174L319 144M293 139L329 108M310 100L338 66M235 270L274 246" fill="none" stroke="#b9f0ff" stroke-width="5" stroke-linecap="round"/>
+ <path d="M166 281C151 273 136 275 129 286C123 296 133 305 151 312L190 325C208 331 225 341 242 352C262 366 289 369 312 360L354 342C370 334 387 329 405 328L430 327C445 326 453 317 448 307C443 298 430 298 416 302L384 309L404 294C418 284 420 273 411 267C402 261 390 270 378 278L350 296C340 302 331 301 320 295L291 279C275 270 259 275 248 287L239 299L214 290C198 284 181 281 166 281Z" fill="url(#skin)" stroke="#c77d5b" stroke-width="3" stroke-linejoin="round"/>
+ <path d="M143 296L181 310M247 297L281 312M281 312L310 320M349 313L380 302M376 289L393 278" fill="none" stroke="#fff0df" stroke-width="5" stroke-linecap="round"/>
+ <path d="M207 289C220 272 234 258 250 247" fill="none" stroke="#d98a61" stroke-width="5" stroke-linecap="round"/>
+ <circle cx="286" cy="281" r="5" fill="#fff6e8"/>
+</g></g>
 <path d="M505 55V375" stroke="#d7e7f7" stroke-width="3"/>
 <g font-family="Tahoma, Arial, sans-serif" text-anchor="end" direction="rtl">
  <text x="1150" y="88" fill="#0d5c91" font-size="35" font-weight="800">منظومة مدارس ومراكز</text>
