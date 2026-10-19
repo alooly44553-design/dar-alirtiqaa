@@ -5,10 +5,11 @@
   "description": "منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية",
   "scripts": {
     "android:build": "npx cap sync android && cd android && ./gradlew assembleDebug",
-    "test": "npm run test:telegram && npm run test:readiness",
+    "test": "npm run test:telegram && npm run test:readiness && npm run test:isolation",
     "test:telegram": "node tests/telegram-assistant.test.js",
     "test:readiness": "node tests/prelaunch-readiness.test.js",
-    "check:syntax": "node tests/source-syntax-check.js"
+    "check:syntax": "node tests/source-syntax-check.js",
+    "test:isolation": "node tests/business-isolation.test.js"
   },
   "dependencies": {
     "@capacitor/core": "^7.4.3",
