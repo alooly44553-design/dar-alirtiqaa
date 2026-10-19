@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#082f57">
+<meta name="description" content="إدارة إنشاء اجتماعات Zoom من منظومة دار الإرتقاء الفكري، بوصول إداري موثق وتخزين مفاتيح الربط في الخادم فقط.">
+<title>إدارة اجتماعات Zoom — منظومة دار الإرتقاء الفكري التعليمية</title>
+<style>
+:root{font-family:"Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;color:#172033;background:#f4f7fb;line-height:1.8;--navy:#082f57;--blue:#0d5c91;--line:#dbe3ee;--muted:#64748b}
+*{box-sizing:border-box}body{margin:0}header{background:linear-gradient(125deg,#061f3a,#0d477c);color:white;padding:22px 16px}header .inner,main,footer .inner{width:min(960px,calc(100% - 8px));margin:auto}header a{color:#f5d879;text-decoration:none;font-weight:700}h1{font-size:clamp(25px,4vw,38px);line-height:1.3;margin:12px 0 6px}header p{color:#d8e8f8;margin:0}.nav{display:flex;flex-wrap:wrap;gap:14px}.nav a{font-size:14px}main{padding:22px 4px 42px}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 8px 26px #082f570d}.card h2{font-size:21px;margin:0 0 9px;color:var(--navy)}.muted{font-size:13px;color:var(--muted)}.notice{padding:13px 15px;border:1px solid #e5ce82;background:#fff7df;color:#745a11;border-radius:12px;margin:14px 0}.status{padding:12px 14px;background:#f1f5f9;border:1px solid var(--line);border-radius:12px;margin:12px 0}.status.ok{background:#ecfdf3;border-color:#a7f3d0;color:#166534}.status.err{background:#fff1f2;border-color:#fecdd3;color:#9f1239}.status.warn{background:#fff7df;border-color:#e5ce82;color:#745a11}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}label{font-weight:800;font-size:14px}input,select,textarea{font:inherit;width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;background:white}textarea{min-height:85px;resize:vertical}input:focus,select:focus,textarea:focus{outline:3px solid #0d5c9122;border-color:#0d5c91}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:10px;background:var(--navy);color:white;text-decoration:none;padding:11px 15px;font:inherit;font-weight:800;cursor:pointer}.btn.secondary{background:#e2e8f0;color:#172033}.btn:disabled{opacity:.5;cursor:not-allowed}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.output{overflow-wrap:anywhere;padding:12px;background:#f8fafc;border:1px solid var(--line);border-radius:12px}.output a{color:#0d5c91;font-weight:800}.hidden{display:none!important}footer{background:#061f3a;color:#c9d8e8;padding:20px 16px;font-size:13px}footer a{color:#f5d879}@media(max-width:640px){.grid{grid-template-columns:1fr}.card{padding:16px}header .inner,main,footer .inner{width:100%}}
+</style>
+</head>
+<body>
+<header><div class="inner">
+<nav class="nav"><a href="./admin.html">← لوحة الإدارة</a><a href="./operations-templates.html">مكتبة القوالب التشغيلية</a><a href="https://zoom.us/signin" target="_blank" rel="noopener noreferrer">حساب Zoom ↗</a></nav>
+<h1>إدارة اجتماعات Zoom</h1>
+<p>مسار إداري محمي لإنشاء روابط الاجتماعات من حساب Zoom المربوط بالمنظومة.</p>
+</div></header>
+<main>
+<div class="notice"><strong>ضابط أمني:</strong> مفاتيح Zoom لا تدخل في المتصفح ولا تُعرض هنا. لا ينشأ اجتماع إلا بعد توثيق حساب الإدارة، وإكمال ربط Zoom على الخادم، ثم ضغط زر الإنشاء بوقت تحدده الإدارة. إنشاء الاجتماع لا يغيّر رسوم الخدمات أو جدول الحصص المدرسية.</div>
+
+<section class="card">
+<h2>حالة الربط</h2>
+<p class="muted">تُفحص الحالة من الخادم بعد التحقق من حساب الإدارة. لا يكشف الفحص أي قيمة سرية.</p>
+<div id="authStatus" class="status" aria-live="polite">جارٍ التحقق من جلسة الإدارة…</div>
+<div id="zoomStatus" class="status" aria-live="polite">لم يتم فحص ربط Zoom بعد.</div>
+<div id="missingKeys" class="muted"></div>
+<div class="actions"><button id="refreshStatus" class="btn secondary" type="button">إعادة فحص الحالة</button><a class="btn secondary" href="https://marketplace.zoom.us/" target="_blank" rel="noopener noreferrer">Zoom App Marketplace ↗</a></div>
+</section>
+
+<section class="card">
+<h2>إنشاء اجتماع جديد</h2>
+<p class="muted">أدخل العنوان والموعد والمدة. سيعرض النظام رابط انضمام ورمز مرور الاجتماع فقط إن أعادهما Zoom. لا يُنشأ موعد افتراضي أو اجتماع تلقائي.</p>
+<form id="meetingForm">
+<div class="grid">
+<div class="field full"><label for="topic">عنوان الاجتماع</label><input id="topic" name="topic" maxlength="200" required minlength="4" placeholder="أدخل عنوان الاجتماع"></div>
+<div class="field"><label for="startTime">التاريخ والوقت المحليان</label><input id="startTime" name="startTime" type="datetime-local" required></div>
+<div class="field"><label for="timezone">المنطقة الزمنية</label><select id="timezone" name="timezone" required><option value="Asia/Riyadh">الرياض (Asia/Riyadh)</option><option value="Asia/Aden">عدن (Asia/Aden)</option><option value="UTC">UTC</option></select></div>
+<div class="field"><label for="duration">المدة بالدقائق</label><input id="duration" name="duration" type="number" min="15" max="480" step="5" required placeholder="حدد المدة"></div>
+<div class="field full"><label for="agenda">جدول الأعمال (اختياري)</label><textarea id="agenda" name="agenda" maxlength="2000" placeholder="أهداف الاجتماع، القرارات المطلوبة، والمهام المراد متابعتها"></textarea></div>
+</div>
+<div class="actions"><button id="createMeeting" class="btn" type="submit" disabled>إنشاء اجتماع على Zoom</button></div>
+<div id="createStatus" class="status hidden" aria-live="polite"></div>
+</form>
+</section>
+
+<section id="meetingResult" class="card hidden">
+<h2>تفاصيل الاجتماع الذي أنشأه Zoom</h2>
+<p class="muted">احتفظ برابط الانضمام ضمن قناة العمل المعتمدة. لا تنشر رمز المرور أو الرابط في مكان عام.</p>
+<div class="output"><div><strong>العنوان:</strong> <span id="resultTopic"></span></div><div><strong>رقم الاجتماع:</strong> <span id="resultId"></span></div><div><strong>الموعد:</strong> <span id="resultStart"></span></div><div><strong>المدة:</strong> <span id="resultDuration"></span></div><div><strong>رمز المرور:</strong> <span id="resultPasscode"></span></div><p><strong>رابط الانضمام:</strong><br><a id="resultJoin" href="#" target="_blank" rel="noopener noreferrer"></a></p></div>
+<div class="actions"><button class="btn" id="copyJoin" type="button">نسخ رابط الانضمام</button></div>
+<div id="copyStatus" class="muted" aria-live="polite"></div>
+</section>
+</main>
+<footer><div class="inner">منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية · <a href="./privacy.html">سياسة الخصوصية</a> · <a href="./terms.html">شروط الاستخدام</a></div></footer>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
+const $=id=>document.getElementById(id);
+let currentSession=null;
+let joinUrl="";
+function showStatus(id,message,kind=""){const el=$(id);el.className="status"+(kind?" "+kind:"");el.textContent=message;}
+function jsonError(payload){
+ const map={
+  ADMIN_AUTH_REQUIRED:"يجب تسجيل الدخول بحساب إدارة مخوّل.",
+  ZOOM_NOT_CONFIGURED:"لم يكتمل ربط Zoom على الخادم بعد.",
+  INVALID_MEETING_FIELDS:"راجع عنوان الاجتماع والمنطقة الزمنية والمدة.",
+  INVALID_OR_PAST_START_TIME:"اختر موعدًا مستقبليًا صالحًا في المنطقة الزمنية المحددة.",
+  ZOOM_AUTH_FAILED:"لم يتمكن الخادم من المصادقة لدى Zoom؛ راجع إعدادات تطبيق Zoom.",
+  ZOOM_MEETING_CREATE_FAILED:"رفض Zoom إنشاء الاجتماع. راجع صلاحية حساب المضيف وإعداداته.",
+  ZOOM_UPSTREAM_UNAVAILABLE:"تعذر الاتصال بخدمة Zoom الآن. حاول لاحقًا."
+ };
+ return map[payload?.error]||"تعذر تنفيذ الطلب. راجع الجلسة وإعدادات الخدمة.";
+}
+async function tokenOrNull(){
+ const {data,error}=await sb.auth.getSession();
+ if(error)throw error;
+ currentSession=data.session||null;
+ return currentSession?.access_token||null;
+}
+async function refreshStatus(){
+ $("createMeeting").disabled=true;
+ $("missingKeys").textContent="";
+ showStatus("authStatus","جارٍ التحقق من جلسة الإدارة…");
+ showStatus("zoomStatus","جارٍ فحص الربط…");
+ try{
+  const token=await tokenOrNull();
+  if(!token){
+   showStatus("authStatus","لا توجد جلسة دخول حالية. سجّل الدخول من لوحة الإدارة أولًا.","warn");
+   showStatus("zoomStatus","لم يُفحص ربط Zoom لأن جلسة الإدارة غير موجودة.","warn");
+   return;
+  }
+  showStatus("authStatus","جلسة الدخول موجودة؛ يتحقق الخادم الآن من صلاحية الإدارة.","ok");
+  const response=await fetch("/api/zoom/meetings",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok){
+   showStatus("zoomStatus",jsonError(result),"err");
+   return;
+  }
+  if(result.configured){
+   showStatus("zoomStatus","إعدادات الربط موجودة. لم يُنشأ أي اجتماع حتى الآن.","ok");
+   $("createMeeting").disabled=false;
+  }else{
+   showStatus("zoomStatus","ربط Zoom غير مهيأ بعد على الخادم. لم يتم إنشاء أي اجتماع.","warn");
+   $("missingKeys").textContent="متغيرات الربط الناقصة: "+(result.missing||[]).join("، ");
+  }
+ }catch(error){
+  showStatus("authStatus","تعذر فحص جلسة الدخول. افتح لوحة الإدارة وسجّل الدخول مجددًا.","err");
+  showStatus("zoomStatus","تعذر الاتصال بخادم المنظومة.","err");
+ }
+}
+$("refreshStatus").addEventListener("click",refreshStatus);
+$("meetingForm").addEventListener("submit",async event=>{
+ event.preventDefault();
+ const button=$("createMeeting");
+ button.disabled=true;
+ $("meetingResult").classList.add("hidden");
+ showStatus("createStatus","جارٍ إرسال طلب إنشاء الاجتماع إلى Zoom…");
+ $("createStatus").classList.remove("hidden");
+ try{
+  const token=await tokenOrNull();
+  if(!token)throw new Error("ADMIN_AUTH_REQUIRED");
+  const payload={
+   topic:$("topic").value.trim(),
+   start_time:$("startTime").value,
+   timezone:$("timezone").value,
+   duration:Number($("duration").value),
+   agenda:$("agenda").value.trim()
+  };
+  const response=await fetch("/api/zoom/meetings",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify(payload)});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(jsonError(result));
+  const m=result.meeting;
+  if(!m||typeof m.join_url!=="string")throw new Error("لم يرجع Zoom رابط انضمام صالحًا.");
+  const url=new URL(m.join_url);
+  if(url.protocol!=="https:"||!/(^|\.)zoom\.us$/i.test(url.hostname))throw new Error("عاد رابط غير متوقع؛ لم يتم عرضه.");
+  joinUrl=url.href;
+  $("resultTopic").textContent=m.topic||payload.topic;
+  $("resultId").textContent=String(m.id||"");
+  $("resultStart").textContent=(m.start_time||payload.start_time)+" — "+(m.timezone||payload.timezone);
+  $("resultDuration").textContent=String(m.duration||payload.duration)+" دقيقة";
+  $("resultPasscode").textContent=m.passcode||"غير مطلوب وفق إعداد Zoom";
+  $("resultJoin").href=joinUrl;
+  $("resultJoin").textContent=joinUrl;
+  $("meetingResult").classList.remove("hidden");
+  showStatus("createStatus","تم إنشاء الاجتماع وأعاد Zoom رابط الانضمام.","ok");
+  $("meetingForm").reset();
+  $("timezone").value="Asia/Riyadh";
+ }catch(error){
+  showStatus("createStatus",error.message||"تعذر إنشاء الاجتماع.","err");
+ }finally{
+  await refreshStatus();
+ }
+});
+$("copyJoin").addEventListener("click",async()=>{
+ try{await navigator.clipboard.writeText(joinUrl);$("copyStatus").textContent="تم نسخ رابط الانضمام.";}
+ catch{$("copyStatus").textContent="تعذر النسخ التلقائي؛ انسخ الرابط من الحقل أعلاه.";}
+});
+refreshStatus();
+</script>
+</body></html>
