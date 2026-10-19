@@ -1,3 +1,4 @@
+import { generateAssistantReply, clearTelegramHistory } from "../lib/telegram-assistant.js";
 import { timingSafeEqual } from "node:crypto";
 
 const CHANNEL_ID = "@DarAlIrtiqaAlFikri";
@@ -126,21 +127,26 @@ export default async function handler(req, res) {
       const command = incomingText.split(/\s+/)[0].split("@")[0].toLowerCase();
       let reply = null;
       if (command === "/start") {
-        reply = "مرحبًا بك في بوت دار الارتقاء الفكري التعليمي 🎓\n\nأنا مساعد لتنظيم الفعاليات والأنشطة وإعداد المحتوى والتنسيق الإعلامي.\n\nاستخدم /help لمعرفة الأوامر المتاحة.\n\nقناة تيليجرام الرسمية: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
+        reply = "يا هلا بك في دار الارتقاء الفكري 🌱\n\nأنا المساعد الرقمي للمؤسسة. لا تحتاج إلى صيغة خاصة؛ اكتب لي مباشرة ما تريد، سواء كان سؤالًا تعليميًا أو فكرة نشاط أو كتابة أو تصحيحًا أو محتوى إعلاميًا.\n\nقناة المؤسسة: https://t.me/DarAlIrtiqaAlFikri\nالمنصة: https://alirtiqaa-educational-platform.vercel.app/\n\nأرسل /help للخدمات الأساسية، أو /forget لمسح سياق محادثتك المحفوظ مؤقتًا.";
       } else if (command === "/help") {
-        reply = "الأوامر المتاحة:\n/start — بدء استخدام البوت والتعريف بالخدمات\n/help — عرض هذه المساعدة\n/services — المجالات والخدمات التعليمية\n/events — معلومات متابعة الفعاليات\n/contact — روابط التواصل الرسمية\n/request — تقديم طلب خدمة تعليمي\n/event_request — إرسال مقترح فعالية للمراجعة\n\nملاحظة: طلبات الخدمة ومقترحات الفعاليات تُحفظ للمراجعة؛ لا تتم جدولة الفعاليات آليًا.";
+        reply = "أنا هنا لمساعدتك مباشرة، وليس عليك الالتزام بقوالب أو قوائم طويلة 😊\n\nاكتب بطريقتك المعتادة عن التعليم أو التسجيل أو الأنشطة أو الخطط أو الكتابة والإملاء والتصحيح أو إعداد الإعلانات والمنشورات.\n\n/services — المجالات التعليمية\n/events — المساعدة في تخطيط الفعاليات\n/contact — قنوات وأرقام التواصل\n/request — بدء حديث عن خدمة تحتاجها\n/event_request — ترتيب فكرة فعالية\n/forget — مسح سياق المحادثة المحفوظ مؤقتًا\n\nقناة المؤسسة: https://t.me/DarAlIrtiqaAlFikri";
       } else if (command === "/services") {
-        reply = "المجالات التعليمية في دار الارتقاء الفكري:\n1. الطفولة والتأسيس\n2. التعليم الأساسي والعام\n3. التعليم الجامعي والعالي\n4. التدريب المهني والتقني\n5. القرآن والإسلامية\n6. التقوية والعربية والتأهيل\n7. الإرشاد الأكاديمي\n\nللاطلاع على المنصة وبدء طلب خدمة:\nhttps://alirtiqaa-educational-platform.vercel.app/";
+        reply = "المجالات التعليمية في دار الارتقاء الفكري:\n1. الطفولة والتأسيس\n2. التعليم الأساسي والعام\n3. التعليم الجامعي والعالي\n4. التدريب المهني والتقني\n5. القرآن والإسلامية\n6. التقوية والعربية والتأهيل\n7. الإرشاد الأكاديمي\n\nاكتب لي بشكل طبيعي ما تحتاجه، وسأساعدك في توضيحه أو ترتيبه.\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/events") {
-        reply = "لمتابعة خدمات وفعاليات دار الارتقاء الفكري التعليمية، يرجى متابعة القناة الرسمية.\n\nالقناة الرسمية: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/\n\nتنبيه: إدارة الفعاليات وجدولتها آليًا من داخل البوت ليست مفعّلة بعد.";
+        reply = "أكيد 🌿 أقدر أساعدك في ابتكار فكرة فعالية، وترتيب أهدافها وفقراتها وكتابة إعلانها وخطتها. أما تثبيت الموعد واعتماد الفعالية رسميًا فلا أؤكده من داخل المحادثة.\n\nتابع أخبار المؤسسة هنا: https://t.me/DarAlIrtiqaAlFikri\nوالمنصة: https://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/contact") {
         reply = "روابط التواصل الرسمية:\nقناة تيليجرام: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/\n\nاتصال مدارس البنين: 0538216050\nاتصال مدارس البنات: 0538838891";
+      } else if (command === "/forget" || command === "/clear") {
+        try {
+          await clearTelegramHistory(chatId);
+          reply = "تم مسح سياق المحادثة المحفوظ لهذا الحساب 🌿 نبدأ من جديد.";
+        } catch {
+          reply = "تعذّر مسح سياق المحادثة الآن. حاول مرة أخرى لاحقًا.";
+        }
       } else if (command === "/request") {
-        reply = "لتقديم طلب خدمة تعليمي، أرسل رسالة واحدة بهذا التنسيق:\n\nطلب | أوافق | الاسم الكامل | رقم الهاتف | رقم المجال (1-7) | وصف الخدمة\n\nالمجالات:\n" +
-          EDUCATIONAL_FIELDS.map((field, index) => (index + 1) + ". " + field).join("\n") +
-          "\n\nمثال توضيحي: طلب | أوافق | أحمد محمد | 777123456 | 2 | أحتاج إلى دروس تقوية في الرياضيات\n\nبإرسال الطلب فأنت توافق على مراجعة الطلب واستخدام بياناتك بالقدر اللازم لتنفيذ الخدمة. لن يُنشر رقم هاتفك في القناة العامة.";
+        reply = "أبشر، ما يحتاج تكتب بصيغة معينة 🌱 احكِ لي ببساطة ما الخدمة التعليمية التي تبحث عنها، وسأساعدك في تحديد المجال وترتيب الخطوة الأنسب. لا ترسل بيانات شخصية إلا إذا كانت ضرورية لإتمام طلبك.";
       } else if (command === "/event_request") {
-        reply = "لإرسال مقترح فعالية للمراجعة، أرسل رسالة واحدة بهذا التنسيق:\n\nفعالية | أوافق | الاسم الكامل | رقم الهاتف | التاريخ والوقت المقترح | وصف الفعالية\n\nمثال توضيحي: فعالية | أوافق | أحمد محمد | 777123456 | 2026-11-10 17:00 | ورشة تعريفية بالبرامج التعليمية\n\nبإرسال الطلب فأنت توافق على مراجعة الطلب واستخدام بياناتك بالقدر اللازم لتنفيذ الخدمة. يُحفظ المقترح للمراجعة فقط؛ لا يعني ذلك اعتماد الفعالية أو جدولتها آليًا.";
+        reply = "هات فكرة الفعالية بطريقتك، حتى لو كانت مجرد فكرة أولية 😊 أساعدك في تطويرها وتحديد الهدف والجمهور والفقرات وكتابة الإعلان. ولن أقول إن الفعالية اعتمدت أو حُجز لها موعد قبل تأكيد رسمي.";
       } else if (!incomingText.startsWith("/")) {
         const parts = incomingText.split("|").map(part => part.trim());
         if (parts.length >= 6 && (parts[0] === "طلب" || parts[0] === "فعالية")) {
@@ -181,9 +187,9 @@ export default async function handler(req, res) {
               });
               const submitted = await submission.json().catch(() => null);
               if (submission.ok && submitted?.ok && submitted?.request?.request_number) {
-                reply = (isEvent ? "تم استلام مقترح الفعالية وحفظه في نظام الطلبات للمراجعة. رقم الطلب: " : "تم استلام طلب الخدمة وحفظه في نظام الطلبات للمراجعة. رقم الطلب: ") +
+                reply = (isEvent ? "وصلني مقترح الفعالية وسجلته للمراجعة 🌿\nرقم المتابعة: " : "تمام، وصلني طلبك وسجلته للمراجعة 🌿\nرقم المتابعة: ") +
                   submitted.request.request_number +
-                  (isEvent ? "\n\nهذا تأكيد استلام للمراجعة وليس اعتمادًا أو جدولة للفعالية." : "\n\nستراجع الإدارة الطلب؛ الاستلام لا يعني القبول النهائي.");
+                  (isEvent ? "\nستراجعه الإدارة، ويظل الموعد مقترحًا حتى تأكيده رسميًا." : "\nستراجعه الإدارة، والتسجيل هنا تأكيد استلام وليس موافقة نهائية.");
               } else {
                 console.error("Telegram request submission failed", { status: submission.status, error: submitted?.error });
                 reply = "لم أتمكن من حفظ الطلب الآن. يرجى المحاولة لاحقًا أو تقديم الطلب عبر المنصة:\nhttps://alirtiqaa-educational-platform.vercel.app/";
@@ -193,6 +199,16 @@ export default async function handler(req, res) {
               reply = "تعذر الاتصال بنظام الطلبات الآن. يرجى المحاولة لاحقًا أو استخدام المنصة التعليمية:\nhttps://alirtiqaa-educational-platform.vercel.app/";
             }
           }
+        }
+      }
+
+
+      if (!reply && !incomingText.startsWith("/")) {
+        try {
+          reply = await generateAssistantReply(chatId, incomingText, req.headers["x-vercel-oidc-token"] || "");
+        } catch (error) {
+          console.error("Telegram assistant reply failed", error?.message || "unknown error");
+          reply = "أهلًا بك 🌿 أواجه تعثرًا مؤقتًا في الرد الآن. أرسل رسالتك مرة أخرى بعد قليل، أو استخدم /services و/contact للمعلومات الأساسية.";
         }
       }
 
