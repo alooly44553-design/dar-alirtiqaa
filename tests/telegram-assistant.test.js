@@ -146,4 +146,15 @@ function installFetchMock() {
   assert.equal(calls.length, 0);
 }
 
+{
+  const calls = installFetchMock();
+  const res = responseSink();
+  await handler(requestFor(message("أرسل لي ردًا بصوت هادئ")), res);
+  assert.equal(res.code, 200);
+  assert(calls.some(call => call.url.includes("/v1/chat/completions")));
+  assert(calls.some(call => call.url.includes("/v1/audio/speech")));
+  assert(calls.some(call => call.url.endsWith("/sendAudio")));
+  assert(calls.filter(call => call.url.endsWith("/sendMessage")).length >= 1);
+}
+
 console.log("Telegram assistant smoke tests passed: text, natural-form requests, image generation, photo understanding, voice input/output, and webhook authentication.");
