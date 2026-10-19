@@ -1,4 +1,4 @@
-import { generateAssistantReply, clearTelegramHistory, transcribeTelegramAudio, generateTelegramImage, synthesizeTelegramSpeech } from "../lib/telegram-assistant.js";
+import { generateAssistantReply, clearTelegramHistory, transcribeTelegramAudio, generateTelegramImage, synthesizeTelegramSpeech, looksLikeTelegramTaskIntent, scheduleTelegramTask, listTelegramTasks, updateTelegramTaskStatus } from "../lib/telegram-assistant.js";
 import { timingSafeEqual } from "node:crypto";
 
 const CHANNEL_ID = "@DarAlIrtiqaAlFikri";
@@ -73,7 +73,10 @@ export default async function handler(req, res) {
                   { command: "contact", description: "التواصل مع المؤسسة" },
                   { command: "request", description: "التحدث عن خدمة تعليمية" },
                   { command: "event_request", description: "تطوير فكرة فعالية" },
-                  { command: "forget", description: "مسح سياق المحادثة" }
+                  { command: "forget", description: "مسح سياق المحادثة" },
+                  { command: "tasks", description: "قائمة مهامي ومواعيدي" },
+                  { command: "done", description: "إكمال مهمة من قائمتي" },
+                  { command: "cancel_task", description: "إلغاء مهمة من قائمتي" }
                 ]
               })
             });
@@ -246,13 +249,40 @@ export default async function handler(req, res) {
       if (command === "/start") {
         reply = "يا هلا بك في دار الارتقاء الفكري 🌱\n\nأنا المساعد الرقمي للمؤسسة. لا تحتاج إلى صيغة خاصة؛ اكتب لي مباشرة ما تريد، سواء كان سؤالًا تعليميًا أو فكرة نشاط أو كتابة أو تصحيحًا أو محتوى إعلاميًا.\n\nقناة المؤسسة: https://t.me/DarAlIrtiqaAlFikri\nالمنصة: https://alirtiqaa-educational-platform.vercel.app/\n\nأرسل /help للخدمات الأساسية، أو /forget لمسح سياق محادثتك المحفوظ مؤقتًا.";
       } else if (command === "/help") {
-        reply = "أنا هنا لمساعدتك مباشرة، وليس عليك الالتزام بقوالب أو قوائم طويلة 😊\n\nاكتب بطريقتك المعتادة عن التعليم أو التسجيل أو الأنشطة أو الخطط أو الكتابة والإملاء والتصحيح أو إعداد الإعلانات والمنشورات.\n\n/services — المجالات التعليمية\n/events — المساعدة في تخطيط الفعاليات\n/contact — قنوات وأرقام التواصل\n/request — بدء حديث عن خدمة تحتاجها\n/event_request — ترتيب فكرة فعالية\n/forget — مسح سياق المحادثة المحفوظ مؤقتًا\n\nقناة المؤسسة: https://t.me/DarAlIrtiqaAlFikri";
+        reply = "أنا هنا لمساعدتك مباشرة، وليس عليك الالتزام بقوالب أو قوائم طويلة 😊\n\nاكتب بطريقتك المعتادة عن التعليم أو التسجيل أو الأنشطة أو الخطط أو الكتابة والإملاء والتصحيح أو إعداد الإعلانات والمنشورات.\n\n/services — المجالات التعليمية\n/events — المساعدة في تخطيط الفعاليات\n/contact — قنوات وأرقام التواصل\n/request — بدء حديث عن خدمة تحتاجها\n/event_request — ترتيب فكرة فعالية\n/forget — مسح سياق المحادثة المحفوظ مؤقتًا\n/tasks — عرض المهام المجدولة\n/done معرف_المهمة — إكمال مهمة\n/cancel_task معرف_المهمة — إلغاء مهمة\n\nقناة المؤسسة: https://t.me/DarAlIrtiqaAlFikri";
       } else if (command === "/services") {
         reply = "المجالات التعليمية في دار الارتقاء الفكري:\n1. الطفولة والتأسيس\n2. التعليم الأساسي والعام\n3. التعليم الجامعي والعالي\n4. التدريب المهني والتقني\n5. القرآن والإسلامية\n6. التقوية والعربية والتأهيل\n7. الإرشاد الأكاديمي\n\nاكتب لي بشكل طبيعي ما تحتاجه، وسأساعدك في توضيحه أو ترتيبه.\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/events") {
         reply = "أكيد 🌿 أقدر أساعدك في ابتكار فكرة فعالية، وترتيب أهدافها وفقراتها وكتابة إعلانها وخطتها. أما تثبيت الموعد واعتماد الفعالية رسميًا فلا أؤكده من داخل المحادثة.\n\nتابع أخبار المؤسسة هنا: https://t.me/DarAlIrtiqaAlFikri\nوالمنصة: https://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/contact") {
         reply = "روابط التواصل الرسمية:\nقناة تيليجرام: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/\n\nاتصال مدارس البنين: 0538216050\nاتصال مدارس البنات: 0538838891";
+      } else if (command === "/tasks") {
+        try {
+          const tasks = await listTelegramTasks(chatId);
+          if (!tasks.length) {
+            reply = "قائمة مهامك هادئة الآن 🌿 عندما تطلب مني جدولة مهمة بتاريخ ووقت واضحين، سأضيفها هنا.";
+          } else {
+            const formatter = new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Riyadh" });
+            reply = "هذه مهامك القادمة 📅\n\n" + tasks.map((task, index) =>
+              (index + 1) + ". " + task.title + "\nالموعد: " + formatter.format(new Date(task.due_at)) +
+              "\nالمعرّف: " + String(task.id).slice(0, 8) + (task.details ? "\n" + task.details : "")
+            ).join("\n\n") + "\n\nلإكمال مهمة: /done ثم معرّفها. ولإلغائها: /cancel_task ثم معرّفها.";
+          }
+        } catch (error) {
+          console.error("TELEGRAM_TASK_LIST_FAILED", error?.message || "unknown error");
+          reply = "تعذّر فتح قائمة المهام الآن. حاول مرة أخرى لاحقًا.";
+        }
+      } else if (command === "/done" || command === "/cancel_task") {
+        const partialId = incomingText.split(/\s+/)[1] || "";
+        try {
+          const result = await updateTelegramTaskStatus(chatId, partialId, command === "/done" ? "completed" : "cancelled");
+          reply = result.ok
+            ? result.message + "\n" + result.task.title
+            : result.message;
+        } catch (error) {
+          console.error("TELEGRAM_TASK_STATUS_UPDATE_FAILED", error?.message || "unknown error");
+          reply = "تعذّر تحديث المهمة الآن. جرّب مرة أخرى من فضلك.";
+        }
       } else if (command === "/forget" || command === "/clear") {
         try {
           await clearTelegramHistory(chatId);
@@ -269,9 +299,19 @@ export default async function handler(req, res) {
       }
 
             if (!reply) {
+        let taskIntentHandled = false;
+        if (looksLikeTelegramTaskIntent(incomingText)) {
+          const taskResult = await scheduleTelegramTask(chatId, incomingText, req.headers["x-vercel-oidc-token"] || "");
+          if (taskResult.handled) {
+            reply = taskResult.reply;
+            taskIntentHandled = true;
+          }
+        }
         const wantsImage = /(?:صمم|صمّم|أنشئ|انشئ|اصنع|ابتكر|جهّز|جهز|ارسم|تصميم|بوستر|برشور|ملصق|صورة دعائية|صورة تعليمية|generate an image|create an image|design a poster)/iu.test(incomingText);
         const wantsVoice = /(?:اقرأ(?:\s+لي)?\s+(?:بصوت|هذا|النص)|اقرا(?:\s+لي)?\s+(?:بصوت|هذا|النص)|حوّل\s+(?:هذا\s+)?النص\s+إلى\s+صوت|حول\s+(?:هذا\s+)?النص\s+إلى\s+صوت|رد\s+بصوت|ارسِل\s+صوت|أرسل\s+صوت|خلّيني\s+أسمع|خليني\s+اسمع|speak aloud|read aloud|voice reply|audio response|voice response|بصوت|صوتي)/iu.test(incomingText);
-        if (wantsImage) {
+        if (taskIntentHandled) {
+          // The scheduling helper already produced the task confirmation or one clarification question.
+        } else if (wantsImage) {
           try {
             const imageBytes = await generateTelegramImage(incomingText, req.headers["x-vercel-oidc-token"] || "", chatId);
             const photoForm = new FormData();
