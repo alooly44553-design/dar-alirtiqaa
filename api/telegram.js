@@ -44,6 +44,7 @@ export default async function handler(req, res) {
         }
 
         let webhookConfiguration = null;
+        let commandMenuConfigured = null;
         if (req.query?.configureWebhook === "1") {
           try {
             const webhookResponse = await fetch(`${TELEGRAM_API}/bot${token}/setWebhook`, {
@@ -60,6 +61,28 @@ export default async function handler(req, res) {
             webhookConfiguration = Boolean(webhookResponse.ok && webhookResult?.ok);
           } catch {
             webhookConfiguration = false;
+          }
+          try {
+            const menuResponse = await fetch(`${TELEGRAM_API}/bot${token}/setMyCommands`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                commands: [
+                  { command: "start", description: "بدء المحادثة" },
+                  { command: "help", description: "ماذا يمكنني أن أفعل لك؟" },
+                  { command: "services", description: "المجالات التعليمية" },
+                  { command: "events", description: "التخطيط للفعاليات" },
+                  { command: "contact", description: "التواصل مع المؤسسة" },
+                  { command: "request", description: "التحدث عن خدمة تعليمية" },
+                  { command: "event_request", description: "تطوير فكرة فعالية" },
+                  { command: "forget", description: "مسح سياق المحادثة" }
+                ]
+              })
+            });
+            const menuResult = await menuResponse.json().catch(() => null);
+            commandMenuConfigured = Boolean(menuResponse.ok && menuResult?.ok);
+          } catch {
+            commandMenuConfigured = false;
           }
         }
         const memberUrl = new URL(`${TELEGRAM_API}/bot${token}/getChatMember`);
@@ -81,7 +104,8 @@ export default async function handler(req, res) {
           channelMembershipChecked: Boolean(member?.ok),
           botIsAdmin: isAdmin,
           canPostMessages: Boolean(canPost),
-          ...(webhookConfiguration === null ? {} : { webhookConfigured: webhookConfiguration })
+          ...(webhookConfiguration === null ? {} : { webhookConfigured: webhookConfiguration }),
+          ...(commandMenuConfigured === null ? {} : { commandMenuConfigured })
         });
       } catch {
         return res.status(200).json({
