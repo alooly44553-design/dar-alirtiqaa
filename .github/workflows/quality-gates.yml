@@ -1,0 +1,62 @@
+name: Platform quality gates
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api/**/*.js"
+      - "lib/**/*.js"
+      - "tests/**/*.js"
+      - "*.html"
+      - "package.json"
+      - "app.webmanifest"
+      - "sw.js"
+      - "capacitor.config.ts"
+      - "sitemap.xml"
+      - ".github/workflows/quality-gates.yml"
+  pull_request:
+    paths:
+      - "api/**/*.js"
+      - "lib/**/*.js"
+      - "tests/**/*.js"
+      - "*.html"
+      - "package.json"
+      - "app.webmanifest"
+      - "sw.js"
+      - "capacitor.config.ts"
+      - "sitemap.xml"
+      - ".github/workflows/quality-gates.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Install project dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run assistant and source-readiness tests
+        run: npm test
+      - name: Check JavaScript source syntax
+        run: npm run check:syntax
+
+  live-production-smoke:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Wait for latest production deployment and verify public routes
+        run: node tests/production-smoke.test.js
+        env:
+          BASE_URL: https://alirtiqaa-educational-platform.vercel.app
