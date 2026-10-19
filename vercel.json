@@ -23,5 +23,11 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/zoom/meetings",
+      "destination": "/api/education/portal?resource=zoom-meetings"
+    }
   ]
 }
