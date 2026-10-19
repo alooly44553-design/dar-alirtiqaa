@@ -1,4 +1,4 @@
-import { sendJson, cleanText } from "../../lib/neon-db.js";
+import { getDatabase, sendJson, cleanText } from "../../lib/neon-db.js";
 
 const CONFIG_KEYS = ["ZOOM_ACCOUNT_ID", "ZOOM_CLIENT_ID", "ZOOM_CLIENT_SECRET"];
 
@@ -126,11 +126,26 @@ export default async function handler(req, res) {
 
     if (req.method === "GET") {
       const missing = missingZoomKeys();
+      let meetings;
+      try {
+        const sql = getDatabase("education");
+        meetings = await sql`
+          SELECT id, zoom_meeting_id, topic, agenda, start_time, timezone,
+                 duration_minutes, join_url, passcode, status, created_at
+          FROM education.zoom_meetings
+          ORDER BY start_time DESC
+          LIMIT 50
+        `;
+      } catch (error) {
+        console.error("ZOOM_MEETINGS_LIST_FAILED", error?.code || error?.name || "unknown");
+        return sendJson(res, 503, { error: "ZOOM_MEETING_STORE_UNAVAILABLE" });
+      }
       return sendJson(res, 200, {
         ok: true,
         service: "zoom-meetings",
         configured: missing.length === 0,
-        missing
+        missing,
+        meetings
       });
     }
 
@@ -186,7 +201,26 @@ export default async function handler(req, res) {
       return sendJson(res, 502, { error: "ZOOM_MEETING_CREATE_FAILED" });
     }
 
-    // Return only participant-facing details; never send Zoom's privileged host start_url to the browser.
+    let savedRecord = null;
+    try {
+      const sql = getDatabase("education");
+      const saved = await sql`
+        INSERT INTO education.zoom_meetings
+          (zoom_meeting_id, topic, agenda, start_time, timezone, duration_minutes,
+           join_url, passcode, created_by, status)
+        VALUES
+          (${String(meeting.id)}, ${meeting.topic || topic}, ${agenda},
+           ${schedule.utc}::timestamptz, ${timezone}, ${duration},
+           ${meeting.join_url}, NULLIF(${meeting.password || ""}, ''),
+           ${user.id}::uuid, 'scheduled')
+        RETURNING id, created_at
+      `;
+      savedRecord = saved[0] || null;
+    } catch (error) {
+      console.error("ZOOM_MEETING_RECORD_SAVE_FAILED", error?.code || error?.name || "unknown");
+    }
+
+    // Return only participant-facing details; the privileged host launch URL is never sent to the browser.
     return sendJson(res, 201, {
       ok: true,
       meeting: {
@@ -196,7 +230,10 @@ export default async function handler(req, res) {
         passcode: meeting.password || "",
         start_time: meeting.start_time || schedule.local,
         timezone,
-        duration
+        duration,
+        saved: Boolean(savedRecord),
+        record_id: savedRecord?.id || null,
+        saved_at: savedRecord?.created_at || null
       }
     });
   } catch (error) {
