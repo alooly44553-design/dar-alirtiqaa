@@ -101,12 +101,12 @@ export default async function handler(req, res) {
     const chatId = message?.chat?.id;
     const incomingText = typeof message?.text === "string" ? message.text.trim() : "";
     if (chatId && incomingText) {
-      const command = incomingText.split(/\\s+/)[0].split("@")[0].toLowerCase();
+      const command = incomingText.split(/\s+/)[0].split("@")[0].toLowerCase();
       let reply = null;
       if (command === "/start") {
-        reply = "مرحبًا بك في بوت دار الارتقاء الفكري التعليمي 🎓\\n\\nأنا مساعد لتنظيم الفعاليات والأنشطة وإعداد المحتوى والتنسيق الإعلامي.\\n\\nاستخدم /help لمعرفة الأوامر المتاحة.\\n\\nقناة تيليجرام الرسمية: https://t.me/DarAlIrtiqaAlFikri\\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
+        reply = "مرحبًا بك في بوت دار الارتقاء الفكري التعليمي 🎓\n\nأنا مساعد لتنظيم الفعاليات والأنشطة وإعداد المحتوى والتنسيق الإعلامي.\n\nاستخدم /help لمعرفة الأوامر المتاحة.\n\nقناة تيليجرام الرسمية: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/help") {
-        reply = "الأوامر المتاحة:\\n/start — بدء استخدام البوت والتعريف بالخدمات\\n/help — عرض هذه المساعدة\\n\\nيمكنك استخدام البوت لمتابعة خدمات وفعاليات دار الارتقاء الفكري التعليمية.";
+        reply = "الأوامر المتاحة:\n/start — بدء استخدام البوت والتعريف بالخدمات\n/help — عرض هذه المساعدة\n\nيمكنك استخدام البوت لمتابعة خدمات وفعاليات دار الارتقاء الفكري التعليمية.";
       }
 
       if (reply) {
