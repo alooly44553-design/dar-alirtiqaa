@@ -1,7 +1,6 @@
 import { generateAssistantReply, clearTelegramHistory, transcribeTelegramAudio, generateTelegramImage, synthesizeTelegramSpeech, looksLikeTelegramTaskIntent, scheduleTelegramTask, listTelegramTasks, updateTelegramTaskStatus, looksLikeTelegramVideoIntent, startTelegramVideo, checkTelegramVideoJob } from "../lib/telegram-assistant.js";
 import { timingSafeEqual } from "node:crypto";
-
-const CHANNEL_ID = "@DarAlIrtiqaAlFikri";
+import { EDUCATION_SCOPE_REPLY, isBusinessOperationsRequest, isEducationPlatformRequest } from "../lib/telegram-scope.js";
 const TELEGRAM_API = "https://api.telegram.org";
 
 function safeEqual(a, b) {
@@ -9,6 +8,20 @@ function safeEqual(a, b) {
   const left = Buffer.from(a);
   const right = Buffer.from(b);
   return left.length === right.length && timingSafeEqual(left, right);
+}
+
+async function sendPrivateReply(token, chatId, text) {
+  try {
+    const response = await fetch(TELEGRAM_API + "/bot" + token + "/sendMessage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true })
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result?.ok) console.error("TELEGRAM_SCOPE_REPLY_FAILED", { status: response.status });
+  } catch {
+    console.error("TELEGRAM_SCOPE_REPLY_FAILED", { status: "network" });
+  }
 }
 
 export default async function handler(req, res) {
@@ -21,9 +34,9 @@ export default async function handler(req, res) {
     if (!token || !expectedSecret) {
       return res.status(200).json({
         ok: true,
-        service: "telegram-channel",
-        configured: false,
-        destination: CHANNEL_ID
+        service: "education-platform-assistant",
+        scope: "education-only",
+        configured: false
       });
     }
 
@@ -37,7 +50,7 @@ export default async function handler(req, res) {
             ok: true,
             configured: true,
             botTokenValid: false,
-            destination: CHANNEL_ID
+            scope: "education-only"
           });
         }
 
@@ -69,12 +82,12 @@ export default async function handler(req, res) {
                   { command: "start", description: "بدء المحادثة" },
                   { command: "help", description: "ماذا يمكنني أن أفعل لك؟" },
                   { command: "services", description: "المجالات التعليمية" },
-                  { command: "events", description: "التخطيط للفعاليات" },
-                  { command: "contact", description: "التواصل مع المؤسسة" },
-                  { command: "request", description: "التحدث عن خدمة تعليمية" },
-                  { command: "event_request", description: "تطوير فكرة فعالية" },
+                  { command: "events", description: "الفعاليات التعليمية" },
+                  { command: "contact", description: "معلومات المنصة التعليمية" },
+                  { command: "request", description: "الاستفسار عن خدمة تعليمية" },
+                  { command: "event_request", description: "ترتيب فعالية تعليمية" },
                   { command: "forget", description: "مسح سياق المحادثة" },
-                  { command: "tasks", description: "قائمة مهامي ومواعيدي" },
+                  { command: "tasks", description: "مهامي التعليمية المجدولة" },
                   { command: "done", description: "إكمال مهمة من قائمتي" },
                   { command: "cancel_task", description: "إلغاء مهمة من قائمتي" },
                   { command: "video_status", description: "التحقق من حالة مقطع الفيديو" }
@@ -87,25 +100,13 @@ export default async function handler(req, res) {
             commandMenuConfigured = false;
           }
         }
-        const memberUrl = new URL(`${TELEGRAM_API}/bot${token}/getChatMember`);
-        memberUrl.searchParams.set("chat_id", CHANNEL_ID);
-        memberUrl.searchParams.set("user_id", String(me.result.id));
-        const memberResponse = await fetch(memberUrl);
-        const member = await memberResponse.json().catch(() => null);
-        const status = member?.ok ? member.result?.status : null;
-        const isAdmin = status === "administrator" || status === "creator";
-        const canPost = status === "creator" ||
-          (status === "administrator" && member.result?.can_post_messages !== false);
-
         return res.status(200).json({
           ok: true,
+          service: "education-platform-assistant",
+          scope: "education-only",
           configured: true,
           botTokenValid: true,
           botUsername: me.result.username ?? null,
-          destination: CHANNEL_ID,
-          channelMembershipChecked: Boolean(member?.ok),
-          botIsAdmin: isAdmin,
-          canPostMessages: Boolean(canPost),
           aiGatewayAuthAvailable: Boolean(
             process.env.AI_GATEWAY_API_KEY ||
             process.env.VERCEL_OIDC_TOKEN ||
@@ -118,17 +119,18 @@ export default async function handler(req, res) {
         return res.status(200).json({
           ok: true,
           configured: true,
-          diagnosticUnavailable: true,
-          destination: CHANNEL_ID
+          service: "education-platform-assistant",
+          scope: "education-only",
+          diagnosticUnavailable: true
         });
       }
     }
 
     return res.status(200).json({
       ok: true,
-      service: "telegram-channel",
-      configured: true,
-      destination: CHANNEL_ID
+      service: "education-platform-assistant",
+      scope: "education-only",
+      configured: true
     });
   }
 
@@ -153,7 +155,7 @@ export default async function handler(req, res) {
     const update = req.body || {};
     const message = update.message || update.edited_message;
     const chatId = message?.chat?.id;
-    const incomingText = typeof message?.text === "string" ? message.text.trim() : "";
+    const incomingText = typeof message?.text === "string" ? message.text.trim() : typeof message?.caption === "string" ? message.caption.trim() : "";
     const photo = Array.isArray(message?.photo) && message.photo.length
       ? message.photo[message.photo.length - 1]
       : null;
@@ -171,6 +173,14 @@ export default async function handler(req, res) {
             : null;
 
     if (chatId && attachment) {
+      if (isBusinessOperationsRequest(incomingText)) {
+        await sendPrivateReply(token, chatId, EDUCATION_SCOPE_REPLY);
+        return res.status(200).json({ ok: true });
+      }
+      if (attachment.kind === "image" && !isEducationPlatformRequest(incomingText)) {
+        await sendPrivateReply(token, chatId, "أرفق الصورة مع سؤال واضح يخص التعليم أو إحدى خدمات المنصة التعليمية حتى أبقي المعالجة ضمن هذا النطاق.");
+        return res.status(200).json({ ok: true });
+      }
       const oidcToken = req.headers["x-vercel-oidc-token"] || "";
       try {
         const fileInfoResponse = await fetch(`${TELEGRAM_API}/bot${token}/getFile?file_id=${encodeURIComponent(attachment.fileId)}`);
@@ -196,6 +206,10 @@ export default async function handler(req, res) {
             (attachment.kind === "video"
               ? "هذا تفريغ الكلام المسموع في فيديو، وليس تحليلًا بصريًا لإطارات الفيديو:\n"
               : "هذا تفريغ رسالتك الصوتية:\n") + transcript;
+          if (!isEducationPlatformRequest(prompt)) {
+            await sendPrivateReply(token, chatId, EDUCATION_SCOPE_REPLY);
+            return res.status(200).json({ ok: true });
+          }
         }
 
         const replyText = await generateAssistantReply(chatId, prompt, oidcToken, imageDataUrl);
@@ -247,16 +261,18 @@ export default async function handler(req, res) {
     if (chatId && incomingText) {
       const command = incomingText.split(/\s+/)[0].split("@")[0].toLowerCase();
       let reply = null;
-      if (command === "/start") {
-        reply = "يا هلا بك في دار الارتقاء الفكري 🌱\n\nأنا المساعد الرقمي للمؤسسة. لا تحتاج إلى صيغة خاصة؛ اكتب لي مباشرة ما تريد، سواء كان سؤالًا تعليميًا أو فكرة نشاط أو كتابة أو تصحيحًا أو محتوى إعلاميًا.\n\nقناة المؤسسة: https://t.me/DarAlIrtiqaAlFikri\nالمنصة: https://alirtiqaa-educational-platform.vercel.app/\n\nأرسل /help للخدمات الأساسية، أو /forget لمسح سياق محادثتك المحفوظ مؤقتًا.";
+      if (isBusinessOperationsRequest(incomingText)) {
+        reply = EDUCATION_SCOPE_REPLY;
+      } else if (command === "/start") {
+        reply = "مرحبًا بك في المساعد التعليمي 🌱\n\nهذه الخدمة مخصصة حصريًا لمهام المنصة التعليمية: التعلم، القبول والتسجيل، الدروس والواجبات، شؤون المتعلمين والمعلمين، والإرشاد والفعاليات التعليمية.\n\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/\n\nأرسل /help للخدمات التعليمية، أو /forget لمسح سياق محادثتك.";
       } else if (command === "/help") {
-        reply = "أنا هنا لمساعدتك مباشرة، وليس عليك الالتزام بقوالب أو قوائم طويلة 😊\n\nاكتب بطريقتك المعتادة عن التعليم أو التسجيل أو الأنشطة أو الخطط أو الكتابة والإملاء والتصحيح أو إعداد الإعلانات والمنشورات.\n\n/services — المجالات التعليمية\n/events — المساعدة في تخطيط الفعاليات\n/contact — قنوات وأرقام التواصل\n/request — بدء حديث عن خدمة تحتاجها\n/event_request — ترتيب فكرة فعالية\n/forget — مسح سياق المحادثة المحفوظ مؤقتًا\n/tasks — عرض المهام المجدولة\n/done معرف_المهمة — إكمال مهمة\n/cancel_task معرف_المهمة — إلغاء مهمة\n/video_status معرف_المهمة — التحقق من حالة مقطع الفيديو\n\nاكتب لي بطريقتك لطلب تصميم صورة، أو تحليل صورة، أو تفريغ صوت، أو إنشاء مقطع قصير.\nقناة المؤسسة: https://t.me/DarAlIrtiqaAlFikri";
+        reply = "أساعدك في مهام المنصة التعليمية فقط 😊 اكتب بطريقتك عن القبول والتسجيل أو الدروس والواجبات والمناهج والتقييم أو شؤون المتعلمين والمعلمين أو الإرشاد والفعاليات التعليمية.\n\n/services — المجالات التعليمية\n/events — الفعاليات التعليمية\n/contact — معلومات المنصة التعليمية\n/request — الاستفسار عن خدمة تعليمية\n/event_request — ترتيب فعالية تعليمية\n/forget — مسح سياق المحادثة المحفوظ مؤقتًا\n/tasks — مهام المنصة التعليمية المجدولة\n/done معرف_المهمة — إكمال مهمة تعليمية\n/cancel_task معرف_المهمة — إلغاء مهمة تعليمية\n/video_status معرف_المهمة — التحقق من مهمة فيديو تعليمية\n\nأي طلب خارج نطاق المنصة التعليمية لن تتم معالجته.";
       } else if (command === "/services") {
         reply = "المجالات التعليمية في دار الارتقاء الفكري:\n1. الطفولة والتأسيس\n2. التعليم الأساسي والعام\n3. التعليم الجامعي والعالي\n4. التدريب المهني والتقني\n5. القرآن والإسلامية\n6. التقوية والعربية والتأهيل\n7. الإرشاد الأكاديمي\n\nاكتب لي بشكل طبيعي ما تحتاجه، وسأساعدك في توضيحه أو ترتيبه.\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/events") {
-        reply = "أكيد 🌿 أقدر أساعدك في ابتكار فكرة فعالية، وترتيب أهدافها وفقراتها وكتابة إعلانها وخطتها. أما تثبيت الموعد واعتماد الفعالية رسميًا فلا أؤكده من داخل المحادثة.\n\nتابع أخبار المؤسسة هنا: https://t.me/DarAlIrtiqaAlFikri\nوالمنصة: https://alirtiqaa-educational-platform.vercel.app/";
+        reply = "أساعدك في تصميم خطة فعالية تعليمية فقط: الهدف، الفئة التعليمية، الفقرات، والمواد التحضيرية. لا أؤكد موعدًا أو اعتمادًا رسميًا قبل قرار الإدارة.\n\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/contact") {
-        reply = "روابط التواصل الرسمية:\nقناة تيليجرام: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/\n\nاتصال مدارس البنين: 0538216050\nاتصال مدارس البنات: 0538838891";
+        reply = "للاستفسارات المتعلقة بالمنصة التعليمية استخدم صفحة الخدمات التعليمية فقط: https://alirtiqaa-educational-platform.vercel.app/\n\nلا يشارك هذا البوت قنوات تواصل أو سجلات أو مهام مع أي نشاط آخر.";
       } else if (command === "/video_status") {
         const partialId = incomingText.split(/\s+/)[1] || "";
         try {
@@ -320,9 +336,9 @@ export default async function handler(req, res) {
           reply = "تعذّر مسح سياق المحادثة الآن. حاول مرة أخرى لاحقًا.";
         }
       } else if (command === "/request") {
-        reply = "أبشر، ما يحتاج تكتب بصيغة معينة 🌱 احكِ لي ببساطة ما الخدمة التعليمية التي تبحث عنها، وسأساعدك في تحديد المجال وترتيب الخطوة الأنسب. لا ترسل بيانات شخصية إلا إذا كانت ضرورية لإتمام طلبك.";
+        reply = "اكتب وصف الخدمة التعليمية التي تحتاجها، وسأساعدك في تحديد المجال والخطوة التالية. لا ترسل بيانات شخصية غير لازمة.";
       } else if (command === "/event_request") {
-        reply = "هات فكرة الفعالية بطريقتك، حتى لو كانت مجرد فكرة أولية 😊 أساعدك في تطويرها وتحديد الهدف والجمهور والفقرات وكتابة الإعلان. ولن أقول إن الفعالية اعتمدت أو حُجز لها موعد قبل تأكيد رسمي.";
+        reply = "اكتب فكرة الفعالية التعليمية، وسأساعدك في صياغة الهدف والفقرات والمواد التعليمية. لن أؤكد اعتمادًا أو موعدًا من دون قرار رسمي.";
       } else if (!incomingText.startsWith("/")) {
         // Free-form text goes directly to the assistant; no fixed-form intake.
       }
@@ -341,6 +357,8 @@ export default async function handler(req, res) {
         const wantsVoice = /(?:اقرأ(?:\s+لي)?\s+(?:بصوت|هذا|النص)|اقرا(?:\s+لي)?\s+(?:بصوت|هذا|النص)|حوّل\s+(?:هذا\s+)?النص\s+إلى\s+صوت|حول\s+(?:هذا\s+)?النص\s+إلى\s+صوت|رد\s+بصوت|ارسِل\s+صوت|أرسل\s+صوت|خلّيني\s+أسمع|خليني\s+اسمع|speak aloud|read aloud|voice reply|audio response|voice response|بصوت|صوتي)/iu.test(incomingText);
         if (taskIntentHandled) {
           // The scheduling helper already produced the task confirmation or one clarification question.
+        } else if ((wantsVideo || wantsImage || wantsVoice) && !isEducationPlatformRequest(incomingText)) {
+          reply = EDUCATION_SCOPE_REPLY;
         } else if (wantsVideo) {
           try {
             const result = await startTelegramVideo(chatId, incomingText, req.headers["x-vercel-oidc-token"] || "");
@@ -437,47 +455,5 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
   }
 
-  const authorization = req.headers.authorization || "";
-  const suppliedSecret = authorization.startsWith("Bearer ")
-    ? authorization.slice(7)
-    : "";
-
-  if (!safeEqual(suppliedSecret, expectedSecret)) {
-    return res.status(401).json({ ok: false, error: "Unauthorized" });
-  }
-
-  const text = typeof req.body?.text === "string" ? req.body.text.trim() : "";
-  if (!text || text.length > 4096) {
-    return res.status(400).json({ ok: false, error: "Provide text between 1 and 4096 characters" });
-  }
-
-  try {
-    const response = await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: CHANNEL_ID,
-        text,
-        disable_web_page_preview: true
-      })
-    });
-
-    const result = await response.json().catch(() => null);
-    if (!response.ok || !result?.ok) {
-      console.error("Telegram sendMessage failed", {
-        status: response.status,
-        error_code: result?.error_code
-      });
-      return res.status(502).json({ ok: false, error: "Telegram rejected the message" });
-    }
-
-    return res.status(200).json({
-      ok: true,
-      message_id: result.result?.message_id ?? null,
-      destination: CHANNEL_ID
-    });
-  } catch (error) {
-    console.error("Telegram request failed", error?.message || "unknown error");
-    return res.status(502).json({ ok: false, error: "Unable to reach Telegram" });
-  }
+  return res.status(401).json({ ok: false, error: "Unauthorized webhook" });
 }
