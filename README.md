@@ -12,6 +12,8 @@
 - سياسة الخصوصية: `privacy.html` (مسودة تنتظر الاعتماد)
 - شروط الاستخدام: `terms.html` (مسودة تنتظر الاعتماد)
 - SEO: `robots.txt` و`sitemap.xml`
+- نموذج التشغيل والمرجعية: `OPERATING_MODEL.md`
+- القوالب التشغيلية: `operations-templates.html` (39 قالبًا فارغًا)
 
 ## إصدار الويب والتطبيق
 
