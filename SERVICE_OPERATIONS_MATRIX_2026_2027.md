@@ -154,3 +154,7 @@
  
 ### تحديث متابعة Zoom وسجل الاجتماعات
 أضيفت صفحة إدارية ومسار API خادمي يستخدم Server-to-Server OAuth، وأضيف جدول `education.zoom_meetings` إلى قاعدة التعليم عبر migration إضافية مع صلاحية قراءة/كتابة من الخادم فقط. الجدول لا يخزن رابط المضيف أو أسرار OAuth. لم تظهر متغيرات `ZOOM_ACCOUNT_ID` و`ZOOM_CLIENT_ID` و`ZOOM_CLIENT_SECRET` و`ZOOM_HOST_USER_ID` في Production حتى آخر فحص، ولم يتم إنشاء اجتماع فعلي؛ لذا الحالة هي **تجهيز وتخزين جاهزان برمجيًا، واتصال خارجي ينتظر تهيئة تطبيق Zoom والمضيف المرخّص واختبارًا حقيقيًا**. يلزم نطاق إنشاء الاجتماعات الأدنى مثل `meeting:write:meeting:admin`. مرجع التنفيذ: [Zoom OAuth الرسمي](https://developers.zoom.us/docs/integrations/oauth/) و[نطاقات الصلاحيات](https://developers.zoom.us/docs/integrations/oauth-scopes-overview/).
+
+
+### معالجة حد الوظائف في Vercel
+لتظل المنظومة على خطة Vercel Hobby دون إزالة واجهات قائمة، جُمّع منطق Zoom في `lib/zoom-meetings.js` وأعيد توجيه `/api/zoom/meetings` إلى وظيفة التعليم الحالية `api/education/portal.js` من خلال `vercel.json`. بذلك لا تُضاف وظيفة Serverless مستقلة؛ وبعد التعديل نجح بناء الإنتاج بحالة `READY` على commit `4b62110544b8086b30d9c57fea5d745c921a8c6f`.
