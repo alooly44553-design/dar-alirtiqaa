@@ -1,0 +1,38 @@
+name: Zoom integration syntax
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api/zoom/**"
+      - "zoom-operations.html"
+      - ".github/workflows/zoom-integration-syntax.yml"
+  pull_request:
+    paths:
+      - "api/zoom/**"
+      - "zoom-operations.html"
+      - ".github/workflows/zoom-integration-syntax.yml"
+  workflow_dispatch:
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check Zoom server API
+        run: node --check api/zoom/meetings.js
+      - name: Syntax check the Zoom admin browser module
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const html = fs.readFileSync("zoom-operations.html", "utf8");
+            const blocks = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)];
+            if (blocks.length !== 1) throw new Error("Expected exactly one Zoom admin module");
+            fs.writeFileSync("/tmp/zoom-operations-check.mjs", blocks[0][1]);
+          '
+          node --check /tmp/zoom-operations-check.mjs
