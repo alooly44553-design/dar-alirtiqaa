@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a4550">
+  <meta name="description" content="التطبيق المستقل لمراكز الإرتقاء الفكري الصحية: الخدمات والمواعيد والطلبات والخطط والمهام والمخزون والتقارير الإدارية.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="manifest" href="./app.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <title>مراكز الإرتقاء الفكري الصحية</title>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#home" aria-label="الرئيسية">
+        <span class="brand-symbol" aria-hidden="true">✚</span>
+        <span><strong>الإرتقاء الفكري</strong><small>المراكز الصحية</small></span>
+      </a>
+      <div class="side-caption">التطبيق الصحي المستقل</div>
+      <nav id="nav" class="nav-list" aria-label="التنقل بين صفحات التطبيق"></nav>
+      <div class="sidebar-foot">
+        <span class="status-dot"></span>
+        <div><strong>واجهة تشغيل أولية</strong><small>بيانات هذا الجهاز فقط</small></div>
+      </div>
+    </aside>
+    <div class="main-column">
+      <header class="topbar">
+        <div>
+          <div class="top-eyebrow">مراكز الإرتقاء الفكري الصحية</div>
+          <div id="top-title" class="top-title">الرئيسية</div>
+        </div>
+        <a class="top-home" href="#home">⌂ <span>الرئيسية</span></a>
+      </header>
+      <div class="privacy-banner" role="note">
+        <strong>تنبيه مهم قبل الاستخدام:</strong>
+        هذا إصدار واجهة تشغيل أولية؛ تحفظ الإدخالات في متصفح هذا الجهاز فقط ولا تتزامن مع بقية الموظفين. لا تدخل تشخيصات أو ملفات مرضى أو أرقام هوية أو معلومات صحية حساسة. لا يُعد هذا الإصدار سجلًا طبيًا آمنًا ولا يفعّل استقبالًا مركزيًا للطلبات.
+      </div>
+      <main id="view" tabindex="-1" aria-live="polite"></main>
+      <footer class="footer">
+        <span>© مراكز الإرتقاء الفكري الصحية</span>
+        <span><a href="./privacy.html">حدود الخصوصية والاستخدام</a> · <a href="#settings">حالة التجهيز</a></span>
+      </footer>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js" defer></script>
+</body>
+</html>
