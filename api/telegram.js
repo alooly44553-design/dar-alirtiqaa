@@ -40,6 +40,25 @@ export default async function handler(req, res) {
           });
         }
 
+        let webhookConfiguration = null;
+        if (req.query?.configureWebhook === "1") {
+          try {
+            const webhookResponse = await fetch(`${TELEGRAM_API}/bot${token}/setWebhook`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                url: "https://alirtiqaa-educational-platform.vercel.app/api/telegram",
+                secret_token: expectedSecret,
+                allowed_updates: ["message", "edited_message"],
+                drop_pending_updates: false
+              })
+            });
+            const webhookResult = await webhookResponse.json().catch(() => null);
+            webhookConfiguration = Boolean(webhookResponse.ok && webhookResult?.ok);
+          } catch {
+            webhookConfiguration = false;
+          }
+        }
         const memberUrl = new URL(`${TELEGRAM_API}/bot${token}/getChatMember`);
         memberUrl.searchParams.set("chat_id", CHANNEL_ID);
         memberUrl.searchParams.set("user_id", String(me.result.id));
@@ -58,7 +77,8 @@ export default async function handler(req, res) {
           destination: CHANNEL_ID,
           channelMembershipChecked: Boolean(member?.ok),
           botIsAdmin: isAdmin,
-          canPostMessages: Boolean(canPost)
+          canPostMessages: Boolean(canPost),
+          ...(webhookConfiguration === null ? {} : { webhookConfigured: webhookConfiguration })
         });
       } catch {
         return res.status(200).json({
