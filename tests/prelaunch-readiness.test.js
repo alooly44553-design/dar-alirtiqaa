@@ -27,6 +27,15 @@ assert.match(android, /versionName "1\.1\.3"/u, "Android versionName mismatch");
 
 const index = read("index.html");
 assert.match(index, /<html lang="ar" dir="rtl">/u, "Homepage must remain Arabic RTL");
+assert.equal((index.match(/https:\\/\\/alirtiqaa-business-ops\\.vercel\\.app\\//gu) || []).length, 1, "The educational homepage must expose exactly one standalone business-work entry");
+assert(!index.includes("businesses.html"), "The educational homepage must not embed the former business page");
+for (const file of ["admin.html","early-learning.html","operations-templates.html"]) {
+  assert(!read(file).includes("businesses.html"), file + " must not link into business operations");
+}
+const businessLanding = read("businesses.html");
+assert.match(businessLanding, /noindex,nofollow/u, "Legacy business URL must not be indexed");
+assert.match(businessLanding, /https:\\/\\/alirtiqaa-business-ops\\.vercel\\.app\\//u, "Legacy business URL must redirect to the separate portal");
+assert(!read("sw.js").includes('"./businesses.html"'), "The education PWA must not cache the old business page");
 assert.match(index, /app\.webmanifest\?v=20261019-5/u, "Manifest cache version mismatch");
 assert.match(index, /sw\.js\?v=20261019-5/u, "Service worker cache version mismatch");
 for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والعالي","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
