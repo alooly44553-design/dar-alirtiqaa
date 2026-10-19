@@ -317,7 +317,7 @@ export default async function handler(req, res) {
       }
 
 
-      if (!reply && !incomingText.startsWith("/")) {
+      if (!reply) {
         const wantsImage = /(?:صمم|صمّم|أنشئ|انشئ|اصنع|ابتكر|جهّز|جهز|ارسم|تصميم|بوستر|برشور|ملصق|صورة دعائية|صورة تعليمية|generate an image|create an image|design a poster)/iu.test(incomingText);
         if (wantsImage) {
           try {
