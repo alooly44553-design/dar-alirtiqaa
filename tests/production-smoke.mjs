@@ -14,6 +14,21 @@ async function get(path) {
   return { response, body };
 }
 
+async function postJson(path, payload) {
+  const response = await fetch(base + path, {
+    method: "POST",
+    redirect: "follow",
+    signal: AbortSignal.timeout(20000),
+    headers: {
+      "accept": "application/json",
+      "content-type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+  const body = await response.text();
+  return { response, body };
+}
+
 async function check(name, operation) {
   const start = Date.now();
   try {
@@ -90,6 +105,28 @@ for (const path of ["/api/education/registrations", "/api/education/service-requ
     assert.equal(response.status, 405, "expected GET to be rejected with 405");
     assert.match(response.headers.get("allow") || "", /POST/i, "expected Allow: POST");
     return "405; POST only";
+  });
+}
+
+for (const path of [
+  "/api/education/admin-service-requests",
+  "/api/education/admin-registrations",
+  "/api/zoom/meetings"
+]) {
+  await check("unauthenticated admin API blocked " + path, async () => {
+    const { response } = await get(path);
+    assert.ok([401, 403].includes(response.status), "expected unauthenticated access to be rejected; got " + response.status);
+    return "HTTP " + response.status + " without a session";
+  });
+}
+
+for (const path of ["/api/education/registrations", "/api/education/service-requests"]) {
+  await check("missing consent rejected " + path, async () => {
+    const { response, body } = await postJson(path, {});
+    assert.equal(response.status, 400, "expected invalid request to be rejected before insert");
+    const data = JSON.parse(body);
+    assert.equal(data.error, "CONSENT_REQUIRED");
+    return "400 CONSENT_REQUIRED; no record inserted";
   });
 }
 
