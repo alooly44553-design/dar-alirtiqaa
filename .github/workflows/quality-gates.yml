@@ -1,0 +1,45 @@
+name: Platform quality gates
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api/**/*.js"
+      - "lib/**/*.js"
+      - "tests/**/*.js"
+      - "*.html"
+      - "package.json"
+      - "app.webmanifest"
+      - "sw.js"
+      - "capacitor.config.ts"
+      - ".github/workflows/quality-gates.yml"
+  pull_request:
+    paths:
+      - "api/**/*.js"
+      - "lib/**/*.js"
+      - "tests/**/*.js"
+      - "*.html"
+      - "package.json"
+      - "app.webmanifest"
+      - "sw.js"
+      - "capacitor.config.ts"
+      - ".github/workflows/quality-gates.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install project dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run assistant and source-readiness tests
+        run: npm test
+      - name: Check JavaScript source syntax
+        run: npm run check:syntax
