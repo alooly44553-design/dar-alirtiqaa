@@ -20,7 +20,7 @@
 </div></header>
 <main class="container">
 <div class="notice"><strong>حماية الجدول المعتمد:</strong> هذه المكتبة لا تعدّل جدول الحصص أو أوقاته أو الرسوم. في التعليم الأساسي والعام تبقى قاعدة الطاقم التعليمي <strong>30 حصة أسبوعيًا لكل فرد</strong> وفق توزيع الإدارة السابق. نموذج التدقيق أدناه للمقارنة مع السجل المعتمد فقط، وليس لإنشاء جدول بديل أو تغيير أي خانة أو وقت.</div>
-<div class="summary"><article><strong>5 فروع حضورية</strong><span>قوالب موحدة مع إبقاء سجل كل فرع مستقلًا.</span></article><article><strong>20 قالبًا قابلًا للتنزيل</strong><span>سجلات وقوائم تحقق فارغة قابلة للفتح في Excel أو الجداول الإلكترونية.</span></article><article><strong>مراجعة واعتماد بشري</strong><span>المهام والقرارات المالية والقانونية والصحية والنشر الخارجي لا تُعتمد تلقائيًا.</span></article></div>
+<div class="summary"><article><strong>5 فروع حضورية</strong><span>قوالب موحدة مع إبقاء سجل كل فرع مستقلًا.</span></article><article><strong>23 قالبًا قابلًا للتنزيل</strong><span>سجلات وقوائم تحقق فارغة قابلة للفتح في Excel أو الجداول الإلكترونية.</span></article><article><strong>مراجعة واعتماد بشري</strong><span>المهام والقرارات المالية والقانونية والصحية والنشر الخارجي لا تُعتمد تلقائيًا.</span></article></div>
 <h2 style="color:var(--navy)">الفروع الحضورية المعتمدة في القوالب</h2>
 <div class="branch-list">
 <div class="branch"><b>مدارس دار الإرتقاء الفكري - فرع القوزين</b><span>سجل الفرع مستقل.</span></div>
@@ -77,8 +77,9 @@ const T=[
 {id:"incidents",g:"branches",title:"سجل الحوادث والشكاوى والإجراءات التصحيحية",file:"incidents_complaints_template.csv",desc:"سجل مقيد الوصول؛ لا تُدرج كلمات مرور أو تفاصيل هوية أو بيانات صحية حساسة في CSV.",fields:["رقم الحالة","تاريخ الاستلام","نوع الحالة","الفرع/الخدمة","درجة الأولوية","ملخص مختصر غير حساس","المسؤول","الإجراء الأولي","جهة التصعيد","موعد المراجعة","حالة المعالجة","مرجع دليل محمي","اعتماد الإغلاق"]}
 ];
 const esc=s=>String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
-const card=t=>'<article class="card" data-title="'+esc(t.title+" "+t.desc+" "+t.fields.join(" "))+'" data-group="'+t.g+'"><h3>'+esc(t.title)+'</h3><p>'+esc(t.desc)+'</p><div class="fields"><b>حقول القالب</b>'+esc(t.fields.join(" • "))+'</div>'+(t.locked?'<p><strong>قيد ثابت:</strong> 30 حصة أسبوعية. لا يغيّر هذا الملف الجدول المعتمد.</p>':'')+'<button class="btn" type="button" data-download="'+t.id+'">تنزيل قالب CSV فارغ</button></article>';
+const card=t=>'<article class="card" id="'+t.id+'" data-title="'+esc(t.title+" "+t.desc+" "+t.fields.join(" "))+'" data-group="'+t.g+'"><h3>'+esc(t.title)+'</h3><p>'+esc(t.desc)+'</p><div class="fields"><b>حقول القالب</b>'+esc(t.fields.join(" • "))+'</div>'+(t.locked?'<p><strong>قيد ثابت:</strong> 30 حصة أسبوعية. لا يغيّر هذا الملف الجدول المعتمد.</p>':'')+'<button class="btn" type="button" data-download="'+t.id+'">تنزيل قالب CSV فارغ</button></article>';
 T.forEach(t=>{const grid=document.getElementById("grid-"+t.g);if(grid)grid.insertAdjacentHTML("beforeend",card(t));});
+window.addEventListener("load",()=>{if(location.hash){const target=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(target)setTimeout(()=>target.scrollIntoView({behavior:"smooth",block:"start"}),150);}});
 function csvCell(v){return '"'+String(v??"").replace(/"/g,'""')+'"';}
 function downloadTemplate(id){
  const t=T.find(x=>x.id===id);if(!t)return;
