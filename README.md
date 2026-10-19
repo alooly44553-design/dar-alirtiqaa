@@ -88,4 +88,4 @@
 
  
 ### سجلات اجتماعات Zoom
-تتوفر واجهة إدارية في `zoom-operations.html`، ومسار خادمي في `api/zoom/meetings.js`، وجدول `education.zoom_meetings` عبر migration `database/neon/migrations/20261019_add_zoom_meetings.sql`. لا يحفظ الجدول رابط المضيف المميز أو أسرار OAuth. يعتمد إنشاء الاجتماعات على إعداد Server-to-Server OAuth رسمي في Vercel، وهو غير مهيأ حاليًا لأن مفاتيح Zoom المطلوبة لم تُضف بعد.
+تتوفر واجهة إدارية في `zoom-operations.html`، ومسار عام متوافق للواجهة `/api/zoom/meetings` يُعاد توجيهه عبر `vercel.json` إلى الوظيفة التعليمية الموجودة، ومنطق Zoom المشترك محفوظ في `lib/zoom-meetings.js` لتجنب تجاوز حد وظائف Vercel Hobby، مع جدول `education.zoom_meetings` عبر migration `database/neon/migrations/20261019_add_zoom_meetings.sql`. لا يحفظ الجدول رابط المضيف المميز أو أسرار OAuth. يعتمد إنشاء الاجتماعات على إعداد Server-to-Server OAuth رسمي في Vercel، وهو غير مهيأ حاليًا لأن مفاتيح Zoom المطلوبة لم تُضف بعد.
