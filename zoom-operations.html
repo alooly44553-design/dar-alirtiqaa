@@ -107,7 +107,7 @@ function renderMeetings(rows){
   const link=document.createElement("a");
   try{
    const parsed=new URL(String(meeting.join_url||""));
-   if(parsed.protocol==="https:"&&/(^|\\.)zoom\\.us$/i.test(parsed.hostname)){
+   if(parsed.protocol==="https:"&&/(^|\.)zoom\.us$/i.test(parsed.hostname)){
     link.href=parsed.href;
     link.target="_blank";
     link.rel="noopener noreferrer";
