@@ -130,12 +130,10 @@ export default async function handler(req, res) {
         reply = "يا هلا بك في دار الارتقاء الفكري 🌱\n\nأنا المساعد الرقمي للمؤسسة. لا تحتاج إلى صيغة خاصة؛ اكتب لي مباشرة ما تريد، سواء كان سؤالًا تعليميًا أو فكرة نشاط أو كتابة أو تصحيحًا أو محتوى إعلاميًا.\n\nقناة المؤسسة: https://t.me/DarAlIrtiqaAlFikri\nالمنصة: https://alirtiqaa-educational-platform.vercel.app/\n\nأرسل /help للخدمات الأساسية، أو /forget لمسح سياق محادثتك المحفوظ مؤقتًا.";
       } else if (command === "/help") {
         reply = "أنا هنا لمساعدتك مباشرة، وليس عليك الالتزام بقوالب أو قوائم طويلة 😊\n\nاكتب بطريقتك المعتادة عن التعليم أو التسجيل أو الأنشطة أو الخطط أو الكتابة والإملاء والتصحيح أو إعداد الإعلانات والمنشورات.\n\n/services — المجالات التعليمية\n/events — المساعدة في تخطيط الفعاليات\n/contact — قنوات وأرقام التواصل\n/request — بدء حديث عن خدمة تحتاجها\n/event_request — ترتيب فكرة فعالية\n/forget — مسح سياق المحادثة المحفوظ مؤقتًا\n\nقناة المؤسسة: https://t.me/DarAlIrtiqaAlFikri";
-      }
       } else if (command === "/services") {
         reply = "المجالات التعليمية في دار الارتقاء الفكري:\n1. الطفولة والتأسيس\n2. التعليم الأساسي والعام\n3. التعليم الجامعي والعالي\n4. التدريب المهني والتقني\n5. القرآن والإسلامية\n6. التقوية والعربية والتأهيل\n7. الإرشاد الأكاديمي\n\nاكتب لي بشكل طبيعي ما تحتاجه، وسأساعدك في توضيحه أو ترتيبه.\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/events") {
         reply = "أكيد 🌿 أقدر أساعدك في ابتكار فكرة فعالية، وترتيب أهدافها وفقراتها وكتابة إعلانها وخطتها. أما تثبيت الموعد واعتماد الفعالية رسميًا فلا أؤكده من داخل المحادثة.\n\nتابع أخبار المؤسسة هنا: https://t.me/DarAlIrtiqaAlFikri\nوالمنصة: https://alirtiqaa-educational-platform.vercel.app/";
-      }
       } else if (command === "/contact") {
         reply = "روابط التواصل الرسمية:\nقناة تيليجرام: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/\n\nاتصال مدارس البنين: 0538216050\nاتصال مدارس البنات: 0538838891";
       } else if (command === "/forget" || command === "/clear") {
@@ -147,10 +145,8 @@ export default async function handler(req, res) {
         }
       } else if (command === "/request") {
         reply = "أبشر، ما يحتاج تكتب بصيغة معينة 🌱 احكِ لي ببساطة ما الخدمة التعليمية التي تبحث عنها، وسأساعدك في تحديد المجال وترتيب الخطوة الأنسب. لا ترسل بيانات شخصية إلا إذا كانت ضرورية لإتمام طلبك.";
-      }
       } else if (command === "/event_request") {
         reply = "هات فكرة الفعالية بطريقتك، حتى لو كانت مجرد فكرة أولية 😊 أساعدك في تطويرها وتحديد الهدف والجمهور والفقرات وكتابة الإعلان. ولن أقول إن الفعالية اعتمدت أو حُجز لها موعد قبل تأكيد رسمي.";
-      }
       } else if (!incomingText.startsWith("/")) {
         const parts = incomingText.split("|").map(part => part.trim());
         if (parts.length >= 6 && (parts[0] === "طلب" || parts[0] === "فعالية")) {
