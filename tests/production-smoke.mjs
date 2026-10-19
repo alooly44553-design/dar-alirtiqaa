@@ -92,6 +92,29 @@ for (const path of ["/app.webmanifest", "/sw.js", "/robots.txt", "/sitemap.xml",
   });
 }
 
+await check("business workspace entry is homepage-only", async () => {
+  const { response, body } = await get("/");
+  assert.equal(response.status, 200);
+  const linkCount = (body.match(/https:\/\/alirtiqaa-business-ops\.vercel\.app\//g) || []).length;
+  assert.equal(linkCount, 1, "expected one entry to the standalone business portal");
+  assert.ok(!body.includes("businesses.html"), "homepage must not refer to the former embedded business page");
+  const { response: adminResponse, body: adminBody } = await get("/admin.html");
+  assert.equal(adminResponse.status, 200);
+  assert.ok(!adminBody.includes("businesses.html"), "admin must not link into business operations");
+  const { response: learningResponse, body: learningBody } = await get("/early-learning.html");
+  assert.equal(learningResponse.status, 200);
+  assert.ok(!learningBody.includes("businesses.html"), "education pages must not link into business operations");
+  return "one homepage entry; no education admin/package cross-links";
+});
+
+await check("legacy business path only redirects to standalone portal", async () => {
+  const { response, body } = await get("/businesses.html");
+  assert.equal(response.status, 200);
+  assert.match(body, /noindex,nofollow/i);
+  assert.match(body, /https:\/\/alirtiqaa-business-ops\.vercel\.app\//);
+  return "legacy URL contains no business records and forwards to separate app";
+});
+
 await check("education database health", async () => {
   const { response, body } = await get("/api/education/status");
   assert.equal(response.status, 200);
