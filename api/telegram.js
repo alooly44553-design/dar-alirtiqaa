@@ -73,7 +73,10 @@ export default async function handler(req, res) {
                   { command: "contact", description: "التواصل مع المؤسسة" },
                   { command: "request", description: "التحدث عن خدمة تعليمية" },
                   { command: "event_request", description: "تطوير فكرة فعالية" },
-                  { command: "forget", description: "مسح سياق المحادثة" }
+                  { command: "forget", description: "مسح سياق المحادثة" },
+                  { command: "tasks", description: "قائمة مهامي ومواعيدي" },
+                  { command: "done", description: "إكمال مهمة من قائمتي" },
+                  { command: "cancel_task", description: "إلغاء مهمة من قائمتي" }
                 ]
               })
             });
