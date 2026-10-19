@@ -263,21 +263,21 @@ export default async function handler(req, res) {
             reply = "قائمة مهامك هادئة الآن 🌿 عندما تطلب مني جدولة مهمة بتاريخ ووقت واضحين، سأضيفها هنا.";
           } else {
             const formatter = new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Riyadh" });
-            reply = "هذه مهامك القادمة 📅\\n\\n" + tasks.map((task, index) =>
-              (index + 1) + ". " + task.title + "\\nالموعد: " + formatter.format(new Date(task.due_at)) +
-              "\\nالمعرّف: " + String(task.id).slice(0, 8) + (task.details ? "\\n" + task.details : "")
-            ).join("\\n\\n") + "\\n\\nلإكمال مهمة: /done ثم معرّفها. ولإلغائها: /cancel_task ثم معرّفها.";
+            reply = "هذه مهامك القادمة 📅\n\n" + tasks.map((task, index) =>
+              (index + 1) + ". " + task.title + "\nالموعد: " + formatter.format(new Date(task.due_at)) +
+              "\nالمعرّف: " + String(task.id).slice(0, 8) + (task.details ? "\n" + task.details : "")
+            ).join("\n\n") + "\n\nلإكمال مهمة: /done ثم معرّفها. ولإلغائها: /cancel_task ثم معرّفها.";
           }
         } catch (error) {
           console.error("TELEGRAM_TASK_LIST_FAILED", error?.message || "unknown error");
           reply = "تعذّر فتح قائمة المهام الآن. حاول مرة أخرى لاحقًا.";
         }
       } else if (command === "/done" || command === "/cancel_task") {
-        const partialId = incomingText.split(/\\s+/)[1] || "";
+        const partialId = incomingText.split(/\s+/)[1] || "";
         try {
           const result = await updateTelegramTaskStatus(chatId, partialId, command === "/done" ? "completed" : "cancelled");
           reply = result.ok
-            ? result.message + "\\n" + result.task.title
+            ? result.message + "\n" + result.task.title
             : result.message;
         } catch (error) {
           console.error("TELEGRAM_TASK_STATUS_UPDATE_FAILED", error?.message || "unknown error");
