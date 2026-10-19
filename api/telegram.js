@@ -1,3 +1,4 @@
+import { generateAssistantReply, clearTelegramHistory } from "../lib/telegram-assistant.js";
 import { timingSafeEqual } from "node:crypto";
 
 const CHANNEL_ID = "@DarAlIrtiqaAlFikri";
@@ -193,6 +194,16 @@ export default async function handler(req, res) {
               reply = "تعذر الاتصال بنظام الطلبات الآن. يرجى المحاولة لاحقًا أو استخدام المنصة التعليمية:\nhttps://alirtiqaa-educational-platform.vercel.app/";
             }
           }
+        }
+      }
+
+
+      if (!reply && !incomingText.startsWith("/")) {
+        try {
+          reply = await generateAssistantReply(chatId, incomingText);
+        } catch (error) {
+          console.error("Telegram assistant reply failed", error?.message || "unknown error");
+          reply = "أهلًا بك 🌿 أواجه تعثرًا مؤقتًا في الرد الآن. أرسل رسالتك مرة أخرى بعد قليل، أو استخدم /services و/contact للمعلومات الأساسية.";
         }
       }
 
