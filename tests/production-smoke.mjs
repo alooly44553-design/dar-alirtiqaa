@@ -60,6 +60,8 @@ async function check(name, operation) {
   }
 }
 
+await waitForEducationBotScope();
+
 const htmlPages = [
   "/", "/brochure.html", "/education-packages.html", "/businesses.html",
   "/early-learning.html", "/general-education.html", "/higher-education.html",
@@ -187,8 +189,6 @@ await check("Telegram bot and AI runtime diagnostics", async () => {
   assert(!("canPostMessages" in data), "education bot must not expose broadcast capability");
   return "education-only bot valid; AI Gateway auth available; no broadcast capability";
 });
-
-await waitForEducationBotScope();
 
 const failed = results.filter(result => !result.ok);
 console.log(JSON.stringify({
