@@ -157,4 +157,32 @@ function installFetchMock() {
   assert(calls.filter(call => call.url.endsWith("/sendMessage")).length >= 1);
 }
 
+{
+  const calls = [];
+  globalThis.fetch = async (input, init = {}) => {
+    const url = String(input);
+    calls.push({ url, init });
+    if (url.includes("/v1/chat/completions")) {
+      return json({ choices: [{ message: { content: JSON.stringify({
+        isTaskRequest: true,
+        title: "مراجعة الدروس",
+        details: "مراجعة ملفات القراءة",
+        dueAt: null,
+        needsClarification: true,
+        clarificationQuestion: "أكيد، متى تحب أرتّب لك مراجعة الدروس؟"
+      }) } }] });
+    }
+    if (url.endsWith("/sendMessage")) return json({ ok: true, result: { message_id: calls.length } });
+    throw new Error("Unexpected request in task test: " + url);
+  };
+  const res = responseSink();
+  await handler(requestFor(message("ذكّرني بمراجعة الدروس")), res);
+  assert.equal(res.code, 200);
+  assert(calls.some(call => call.url.includes("/v1/chat/completions")));
+  assert(!calls.some(call => call.url.includes("/api/education/service-requests")));
+  const sent = calls.find(call => call.url.endsWith("/sendMessage"));
+  assert(sent);
+  assert(String(JSON.parse(sent.init.body).text).includes("متى تحب أرتّب لك"));
+}
+
 console.log("Telegram assistant smoke tests passed: text, natural-form requests, image generation, photo understanding, voice input/output, and webhook authentication.");
