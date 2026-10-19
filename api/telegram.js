@@ -205,7 +205,7 @@ export default async function handler(req, res) {
 
       if (!reply && !incomingText.startsWith("/")) {
         try {
-          reply = await generateAssistantReply(chatId, incomingText);
+          reply = await generateAssistantReply(chatId, incomingText, req.headers["x-vercel-oidc-token"] || "");
         } catch (error) {
           console.error("Telegram assistant reply failed", error?.message || "unknown error");
           reply = "أهلًا بك 🌿 أواجه تعثرًا مؤقتًا في الرد الآن. أرسل رسالتك مرة أخرى بعد قليل، أو استخدم /services و/contact للمعلومات الأساسية.";
