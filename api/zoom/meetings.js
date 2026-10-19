@@ -1,6 +1,6 @@
 import { getDatabase, sendJson, cleanText } from "../../lib/neon-db.js";
 
-const CONFIG_KEYS = ["ZOOM_ACCOUNT_ID", "ZOOM_CLIENT_ID", "ZOOM_CLIENT_SECRET"];
+const CONFIG_KEYS = ["ZOOM_ACCOUNT_ID", "ZOOM_CLIENT_ID", "ZOOM_CLIENT_SECRET", "ZOOM_HOST_USER_ID"];
 
 async function adminUser(req) {
   const auth = req.headers.authorization || "";
@@ -173,7 +173,8 @@ export default async function handler(req, res) {
     }
 
     const accessToken = await zoomAccessToken();
-    const response = await fetch("https://api.zoom.us/v2/users/me/meetings", {
+    const hostUserId = String(process.env.ZOOM_HOST_USER_ID || "").trim();
+    const response = await fetch("https://api.zoom.us/v2/users/" + encodeURIComponent(hostUserId) + "/meetings", {
       method: "POST",
       headers: {
         Authorization: "Bearer " + accessToken,
