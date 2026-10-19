@@ -66,7 +66,8 @@ assert.equal(catalog.ok, true, "Education service catalog must report ok=true");
 assert(Array.isArray(catalog.services) && catalog.services.length > 0, "Education service catalog must be nonempty");
 
 const telegram = await getJson("/api/telegram?diagnose=1");
+assert.equal(telegram.ok, true, "Telegram diagnostic must report ok=true");
 assert.equal(telegram.configured, true, "Telegram bot must be configured");
-assert.equal(telegram.botTokenValid, true, "Telegram bot token diagnostic must pass");
+assert(telegram.botId, "Telegram diagnostic must identify the validated bot without revealing its token");
 assert.equal(telegram.aiGatewayAuthAvailable, true, "AI Gateway authentication must be available in the runtime");
 console.log("Production smoke test passed: v1.1.3 manifest, Arabic RTL homepage, public pages, unique sitemap without draft policies, service catalog, and Telegram/AI Gateway readiness signal.");
