@@ -1,4 +1,4 @@
-const CACHE_NAME = "dar-alirtiqaa-v1.0.9";
+const CACHE_NAME = "dar-alirtiqaa-v1.1.0";
 const APP_SHELL = [
   "./",
   "./index.html",
