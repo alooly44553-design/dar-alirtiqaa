@@ -263,7 +263,7 @@ export default async function handler(req, res) {
         reply = "هات فكرة الفعالية بطريقتك، حتى لو كانت مجرد فكرة أولية 😊 أساعدك في تطويرها وتحديد الهدف والجمهور والفقرات وكتابة الإعلان. ولن أقول إن الفعالية اعتمدت أو حُجز لها موعد قبل تأكيد رسمي.";
       } else if (!incomingText.startsWith("/")) {
         const parts = incomingText.split("|").map(part => part.trim());
-        if (parts.length >= 6 && (parts[0] === "طلب" || parts[0] === "فعالية")) {
+        if (false && parts.length >= 6 && (parts[0] === "طلب" || parts[0] === "فعالية")) {
           const isEvent = parts[0] === "فعالية";
           const consentText = "أوافق على مراجعة الطلب واستخدام بياناتي بالقدر اللازم لتنفيذ الخدمة.";
           const applicantName = parts[2];
