@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import handler from "../api/telegram.js";
+import { looksLikeTelegramVideoIntent } from "../lib/telegram-assistant.js";
 
 process.env.DAR_ALIRTIQAA_APP = "education";
 process.env.TELEGRAM_BOT_TOKEN = "test-bot-token";
@@ -184,5 +185,9 @@ function installFetchMock() {
   assert(sent);
   assert(String(JSON.parse(sent.init.body).text).includes("متى تحب أرتّب لك"));
 }
+
+assert.equal(looksLikeTelegramVideoIntent("أنشئ مقطعًا تعليميًا عن أهمية القراءة"), true);
+assert.equal(looksLikeTelegramVideoIntent("أحتاج بوستر تعليمي عن حب القراءة"), false);
+assert.equal(looksLikeTelegramVideoIntent("Can you create a short video about reading?"), true);
 
 console.log("Telegram assistant smoke tests passed: text, natural-form requests, image generation, photo understanding, voice input/output, and webhook authentication.");
