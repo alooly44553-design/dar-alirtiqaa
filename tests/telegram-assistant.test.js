@@ -131,10 +131,25 @@ function installFetchMock() {
   assert(calls.some(call => call.url.endsWith("/sendMessage")));
 }
 
+
 {
   const calls = installFetchMock();
   const res = responseSink();
-  await handler(requestFor(message(undefined, { voice: { file_id: "voice-note", mime_type: "audio/ogg" } })), res);
+  await handler(requestFor(message(undefined, {
+    voice: { file_id: "unscoped-voice", mime_type: "audio/ogg" }
+  })), res);
+  assert.equal(res.code, 200);
+  assert(!calls.some(call => call.url.includes("/getFile")), "Unscoped voice messages must not be downloaded or transcribed");
+  assert(!calls.some(call => call.url.includes("/v1/audio/transcriptions")));
+  const sent = calls.find(call => call.url.endsWith("/sendMessage"));
+  assert(sent);
+  assert.match(JSON.parse(sent.init.body).text, /وصف مكتوب.*التعليم/u);
+}
+
+{
+  const calls = installFetchMock();
+  const res = responseSink();
+  await handler(requestFor(message(undefined, { caption: "أريد أفكارًا لنشاط قراءة ممتع للأطفال", voice: { file_id: "voice-note", mime_type: "audio/ogg" } })), res);
   assert.equal(res.code, 200);
   assert(calls.some(call => call.url.includes("/v1/audio/transcriptions")));
   assert(calls.some(call => call.url.includes("/v1/audio/speech")));
