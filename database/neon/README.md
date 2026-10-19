@@ -31,3 +31,11 @@ The live `education.student_registrations` table contains registration and revie
 - End-to-end HTTP submission and admin review still require a live test using a permitted admin session. The external fetch tool was blocked by Vercel Authentication when attempting to access the admin route, so that workflow is not yet confirmed. A successful deployment and database status check do not prove the full workflow.
 - Never expose a privileged Neon connection string in browser JavaScript. Each deployment must have its own secret `DATABASE_URL` and matching `DAR_ALIRTIQAA_APP` value.
 - Keep health appointment requests limited to non-clinical scheduling information; do not store diagnoses or medical reports in that schema.
+
+ 
+## Zoom meeting records — 2026-10-19
+- Added the additive migration `database/neon/migrations/20261019_add_zoom_meetings.sql`.
+- Applied the migration to `education.zoom_meetings` on the education project's production branch after inspecting the schema on an isolated test branch.
+- The table stores only participant-facing `join_url`, topic, agenda, start time/timezone, duration, passcode if set, status and administrator UUID. It explicitly does not store Zoom's privileged host launch URL or OAuth secrets; table permissions are revoked from PUBLIC.
+- The protected `/api/zoom/meetings` route lists the latest 50 records for an authenticated administrator and attempts to persist every newly-created Zoom meeting.
+- The actual meeting-creation flow remains unverified because the Vercel project currently has no `ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, or `ZOOM_CLIENT_SECRET` environment variables. The table currently contains no meeting rows; no fake production meeting was inserted.
