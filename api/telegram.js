@@ -3,8 +3,6 @@ import { timingSafeEqual } from "node:crypto";
 
 const CHANNEL_ID = "@DarAlIrtiqaAlFikri";
 const TELEGRAM_API = "https://api.telegram.org";
-const EDUCATION_REQUESTS_URL = "https://alirtiqaa-educational-platform.vercel.app/api/education/service-requests";
-const EDUCATIONAL_FIELDS = ["الطفولة والتأسيس", "التعليم الأساسي والعام", "التعليم الجامعي والعالي", "التدريب المهني والتقني", "القرآن والإسلامية", "التقوية والعربية والتأهيل", "الإرشاد الأكاديمي"];
 
 function safeEqual(a, b) {
   if (typeof a !== "string" || typeof b !== "string" || !a || !b) return false;
@@ -262,62 +260,10 @@ export default async function handler(req, res) {
       } else if (command === "/event_request") {
         reply = "هات فكرة الفعالية بطريقتك، حتى لو كانت مجرد فكرة أولية 😊 أساعدك في تطويرها وتحديد الهدف والجمهور والفقرات وكتابة الإعلان. ولن أقول إن الفعالية اعتمدت أو حُجز لها موعد قبل تأكيد رسمي.";
       } else if (!incomingText.startsWith("/")) {
-        const parts = incomingText.split("|").map(part => part.trim());
-        if (parts.length >= 6 && (parts[0] === "طلب" || parts[0] === "فعالية")) {
-          const isEvent = parts[0] === "فعالية";
-          const consentText = "أوافق على مراجعة الطلب واستخدام بياناتي بالقدر اللازم لتنفيذ الخدمة.";
-          const applicantName = parts[2];
-          const phone = parts[3];
-          const categoryNumber = Number(parts[4]);
-          const eventDate = parts[4];
-          const description = parts.slice(5).join(" | ").slice(0, 2000);
-          const validPhone = /^[+0-9 ()-]{7,30}$/.test(phone);
-          const validConsent = parts[1] === "أوافق";
-          if (!validConsent || applicantName.length < 2 || !validPhone || description.length < 5 ||
-              (!isEvent && (!Number.isInteger(categoryNumber) || categoryNumber < 1 || categoryNumber > EDUCATIONAL_FIELDS.length)) ||
-              (isEvent && eventDate.length < 4)) {
-            reply = isEvent
-              ? "تعذر فهم مقترح الفعالية أو لم يتم تأكيد الموافقة. أرسل /event_request لعرض الصيغة الصحيحة."
-              : "تعذر فهم طلب الخدمة أو لم يتم تأكيد الموافقة. أرسل /request لعرض الصيغة الصحيحة.";
-          } else {
-            try {
-              const fieldName = isEvent ? "مقترح فعالية" : EDUCATIONAL_FIELDS[categoryNumber - 1];
-              const details = isEvent
-                ? "التاريخ والوقت المقترح: " + eventDate.slice(0, 120) + "\nتفاصيل الفعالية: " + description
-                : "المجال التعليمي: " + fieldName + "\nتفاصيل الطلب: " + description;
-              const submission = await fetch(EDUCATION_REQUESTS_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  service_code: "general_service",
-                  consent_given: validConsent,
-                  consent_text: consentText,
-                  applicant_name: applicantName,
-                  applicant_phone: phone,
-                  service_name: fieldName,
-                  details,
-                  notes: "مصدر الطلب: بوت تيليجرام. " + (isEvent ? "مقترح فعالية للمراجعة، دون اعتماد أو جدولة تلقائية." : "طلب خدمة تعليمية للمراجعة.")
-                })
-              });
-              const submitted = await submission.json().catch(() => null);
-              if (submission.ok && submitted?.ok && submitted?.request?.request_number) {
-                reply = (isEvent ? "وصلني مقترح الفعالية وسجلته للمراجعة 🌿\nرقم المتابعة: " : "تمام، وصلني طلبك وسجلته للمراجعة 🌿\nرقم المتابعة: ") +
-                  submitted.request.request_number +
-                  (isEvent ? "\nستراجعه الإدارة، ويظل الموعد مقترحًا حتى تأكيده رسميًا." : "\nستراجعه الإدارة، والتسجيل هنا تأكيد استلام وليس موافقة نهائية.");
-              } else {
-                console.error("Telegram request submission failed", { status: submission.status, error: submitted?.error });
-                reply = "لم أتمكن من حفظ الطلب الآن. يرجى المحاولة لاحقًا أو تقديم الطلب عبر المنصة:\nhttps://alirtiqaa-educational-platform.vercel.app/";
-              }
-            } catch (error) {
-              console.error("Telegram request submission request failed", error?.message || "unknown error");
-              reply = "تعذر الاتصال بنظام الطلبات الآن. يرجى المحاولة لاحقًا أو استخدام المنصة التعليمية:\nhttps://alirtiqaa-educational-platform.vercel.app/";
-            }
-          }
-        }
+        // Free-form text goes directly to the assistant; no fixed-form intake.
       }
 
-
-      if (!reply && !incomingText.startsWith("/")) {
+            if (!reply) {
         const wantsImage = /(?:صمم|صمّم|أنشئ|انشئ|اصنع|ابتكر|جهّز|جهز|ارسم|تصميم|بوستر|برشور|ملصق|صورة دعائية|صورة تعليمية|generate an image|create an image|design a poster)/iu.test(incomingText);
         if (wantsImage) {
           try {
