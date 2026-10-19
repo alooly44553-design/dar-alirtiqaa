@@ -177,8 +177,11 @@ export default async function handler(req, res) {
         await sendPrivateReply(token, chatId, EDUCATION_SCOPE_REPLY);
         return res.status(200).json({ ok: true });
       }
-      if (attachment.kind === "image" && !isEducationPlatformRequest(incomingText)) {
-        await sendPrivateReply(token, chatId, "أرفق الصورة مع سؤال واضح يخص التعليم أو إحدى خدمات المنصة التعليمية حتى أبقي المعالجة ضمن هذا النطاق.");
+      if (!isEducationPlatformRequest(incomingText)) {
+        const guidance = attachment.kind === "image"
+          ? "أرفق الصورة مع سؤال مكتوب يخص التعليم أو إحدى خدمات المنصة التعليمية حتى أبقي المعالجة ضمن هذا النطاق."
+          : "أرسل الصوت أو الفيديو مع وصف مكتوب يوضح علاقته بالتعليم أو بإحدى خدمات المنصة التعليمية. لا يعالج هذا البوت ملفات الأنشطة الأخرى.";
+        await sendPrivateReply(token, chatId, guidance);
         return res.status(200).json({ ok: true });
       }
       const oidcToken = req.headers["x-vercel-oidc-token"] || "";
