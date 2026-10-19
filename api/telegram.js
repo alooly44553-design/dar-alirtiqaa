@@ -270,6 +270,7 @@ export default async function handler(req, res) {
 
             if (!reply) {
         const wantsImage = /(?:صمم|صمّم|أنشئ|انشئ|اصنع|ابتكر|جهّز|جهز|ارسم|تصميم|بوستر|برشور|ملصق|صورة دعائية|صورة تعليمية|generate an image|create an image|design a poster)/iu.test(incomingText);
+        const wantsVoice = /(?:اقرأ(?:\\s+لي)?\\s+(?:بصوت|هذا|النص)|اقرا(?:\\s+لي)?\\s+(?:بصوت|هذا|النص)|حوّل\\s+(?:هذا\\s+)?النص\\s+إلى\\s+صوت|حول\\s+(?:هذا\\s+)?النص\\s+إلى\\s+صوت|رد\\s+بصوت|ارسِل\\s+صوت|أرسل\\s+صوت|خلّيني\\s+أسمع|خليني\\s+اسمع|speak aloud|read aloud|voice reply)/iu.test(incomingText);
         if (wantsImage) {
           try {
             const imageBytes = await generateTelegramImage(incomingText, req.headers["x-vercel-oidc-token"] || "", chatId);
@@ -287,11 +288,53 @@ export default async function handler(req, res) {
             console.error("TELEGRAM_IMAGE_REQUEST_FAILED", imageError?.message || "unknown error");
             reply = "أستطيع مساعدتك في إعداد التصميم، لكن إنشاء الصورة تعذّر فنيًا الآن. صف لي الفكرة وسأجهز لك وصفًا تصميميًا واضحًا إلى أن تعود الخدمة.";
           }
+        } else if (wantsVoice) {
+          try {
+            reply = await generateAssistantReply(chatId, incomingText, req.headers["x-vercel-oidc-token"] || "");
+            const textSend = await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ chat_id: chatId, text: reply, disable_web_page_preview: true })
+            });
+            const textResult = await textSend.json().catch(() => null);
+            if (!textSend.ok || !textResult?.ok) throw new Error("TELEGRAM_VOICE_TEXT_DELIVERY_FAILED");
+
+            const voice = /(?:صوت\\s*رجالي|صوت\\s*ذكوري|بصوت\\s*رجل)/iu.test(incomingText)
+              ? "onyx"
+              : /(?:صوت\\s*نسائي|صوت\\s*أنثوي|بصوت\\s*امرأة)/iu.test(incomingText)
+                ? "nova"
+                : /(?:بهدوء|صوت\\s*هادئ)/iu.test(incomingText)
+                  ? "coral"
+                  : "shimmer";
+            try {
+              const speech = await synthesizeTelegramSpeech(reply, req.headers["x-vercel-oidc-token"] || "", voice);
+              const audioForm = new FormData();
+              audioForm.append("chat_id", String(chatId));
+              audioForm.append("audio", new Blob([speech], { type: "audio/mpeg" }), "dar-alirtiqaa-reply.mp3");
+              audioForm.append("caption", "رد صوتي مولّد آليًا.");
+              const audioSend = await fetch(`${TELEGRAM_API}/bot${token}/sendAudio`, { method: "POST", body: audioForm });
+              const audioResult = await audioSend.json().catch(() => null);
+              if (!audioSend.ok || !audioResult?.ok) {
+                throw new Error("TELEGRAM_VOICE_AUDIO_DELIVERY_FAILED");
+              }
+            } catch (speechError) {
+              console.error("TELEGRAM_REQUESTED_TTS_FAILED", speechError?.message || "unknown error");
+              await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: chatId, text: "وصلتك الإجابة النصية، لكن تعذّر إنشاء الصوت الآن.", disable_web_page_preview: true })
+              });
+            }
+            reply = null;
+          } catch (error) {
+            console.error("Telegram voice response failed", error?.message || "unknown error");
+            reply = "أواجه تعثرًا مؤقتًا في إعداد الرد الصوتي. اكتب لي ما تريد وسأجيبك نصيًا الآن.";
+          }
         } else {
           try {
             reply = await generateAssistantReply(chatId, incomingText, req.headers["x-vercel-oidc-token"] || "");
           } catch (error) {
-          console.error("Telegram assistant reply failed", error?.message || "unknown error");
+            console.error("Telegram assistant reply failed", error?.message || "unknown error");
             reply = "أهلًا بك 🌿 أواجه تعثرًا مؤقتًا في الرد الآن. أرسل رسالتك مرة أخرى بعد قليل، أو استخدم /services و/contact للمعلومات الأساسية.";
           }
         }
