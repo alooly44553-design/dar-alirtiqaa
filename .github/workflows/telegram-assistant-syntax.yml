@@ -12,4 +12,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --check api/telegram.js && node --check lib/telegram-assistant.js
+      - run: npm install --no-save --no-package-lock
+      - run: node --check api/telegram.js && node --check lib/telegram-assistant.js && node --check tests/telegram-assistant.test.js && node tests/telegram-assistant.test.js
