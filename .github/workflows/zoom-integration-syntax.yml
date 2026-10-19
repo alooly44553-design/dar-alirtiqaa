@@ -11,6 +11,9 @@ on:
       - ".github/workflows/zoom-integration-syntax.yml"
   pull_request:
     paths:
+      - "lib/zoom-meetings.js"
+      - "api/education/portal.js"
+      - "vercel.json"
       - "zoom-operations.html"
       - ".github/workflows/zoom-integration-syntax.yml"
   workflow_dispatch:
