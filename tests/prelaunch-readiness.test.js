@@ -47,6 +47,10 @@ for (const branch of ["القوزين", "النزلة الشرقية", "صبيا
   assert(templates.includes(branch), "Missing in-person branch: " + branch);
 }
 
+const sitemap = read("sitemap.xml");
+assert(!sitemap.includes("/privacy.html"), "Draft privacy policy must not be listed in sitemap");
+assert(!sitemap.includes("/terms.html"), "Draft terms must not be listed in sitemap");
+assert.equal([...sitemap.matchAll(/<loc>/gu)].length, new Set([...sitemap.matchAll(/<loc>(.*?)<\/loc>/gu)].map(match => match[1])).size, "Sitemap URLs must be unique");
 for (const file of ["privacy.html", "terms.html"]) {
   const html = read(file);
   assert.match(html, /<meta name="robots" content="noindex,follow">/u, file + " must stay out of search results while draft");
