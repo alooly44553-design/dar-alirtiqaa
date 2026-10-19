@@ -43,6 +43,10 @@ for (const path of htmlPages) {
     const { response, body } = await get(path);
     assert.equal(response.status, 200, "expected HTTP 200, got " + response.status);
     assert.match(body, /<html\b/i, "response did not contain an HTML document");
+    if (path === "/privacy.html" || path === "/terms.html") {
+      assert.match(body, /<meta name="robots" content="noindex,follow">/u, "draft legal pages must remain out of search results");
+      assert.match(body, /مسودة/u, "legal page must clearly remain marked as a draft");
+    }
     return "HTTP 200";
   });
 }
@@ -54,10 +58,20 @@ for (const path of ["/app.webmanifest", "/sw.js", "/robots.txt", "/sitemap.xml",
     assert.ok(body.length > 0, "empty response body");
     if (path === "/app.webmanifest") {
       const manifest = JSON.parse(body);
-      assert.match(String(manifest.name || ""), /دار الإرتقاء|دار الارتقاء/);
+      assert.equal(manifest.version, "1.1.3", "unexpected PWA version");
+      assert.equal(manifest.name, "منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية", "PWA display name mismatch");
+      assert.equal(manifest.short_name, manifest.name, "PWA short name mismatch");
       assert.ok(manifest.start_url, "manifest missing start_url");
     }
-    if (path === "/sitemap.xml") assert.match(body, /<urlset\b/i);
+    if (path === "/sw.js") assert.match(body, /dar-alirtiqaa-v1\.1\.3/u, "service-worker cache version mismatch");
+    if (path === "/sitemap.xml") {
+      assert.match(body, /<urlset\b/i);
+      assert(!body.includes("/privacy.html"), "draft privacy policy must not be listed in sitemap");
+      assert(!body.includes("/terms.html"), "draft terms must not be listed in sitemap");
+      const urls = [...body.matchAll(/<loc>(.*?)<\/loc>/gu)].map(match => match[1]);
+      assert(urls.length > 0, "sitemap must contain public URLs");
+      assert.equal(urls.length, new Set(urls).size, "sitemap URLs must be unique");
+    }
     if (path === "/robots.txt") assert.match(body, /Sitemap:/i);
     return "HTTP 200";
   });
