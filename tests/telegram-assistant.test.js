@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import handler from "../api/telegram.js";
-import { looksLikeTelegramVideoIntent } from "../lib/telegram-assistant.js";
+import { generateAssistantReply, generateTelegramImage, looksLikeTelegramVideoIntent, scheduleTelegramTask, startTelegramVideo } from "../lib/telegram-assistant.js";
+import { EDUCATION_SCOPE_REPLY, isBusinessOperationsRequest, isEducationPlatformRequest } from "../lib/telegram-scope.js";
 
 process.env.DAR_ALIRTIQAA_APP = "education";
 process.env.TELEGRAM_BOT_TOKEN = "test-bot-token";
@@ -116,6 +117,7 @@ function installFetchMock() {
   await handler(requestFor({
     message: {
       chat: { id: 120045, type: "private" },
+      caption: "حلّل هذه الصورة ضمن نشاط قراءة للأطفال",
       photo: [{ file_id: "small-photo" }, { file_id: "best-photo" }]
     }
   }), res);
@@ -150,7 +152,7 @@ function installFetchMock() {
 {
   const calls = installFetchMock();
   const res = responseSink();
-  await handler(requestFor(message("أرسل لي ردًا بصوت هادئ")), res);
+  await handler(requestFor(message("أرسل لي ردًا بصوت هادئ يشرح أهمية القراءة للأطفال")), res);
   assert.equal(res.code, 200);
   assert(calls.some(call => call.url.includes("/v1/chat/completions")));
   assert(calls.some(call => call.url.includes("/v1/audio/speech")));
@@ -184,6 +186,58 @@ function installFetchMock() {
   const sent = calls.find(call => call.url.endsWith("/sendMessage"));
   assert(sent);
   assert(String(JSON.parse(sent.init.body).text).includes("متى تحب أرتّب لك"));
+}
+
+
+{
+  assert.equal(isBusinessOperationsRequest("أحتاج موعدًا لمريض في المركز الصحي"), true);
+  assert.equal(isBusinessOperationsRequest("أريد متابعة معاملة حكومية"), true);
+  assert.equal(isBusinessOperationsRequest("أصدر بطاقة موظف نموذجية"), true);
+  assert.equal(isEducationPlatformRequest("مرحبًا، أحتاج فكرة نشاط للقراءة للأطفال"), true);
+  assert.equal(isEducationPlatformRequest("أريد أنشطة تعليمية لطلابي"), true);
+  assert.equal(isEducationPlatformRequest("أحتاج موعدًا لمريض في المركز الصحي"), false);
+}
+
+{
+  const calls = installFetchMock();
+  const reply = await generateAssistantReply(120045, "أحتاج موعدًا لمريض في المركز الصحي", "test-oidc-token");
+  assert.equal(reply, EDUCATION_SCOPE_REPLY);
+  const task = await scheduleTelegramTask(120045, "ذكّرني بمتابعة معاملة حكومية يوم الخميس", "test-oidc-token");
+  assert.equal(task.handled, true);
+  assert.equal(task.reply, EDUCATION_SCOPE_REPLY);
+  assert.deepEqual(await startTelegramVideo(120045, "أنشئ فيديو عن خدمات المركز الصحي", "test-oidc-token"), {
+    ok: false,
+    outOfScope: true,
+    message: EDUCATION_SCOPE_REPLY
+  });
+  await assert.rejects(() => generateTelegramImage("صمّم بطاقة موظف للمركز", "test-oidc-token"), /TELEGRAM_IMAGE_OUT_OF_SCOPE/u);
+  assert.equal(calls.length, 0, "Out-of-scope assistant requests must not reach AI services");
+}
+
+{
+  const calls = installFetchMock();
+  const res = responseSink();
+  await handler(requestFor(message("أحتاج موعدًا لمريض في المركز الصحي")), res);
+  assert.equal(res.code, 200);
+  assert.equal(res.payload?.ok, true);
+  assert(!calls.some(call => call.url.includes("/v1/chat/completions")));
+  assert(!calls.some(call => call.url.includes("/getFile")));
+  const sent = calls.find(call => call.url.endsWith("/sendMessage"));
+  assert(sent);
+  assert.equal(JSON.parse(sent.init.body).text, EDUCATION_SCOPE_REPLY);
+}
+
+{
+  const calls = installFetchMock();
+  const res = responseSink();
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer test-webhook-secret" },
+    body: { text: "اكتب إعلانًا لمركز صحي" },
+    query: {}
+  }, res);
+  assert.equal(res.code, 401);
+  assert.equal(calls.length, 0, "The bot endpoint must not act as a shared outgoing broadcast channel");
 }
 
 assert.equal(looksLikeTelegramVideoIntent("أنشئ مقطعًا تعليميًا عن أهمية القراءة"), true);
