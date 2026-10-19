@@ -1,5 +1,6 @@
 import { getDatabase, sendJson, cleanText } from "../../lib/neon-db.js";
 import { resolvePortalIdentity } from "../../lib/education-portal-auth.js";
+import { handleZoomMeetings } from "../../lib/zoom-meetings.js";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
@@ -249,6 +250,7 @@ async function handleSubmissions(req, res, identity) {
 export default async function handler(req, res) {
   const requestUrl = new URL(req.url || "/", "https://education.local");
   const resource = requestUrl.searchParams.get("resource") || "";
+  if (resource === "zoom-meetings") return handleZoomMeetings(req, res);
   const methods = {
     profile: ["GET"],
     teacher: ["GET", "POST"],
