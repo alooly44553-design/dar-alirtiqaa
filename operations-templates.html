@@ -39,7 +39,7 @@
 <section class="group" id="business" data-group="business"><h2>خامسًا: الأعمال والخدمات</h2><p>قوالب خدمية غير سريرية للمواعيد والإحالات الصحية الإدارية، ومتابعة الخدمات العامة، وسجلات البطاقات. لا تُخزن معلومات تشخيصية أو صحية تفصيلية في هذه الملفات.</p><div class="grid" id="grid-business"></div></section>
 <section class="group" id="digital" data-group="digital"><h2>سادسًا: الاجتماعات والتسويق والفعاليات</h2><p>سجل تنظيم ومتابعة الاجتماعات والمحتوى والفعاليات؛ لا ينشئ هذا القالب اجتماع Zoom أو ينشر محتوى خارجيًا تلقائيًا.</p><div class="grid" id="grid-digital"></div></section>
 <h2 style="color:var(--navy)">ربط الاجتماعات عبر Zoom</h2>
-<div class="card" style="margin-bottom:22px"><h3>فتح Zoom وإدارة الاجتماعات</h3><p>يمكن للمخوّل تسجيل الدخول إلى Zoom لجدولة الاجتماعات أو فتح غرفة اجتماع. لإنشاء روابط اجتماعات مخصصة من داخل المنصة يلزم ربط حساب Zoom المرخّص، وتطبيق API أو SDK، وإعداد OAuth وWebhooks بأسرار محفوظة في الخادم، ثم اختبار صلاحيات المضيف والحضور والتسجيل. لا توجد روابط اجتماعات مخصصة مضمونة قبل هذه الخطوات.</p><p><a href="https://zoom.us/signin" target="_blank" rel="noopener noreferrer">تسجيل الدخول إلى Zoom ↗</a>　<a href="https://developers.zoom.us/docs/api/rest/meeting/" target="_blank" rel="noopener noreferrer">توثيق Zoom Meetings API ↗</a></p></div>
+<div class="card" style="margin-bottom:22px"><h3>فتح Zoom وإدارة الاجتماعات</h3><p>يمكن للمخوّل تسجيل الدخول إلى Zoom لجدولة الاجتماعات أو فتح غرفة اجتماع. لإنشاء روابط اجتماعات مخصصة من داخل المنصة يلزم ربط حساب Zoom المرخّص، وتطبيق API أو SDK، وإعداد OAuth وWebhooks بأسرار محفوظة في الخادم، ثم اختبار صلاحيات المضيف والحضور والتسجيل. لا توجد روابط اجتماعات مخصصة مضمونة قبل هذه الخطوات.</p><p><a href="https://zoom.us/signin" target="_blank" rel="noopener noreferrer">تسجيل الدخول إلى Zoom ↗</a>　<a href="https://zoom.us/start/videomeeting" target="_blank" rel="noopener noreferrer">فتح Zoom لبدء اجتماع ↗</a>　<a href="https://developers.zoom.us/docs/api/rest/meeting/" target="_blank" rel="noopener noreferrer">توثيق Zoom Meetings API ↗</a></p></div>
 <div class="notice"><strong>تنبيه بيانات مهم:</strong> ملفات CSV تُنزّل على جهازك فقط؛ حفظها في جهاز مشترك أو إرسالها عبر قناة عامة قد يكشف البيانات. لا تستخدم هذه القوالب لتخزين كلمات المرور أو أرقام الهويات أو بيانات المرضى أو تفاصيل الرواتب الحقيقية على جهاز غير مؤمّن.</div>
 </main>
 <footer><div class="container">منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية · <a href="./businesses.html">أعمال الإرتقاء الفكري</a> · <a href="./privacy.html">سياسة الخصوصية</a> · <a href="./terms.html">شروط الاستخدام</a></div></footer>
@@ -85,10 +85,9 @@ function downloadTemplate(id){
  const t=T.find(x=>x.id===id);if(!t)return;
  let rows=[t.fields];
  if(id==="branch-daily"){rows=[t.fields,...branches.map(b=>{const row=Array(t.fields.length).fill("");row[1]=b;return row;})];}
- if(id==="branch-daily"){}
- const csv="\uFEFF"+rows.map(row=>row.map(csvCell).join(",")).join("\r\n");
+  const csv="\uFEFF"+rows.map(row=>row.map(csvCell).join(",")).join("\r\n");
  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
- const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=t.file;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+ const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=t.file;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-download]");if(b)downloadTemplate(b.dataset.download);});
 const search=document.getElementById("search"),filter=document.getElementById("filter");
