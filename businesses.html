@@ -5,40 +5,78 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#082f57">
-<meta name="description" content="أعمال الإرتقاء الفكري: مراكز الإرتقاء الفكري الصحية، خدمات الإرتقاء الفكري الحكومية والعامة، وبطاقات الإرتقاء الفكري النموذجية.">
-<link rel="icon" href="./icon.svg?v=20261019-2" type="image/svg+xml">
-<title>أعمال الإرتقاء الفكري | منظومة دار الإرتقاء الفكري التعليمية</title>
+<meta name="description" content="البوابة المشتركة لأعمال الإرتقاء الفكري: ثلاثة مداخل مستقلة ولوحة الإدارة المشتركة.">
+<link rel="icon" href="./icon.svg?v=20261019-6" type="image/svg+xml">
+<title>أعمال الإرتقاء الفكري | البوابة المشتركة</title>
 <style>
-:root{--navy:#082f57;--blue:#0d5c91;--teal:#0f7b83;--gold:#c89b2c;--ink:#17283b;--muted:#617286;--bg:#f2f6fa;--line:#dce5ee}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;line-height:1.8}a{color:inherit}.container{width:min(1100px,calc(100% - 28px));margin:auto}.hero{background:linear-gradient(125deg,#061f3a,#0d477c 60%,#0f7b83);color:#fff;padding:22px 0 44px}.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:900}.brand img{width:72px;height:60px;object-fit:contain;background:#fff;border-radius:12px}.brand small{display:block;color:#f5d879;font-size:12px}.navlinks{display:flex;gap:12px;flex-wrap:wrap}.navlinks a{color:#e7f2ff;text-decoration:none}.eyebrow{display:inline-block;border:1px solid #ffffff35;border-radius:999px;padding:5px 12px;color:#f5d879;font-weight:900;margin-top:30px}h1{font-size:clamp(32px,5vw,52px);line-height:1.3;margin:12px 0}.hero p{max-width:900px;color:#d8e8f8;font-size:17px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:28px auto}.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 10px 32px #0a31550b;display:flex;flex-direction:column;gap:12px}.icon{font-size:32px}.card h2{margin:0;color:var(--navy);font-size:22px}.card p{margin:0;color:var(--muted)}.card ul{margin:0;padding-right:22px}.button{display:inline-flex;align-items:center;justify-content:center;margin-top:auto;padding:10px 14px;border-radius:11px;background:var(--navy);color:#fff;text-decoration:none;font-weight:800}.button.gold{background:#c89b2c;color:#082f57}.notice{border:1px solid #e6d28e;background:#fff7df;color:#71591a;border-radius:14px;padding:15px 17px;margin:18px auto}.section-title{margin-top:40px;color:var(--navy)}.ops-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.ops-grid .card{box-shadow:none}footer{margin-top:45px;background:#061f3a;color:#d3e1ee;padding:22px 0;font-size:13px}footer a{color:#f5d879}@media(max-width:800px){.grid{grid-template-columns:1fr}.ops-grid{grid-template-columns:1fr}.brand img{width:58px;height:54px}}
+:root{--navy:#082f57;--deep:#061f3a;--blue:#0d5c91;--teal:#0f7b83;--gold:#c89b2c;--ink:#15263a;--muted:#617286;--bg:#f2f6fa;--line:#dce5ee;--white:#fff}
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--bg)}
+body{margin:0;font-family:"Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#edf4fa 0%,var(--bg) 300px);color:var(--ink);line-height:1.8}
+.shell{width:min(1080px,calc(100% - 28px));margin:0 auto}
+.topline{height:7px;background:linear-gradient(90deg,var(--gold),var(--teal),var(--blue),var(--navy))}
+.hero{padding:42px 0 28px;text-align:center}
+.mark{width:86px;height:76px;object-fit:contain;background:#fff;border:1px solid #e5edf4;border-radius:20px;padding:8px;box-shadow:0 10px 30px #082f5718}
+.brand{margin:12px 0 0;font-size:14px;font-weight:800;color:var(--blue)}
+h1{margin:10px 0 8px;color:var(--navy);font-size:clamp(30px,5vw,46px);line-height:1.28}
+.intro{margin:0 auto;max-width:740px;color:var(--muted);font-size:16px}
+.rule{width:100px;height:4px;border-radius:10px;background:linear-gradient(90deg,var(--teal),var(--gold));margin:22px auto 0}
+.menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px;padding:22px 0 50px}
+.option{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;min-height:210px;padding:25px 22px;background:var(--white);border:1px solid var(--line);border-radius:22px;box-shadow:0 12px 35px #082f570d;transition:transform .18s ease,box-shadow .18s ease}
+.option:before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,var(--navy),var(--blue),var(--teal),var(--gold))}
+.option:hover{transform:translateY(-3px);box-shadow:0 18px 42px #082f5718}
+.symbol{display:grid;place-items:center;width:54px;height:54px;border-radius:17px;background:#edf5fa;color:var(--navy);font-size:26px}
+.option h2{margin:0;color:var(--navy);font-size:22px}
+.option p{margin:0;color:var(--muted);font-size:14px;max-width:360px}
+.go{display:inline-flex;justify-content:center;align-items:center;gap:8px;margin-top:auto;min-width:154px;padding:10px 16px;border:1px solid var(--navy);border-radius:12px;background:var(--navy);color:#fff;text-decoration:none;font-weight:900}
+.go:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.option.admin{background:linear-gradient(145deg,#082f57,#0d5c91);border-color:#0d5c91}
+.option.admin h2{color:#fff}
+.option.admin p{color:#dbe9f7}
+.option.admin .symbol{background:#ffffff17;color:#ffe49a}
+.option.admin .go{background:var(--gold);color:var(--deep);border-color:var(--gold)}
+.footer{text-align:center;border-top:1px solid var(--line);padding:18px 0 25px;color:var(--muted);font-size:12px}
+@media(max-width:650px){.hero{padding-top:28px}.menu{grid-template-columns:1fr;gap:13px;padding-top:12px}.option{min-height:190px;padding:22px 18px}.mark{width:74px;height:66px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<header class="hero"><div class="container">
-<nav class="nav"><a class="brand" href="./"><img src="./icon.svg?v=20261019-2" alt="شعار المنظومة"><span>منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية<small>العودة إلى الصفحة الرئيسية</small></span></a><div class="navlinks"><a href="./index.html#pathways">المجالات التعليمية</a><a href="./operations-templates.html">القوالب التشغيلية</a><a href="./admin.html">لوحة الإدارة</a></div></nav>
-<div class="eyebrow">الخيار السادس • الأعمال والخدمات المساندة</div>
+<div class="topline" aria-hidden="true"></div>
+<header class="hero shell">
+<img class="mark" src="./icon.svg?v=20261019-6" alt="الشعار المشترك لمنظومة دار الإرتقاء الفكري">
+<div class="brand">منظومة دار الإرتقاء الفكري</div>
 <h1>أعمال الإرتقاء الفكري</h1>
-<p>مسار مستقل لتنسيق الأعمال الصحية والخدمات العامة والبطاقات النموذجية، مع فصل السجلات والصلاحيات بحسب طبيعة كل خدمة. إدراج أي خدمة هنا لا يعني أنها مرخصة أو متعاقد عليها أو متاحة للتقديم الفوري؛ تُراجع الأهلية والتراخيص والتوفر والشروط قبل تأكيد الطلب.</p>
-</div></header>
-<main class="container">
-<div class="grid">
-<article class="card" id="health"><div class="icon">🏥</div><h2>مراكز الإرتقاء الفكري الصحية</h2><p>قالب تنظيم إداري وخدمي للمراكز الصحية، يشمل استقبال الطلبات والمواعيد والإحالات ومتابعة الخدمة والموظفين والمخزون التشغيلي، دون تشخيص أو علاج آلي.</p><ul><li>سجل طلبات ومواعيد بمعرّف مرجعي.</li><li>جدول مناوبات ومهام الطاقم المختص.</li><li>إحالات ومتابعات إدارية بموافقة المستفيد.</li><li>تقارير نشاط ومخزون وشكاوى الحوكمة.</li></ul><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto"><a class="button" href="https://al-irtiqaa-health-smart-global.vercel.app/">فتح التطبيق الصحي المستقل</a><a class="button gold" href="https://al-irtiqaa-health-smart-global.vercel.app/#services">خدمات ومواعيد المراكز الصحية</a></div></article>
-<article class="card" id="public-services"><div class="icon">🏛️</div><h2>خدمات الإرتقاء الفكري الحكومية والعامة</h2><p>واجهة تنظيمية لتسجيل طلبات المساعدة الإجرائية ومتابعتها لدى الجهات ذات الصلة، مع توثيق الجهة والموعد والوثائق والحالة. لا تدّعي الصفحة شراكة أو تمثيلًا رسميًا لأي جهة حكومية.</p><ul><li>رقم مرجعي لكل طلب ومصدره.</li><li>قائمة مستندات ومواعيد متابعة.</li><li>حالة الطلب والمسؤول عن الإجراء.</li><li>تنبيهات نقص البيانات واعتمادات الإغلاق.</li></ul><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto"><a class="button" href="./operations-templates.html#public-services">قوالب الخدمات العامة</a><a class="button gold" href="./?service=general_service&amp;package=خدمات%20الإرتقاء%20الفكري%20الحكومية%20والعامة#services">طلب خدمة/استفسار</a></div></article>
-<article class="card" id="cards"><div class="icon">🪪</div><h2>بطاقات الإرتقاء الفكري النموذجية</h2><p>نماذج تصميم وإدارة بطاقات تعريف داخلية واضحة الجهة المصدرة، لأغراض تنظيمية فقط. لا تُصمم لتقليد هوية حكومية ولا تُعد إثباتًا رسميًا أو مؤهلًا أكاديميًا.</p><ul><li>بطاقة موظف أو عضو طاقم.</li><li>بطاقة متعلم بعد القبول والتحقق.</li><li>بطاقة زائر أو متعاقد.</li><li>سجل إصدار وتجديد وإيقاف البطاقة.</li></ul><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto"><a class="button" href="./operations-templates.html#cards">قوالب البطاقات والسجل</a><a class="button gold" href="./?service=general_service&amp;package=بطاقات%20الإرتقاء%20الفكري%20النموذجية#services">طلب بطاقة/استفسار</a></div></article>
-</div>
-<h2 class="section-title">التشغيل عن بُعد وإدارة الطواقم الذكية</h2>
-<div class="ops-grid">
-<section class="card"><h2>🤖 أعمال رقمية تحت الإشراف</h2><p>يمكن تجهيز مسودات الخطط والتقارير، وفرز الطلبات، وتنظيم المهام، وإعداد محاضر الاجتماعات، وصياغة محتوى الحملات باستخدام أدوات الذكاء الاصطناعي المتصلة فعليًا. تظل الموافقات والقرارات والرسائل والنشر الخارجي تحت اعتماد المسؤول المخول.</p><ul><li>طابور مهام مع مسؤول ومخرج متوقع وموعد معتمد.</li><li>مراجعة بشرية قبل اعتماد النتائج أو إرسالها.</li><li>سجل تدقيق للمهمة والمراجع وحالة الاعتماد.</li><li>عدم مشاركة بيانات حساسة مع أداة غير مصرح بها.</li></ul><a class="button" href="./operations-templates.html#digital">قوالب المهام الذكية والاجتماعات</a></section>
-<section class="card"><h2>👥 الفروع الحضورية</h2><p>تُدار الفروع الحضورية بسجل مستقل لكل فرع وبعدد بشري من 3 إلى 5 أشخاص حسب الاحتياج، على ألا يتجاوز العدد خمسة. لا يُحسب الذكاء الاصطناعي ضمن عدد العاملين البشر ولا تنشئ هذه الصفحة تعيينات أو عقودًا.</p><ul><li>مدارس دار الإرتقاء الفكري - فرع القوزين</li><li>مدارس دار الإرتقاء الفكري - فرع النزلة الشرقية</li><li>مدارس دار الإرتقاء الفكري - فرع صبيا</li><li>مدارس دار الإرتقاء الفكري - فرع أبو عريش</li><li>مدارس دار الإرتقاء الفكري - فرع المناطق الحدودية</li></ul><a class="button" href="./operations-templates.html#branches">سجل الفروع وسقف الطاقم</a></section>
-<section class="card"><h2>🎥 الاجتماعات عبر Zoom</h2><p>يُسجل رابط الاجتماع بعد إنشائه من حساب مضيف مخول. روابط Zoom العامة أدناه لفتح الخدمة فقط؛ لا تعني أن غرفة خاصة قد أنشئت أو أن OAuth متصل بالمنصة.</p><ul><li>إنشاء أجندة ومحضر وسجل حضور.</li><li>ربط الرابط بمعرف فعالية وموعد معتمد.</li><li>اختبار صلاحيات المضيف قبل تفعيل التكامل.</li></ul><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto"><a class="button" href="https://zoom.us/signin" target="_blank" rel="noopener noreferrer">تسجيل الدخول إلى Zoom</a><a class="button gold" href="https://developers.zoom.us/docs/api/rest/meeting/" target="_blank" rel="noopener noreferrer">دليل الربط الرسمي</a></div></section>
-<section class="card"><h2>📋 مكتبة السجلات والتقارير</h2><p>تتضمن قوالب فارغة للموارد البشرية والقبول والتسجيل والتعليم والتقييم والرواتب والإشراف والخدمات الصحية الإدارية والبطاقات والفعاليات والتسويق. تنزيل CSV محلي لا يعني حفظه في قاعدة بيانات المنصة.</p><a class="button" href="./operations-templates.html">فتح مكتبة القوالب التشغيلية</a></section>
-</div>
-<div class="notice"><strong>ضابط البيانات:</strong> لا تُدخل معلومات تشخيصية أو سجلات صحية تفصيلية في قوالب CSV العامة. البيانات الصحية والحكومية والمالية وبيانات الطلاب تتطلب أنظمة تخزين خاصة، وصلاحيات دقيقة، وسجلات تدقيق وموافقات مناسبة قبل التشغيل الفعلي.</div>
-<h2 class="section-title">نظام العمل المقترح لهذه المجالات</h2>
-<div class="ops-grid">
-<section class="card"><h2>الاعتماد والتشغيل</h2><p>تُسجل الخطة والمهمة والجهة المسؤولة والمراجع والموعد والحالة، ثم تتم المراجعة البشرية قبل اعتماد أي إجراء يحمل التزامًا قانونيًا أو ماليًا أو صحيًا أو نشرًا خارجيًا.</p></section>
-<section class="card"><h2>التقارير والسجلات</h2><p>تستخدم قوالب السجلات المرجعية لتجهيز البيانات والتقارير الأولية. الحفظ المركزي ومزامنة البيانات الحقيقية لا يعتبران مفعّلين إلا بعد ربط القالب بقاعدة البيانات المحمية واختبار الصلاحيات.</p></section>
-</div>
+<p class="intro">البوابة المشتركة للوصول إلى مساحات العمل المستقلة. كل مدخل يفتح مساحته الخاصة، ولا تُعرض هنا تفاصيل أو مهام أو سجلات أي مشروع مستقل.</p>
+<div class="rule" aria-hidden="true"></div>
+</header>
+<main class="shell">
+<section class="menu" aria-label="خيارات البوابة المشتركة">
+<article class="option">
+<div class="symbol" aria-hidden="true">١</div>
+<h2>أعمال الإرتقاء الفكري الأول</h2>
+<p>الدخول إلى مساحة العمل المستقلة الأولى.</p>
+<a class="go" href="https://al-irtiqaa-health-smart-global-5823dymc7-alooly44553-7281.vercel.app/" aria-label="فتح مساحة أعمال الإرتقاء الفكري الأول">فتح المساحة <span aria-hidden="true">←</span></a>
+</article>
+<article class="option">
+<div class="symbol" aria-hidden="true">٢</div>
+<h2>أعمال الإرتقاء الفكري الثاني</h2>
+<p>الدخول إلى مساحة العمل المستقلة الثانية.</p>
+<a class="go" href="https://alirtiqaa-government-public-services-n4o5xbxab-alooly44553-7281.vercel.app/" aria-label="فتح مساحة أعمال الإرتقاء الفكري الثاني">فتح المساحة <span aria-hidden="true">←</span></a>
+</article>
+<article class="option">
+<div class="symbol" aria-hidden="true">٣</div>
+<h2>أعمال الإرتقاء الفكري الثالث</h2>
+<p>الدخول إلى مساحة العمل المستقلة الثالثة.</p>
+<a class="go" href="https://btaqat-alirtiqaa-alfikri-alnamothaji-5e7oggjll-alooly44553-7281.vercel.app/" aria-label="فتح مساحة أعمال الإرتقاء الفكري الثالث">فتح المساحة <span aria-hidden="true">←</span></a>
+</article>
+<article class="option admin">
+<div class="symbol" aria-hidden="true">⚙</div>
+<h2>لوحة الإدارة المشتركة</h2>
+<p>الدخول إلى لوحة الإدارة المتاحة، وفق الصلاحيات المفعّلة فيها.</p>
+<a class="go" href="https://dar-alirtiqaa-management-erjdv3yso-alooly44553-7281.vercel.app/" aria-label="فتح لوحة الإدارة المشتركة">دخول الإدارة <span aria-hidden="true">←</span></a>
+</article>
+</section>
 </main>
-<footer><div class="container">© 2026 منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية · <a href="./privacy.html">سياسة الخصوصية</a> · <a href="./terms.html">شروط الاستخدام</a> · <a href="./">الرئيسية</a></div></footer>
+<footer class="footer"><div class="shell">هوية بصرية مشتركة لجميع أعمال الإرتقاء الفكري · تُدار محتويات كل مساحة مستقلة داخل مشروعها فقط.</div></footer>
 </body>
 </html>
