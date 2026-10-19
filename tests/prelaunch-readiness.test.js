@@ -75,4 +75,4 @@ assert.match(zoom, /ADMIN_AUTH_REQUIRED/u, "Zoom route must fail closed without 
 assert(!zoom.includes("start_url"), "Meeting handler must not expose host start_url");
 assert.match(read("vercel.json"), /\/api\/zoom\/meetings/u, "Zoom route rewrite missing");
 for (const file of ["student.html","teacher.html","parent.html","admin.html"]) assert(read(file).includes("noindex"), "Role page should stay excluded from indexing: " + file);
-console.log("Readiness source checks passed: required pages, Arabic RTL, seven scopes, 39 templates, branches, fixed weekly load, sitemap, draft-policy indexing, Zoom authorization, and coordinated versions.");
+console.log("Readiness source checks passed: education pages, Arabic RTL, seven scopes, 36 education templates, business separation, fixed weekly load, sitemap, draft-policy indexing, Zoom authorization, and version consistency.");
