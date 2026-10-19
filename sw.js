@@ -1,4 +1,4 @@
-const CACHE_NAME = "dar-alirtiqaa-v1.1.3";
+const CACHE_NAME = "dar-alirtiqaa-v1.1.4";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -6,6 +6,7 @@ const APP_SHELL = [
   "./operations-templates.html",
   "./app.webmanifest",
   "./icon.svg",
+  "./projects-icon.svg",
   "./logo.svg",
 ];
 
