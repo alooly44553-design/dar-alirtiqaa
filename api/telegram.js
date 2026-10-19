@@ -2,6 +2,8 @@ import { timingSafeEqual } from "node:crypto";
 
 const CHANNEL_ID = "@DarAlIrtiqaAlFikri";
 const TELEGRAM_API = "https://api.telegram.org";
+const PUBLIC_REQUESTS_URL = "https://alirtiqaa-educational-platform.vercel.app/api/public-services/requests";
+const EDUCATIONAL_FIELDS = ["الطفولة والتأسيس", "التعليم الأساسي والعام", "التعليم الجامعي والعالي", "التدريب المهني والتقني", "القرآن والإسلامية", "التقوية والعربية والتأهيل", "الإرشاد الأكاديمي"];
 
 function safeEqual(a, b) {
   if (typeof a !== "string" || typeof b !== "string" || !a || !b) return false;
@@ -126,13 +128,60 @@ export default async function handler(req, res) {
       if (command === "/start") {
         reply = "مرحبًا بك في بوت دار الارتقاء الفكري التعليمي 🎓\n\nأنا مساعد لتنظيم الفعاليات والأنشطة وإعداد المحتوى والتنسيق الإعلامي.\n\nاستخدم /help لمعرفة الأوامر المتاحة.\n\nقناة تيليجرام الرسمية: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/help") {
-        reply = "الأوامر المتاحة:\n/start — بدء استخدام البوت والتعريف بالخدمات\n/help — عرض هذه المساعدة\n/services — المجالات والخدمات التعليمية\n/events — معلومات متابعة الفعاليات\n/contact — روابط التواصل الرسمية\n\nملاحظة: أوامر الخدمات والفعاليات تعرض المعلومات والإرشادات، ولا تنفّذ التسجيل أو جدولة الفعاليات آليًا حتى الآن.";
+        reply = "الأوامر المتاحة:\n/start — بدء استخدام البوت والتعريف بالخدمات\n/help — عرض هذه المساعدة\n/services — المجالات والخدمات التعليمية\n/events — معلومات متابعة الفعاليات\n/contact — روابط التواصل الرسمية\n/request — تقديم طلب خدمة تعليمي\n/event_request — إرسال مقترح فعالية للمراجعة\n\nملاحظة: طلبات الخدمة ومقترحات الفعاليات تُحفظ للمراجعة؛ لا تتم جدولة الفعاليات آليًا.";
       } else if (command === "/services") {
         reply = "المجالات التعليمية في دار الارتقاء الفكري:\n1. الطفولة والتأسيس\n2. التعليم الأساسي والعام\n3. التعليم الجامعي والعالي\n4. التدريب المهني والتقني\n5. القرآن والإسلامية\n6. التقوية والعربية والتأهيل\n7. الإرشاد الأكاديمي\n\nللاطلاع على المنصة وبدء طلب خدمة:\nhttps://alirtiqaa-educational-platform.vercel.app/";
       } else if (command === "/events") {
         reply = "لمتابعة خدمات وفعاليات دار الارتقاء الفكري التعليمية، يرجى متابعة القناة الرسمية.\n\nالقناة الرسمية: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/\n\nتنبيه: إدارة الفعاليات وجدولتها آليًا من داخل البوت ليست مفعّلة بعد.";
       } else if (command === "/contact") {
         reply = "روابط التواصل الرسمية:\nقناة تيليجرام: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/\n\nاتصال مدارس البنين: 0538216050\nاتصال مدارس البنات: 0538838891";
+      } else if (command === "/request") {
+        reply = "لتقديم طلب خدمة تعليمي، أرسل رسالة واحدة بهذا التنسيق:\n\nطلب | الاسم الكامل | رقم الهاتف | رقم المجال (1-7) | وصف الخدمة\n\nالمجالات:\n" +
+          EDUCATIONAL_FIELDS.map((field, index) => (index + 1) + ". " + field).join("\n") +
+          "\n\nمثال توضيحي: طلب | أحمد محمد | 777123456 | 2 | أحتاج إلى دروس تقوية في الرياضيات\n\nسيُحفظ الطلب للمراجعة، ولن يُنشر رقم هاتفك في القناة العامة.";
+      } else if (command === "/event_request") {
+        reply = "لإرسال مقترح فعالية للمراجعة، أرسل رسالة واحدة بهذا التنسيق:\n\nفعالية | الاسم الكامل | رقم الهاتف | التاريخ والوقت المقترح | وصف الفعالية\n\nمثال توضيحي: فعالية | أحمد محمد | 777123456 | 2026-11-10 17:00 | ورشة تعريفية بالبرامج التعليمية\n\nسيُحفظ المقترح للمراجعة فقط؛ لا يعني ذلك اعتماد الفعالية أو جدولتها آليًا.";
+      } else if (!incomingText.startsWith("/")) {
+        const parts = incomingText.split("|").map(part => part.trim());
+        if (parts.length >= 5 && (parts[0] === "طلب" || parts[0] === "فعالية")) {
+          const isEvent = parts[0] === "فعالية";
+          const applicantName = parts[1];
+          const phone = parts[2];
+          const categoryNumber = Number(parts[3]);
+          const description = parts.slice(4).join(" | ").slice(0, 3000);
+          const validPhone = /^[+0-9 ()-]{7,30}$/.test(phone);
+          if (applicantName.length < 2 || !validPhone || description.length < 5 ||
+              (!isEvent && (!Number.isInteger(categoryNumber) || categoryNumber < 1 || categoryNumber > EDUCATIONAL_FIELDS.length)) ||
+              (isEvent && parts[3].length < 4)) {
+            reply = isEvent
+              ? "تعذر فهم مقترح الفعالية. أرسل /event_request لعرض الصيغة الصحيحة."
+              : "تعذر فهم طلب الخدمة. أرسل /request لعرض الصيغة الصحيحة.";
+          } else {
+            try {
+              const serviceCode = isEvent ? "EVENT_PROPOSAL" : "EDU_FIELD_" + categoryNumber;
+              const payload = isEvent
+                ? { source: "telegram", request_type: "event_proposal", proposed_date: parts[3].slice(0, 120), description }
+                : { source: "telegram", request_type: "educational_service", educational_field: EDUCATIONAL_FIELDS[categoryNumber - 1], field_number: categoryNumber, description };
+              const submission = await fetch(PUBLIC_REQUESTS_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ applicant_name: applicantName, phone, service_code: serviceCode, payload })
+              });
+              const submitted = await submission.json().catch(() => null);
+              if (submission.ok && submitted?.ok && submitted?.request?.request_number) {
+                reply = (isEvent ? "تم استلام مقترح الفعالية وحفظه للمراجعة. رقم الطلب: " : "تم استلام طلب الخدمة وحفظه للمراجعة. رقم الطلب: ") +
+                  submitted.request.request_number +
+                  (isEvent ? "\n\nتنبيه: هذا تأكيد استلام للمراجعة وليس اعتمادًا أو جدولة للفعالية." : "\n\nيمكن متابعة التفاصيل عبر المنصة التعليمية.");
+              } else {
+                console.error("Telegram request submission failed", { status: submission.status, error: submitted?.error });
+                reply = "لم أتمكن من حفظ الطلب الآن. يرجى المحاولة لاحقًا أو تقديم الطلب عبر المنصة:\nhttps://alirtiqaa-educational-platform.vercel.app/";
+              }
+            } catch (error) {
+              console.error("Telegram request submission request failed", error?.message || "unknown error");
+              reply = "تعذر الاتصال بنظام الطلبات الآن. يرجى المحاولة لاحقًا أو استخدام المنصة التعليمية:\nhttps://alirtiqaa-educational-platform.vercel.app/";
+            }
+          }
+        }
       }
 
       if (reply) {
