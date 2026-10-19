@@ -29,6 +29,25 @@ async function postJson(path, payload) {
   return { response, body };
 }
 
+async function waitForEducationBotScope() {
+  let last = "diagnostic not yet available";
+  for (let attempt = 0; attempt < 36; attempt++) {
+    try {
+      const response = await fetch(base + "/api/telegram?diagnose=1", {
+        cache: "no-store",
+        signal: AbortSignal.timeout(10000)
+      });
+      const data = await response.json();
+      if (response.ok && data?.scope === "education-only" && data?.service === "education-platform-assistant") return data;
+      last = "HTTP " + response.status + ", scope=" + String(data?.scope || "missing");
+    } catch (error) {
+      last = error?.name || "network error";
+    }
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+  throw new Error("New educational-only Telegram deployment did not become active: " + last);
+}
+
 async function check(name, operation) {
   const start = Date.now();
   try {
@@ -150,20 +169,26 @@ await check("Telegram webhook configuration", async () => {
   const data = JSON.parse(body);
   assert.equal(data.ok, true);
   assert.equal(data.configured, true);
-  assert.equal(data.destination, "@DarAlIrtiqaAlFikri");
-  return "webhook endpoint configured";
+  assert.equal(data.service, "education-platform-assistant");
+  assert.equal(data.scope, "education-only");
+  assert.equal("destination" in data, false, "Educational bot must not expose a shared broadcast destination");
+  return "educational webhook endpoint configured; no shared channel destination";
 });
 
 await check("Telegram bot and AI runtime diagnostics", async () => {
   const { response, body } = await get("/api/telegram?diagnose=1");
   assert.equal(response.status, 200);
   const data = JSON.parse(body);
+  assert.equal(data.service, "education-platform-assistant");
+  assert.equal(data.scope, "education-only");
   assert.equal(data.botTokenValid, true);
-  assert.equal(data.botIsAdmin, true);
-  assert.equal(data.canPostMessages, true);
   assert.equal(data.aiGatewayAuthAvailable, true);
-  return "bot valid; channel posting enabled; AI Gateway auth available";
+  assert(!("botIsAdmin" in data), "diagnostics must not check shared channel membership");
+  assert(!("canPostMessages" in data), "education bot must not expose broadcast capability");
+  return "education-only bot valid; AI Gateway auth available; no broadcast capability";
 });
+
+await waitForEducationBotScope();
 
 const failed = results.filter(result => !result.ok);
 console.log(JSON.stringify({
