@@ -270,7 +270,7 @@ export default async function handler(req, res) {
 
             if (!reply) {
         const wantsImage = /(?:صمم|صمّم|أنشئ|انشئ|اصنع|ابتكر|جهّز|جهز|ارسم|تصميم|بوستر|برشور|ملصق|صورة دعائية|صورة تعليمية|generate an image|create an image|design a poster)/iu.test(incomingText);
-        const wantsVoice = /(?:اقرأ(?:\\s+لي)?\\s+(?:بصوت|هذا|النص)|اقرا(?:\\s+لي)?\\s+(?:بصوت|هذا|النص)|حوّل\\s+(?:هذا\\s+)?النص\\s+إلى\\s+صوت|حول\\s+(?:هذا\\s+)?النص\\s+إلى\\s+صوت|رد\\s+بصوت|ارسِل\\s+صوت|أرسل\\s+صوت|خلّيني\\s+أسمع|خليني\\s+اسمع|speak aloud|read aloud|voice reply)/iu.test(incomingText);
+        const wantsVoice = /(?:اقرأ(?:\s+لي)?\s+(?:بصوت|هذا|النص)|اقرا(?:\s+لي)?\s+(?:بصوت|هذا|النص)|حوّل\s+(?:هذا\s+)?النص\s+إلى\s+صوت|حول\s+(?:هذا\s+)?النص\s+إلى\s+صوت|رد\s+بصوت|ارسِل\s+صوت|أرسل\s+صوت|خلّيني\s+أسمع|خليني\s+اسمع|speak aloud|read aloud|voice reply)/iu.test(incomingText);
         if (wantsImage) {
           try {
             const imageBytes = await generateTelegramImage(incomingText, req.headers["x-vercel-oidc-token"] || "", chatId);
@@ -299,11 +299,11 @@ export default async function handler(req, res) {
             const textResult = await textSend.json().catch(() => null);
             if (!textSend.ok || !textResult?.ok) throw new Error("TELEGRAM_VOICE_TEXT_DELIVERY_FAILED");
 
-            const voice = /(?:صوت\\s*رجالي|صوت\\s*ذكوري|بصوت\\s*رجل)/iu.test(incomingText)
+            const voice = /(?:صوت\s*رجالي|صوت\s*ذكوري|بصوت\s*رجل)/iu.test(incomingText)
               ? "onyx"
-              : /(?:صوت\\s*نسائي|صوت\\s*أنثوي|بصوت\\s*امرأة)/iu.test(incomingText)
+              : /(?:صوت\s*نسائي|صوت\s*أنثوي|بصوت\s*امرأة)/iu.test(incomingText)
                 ? "nova"
-                : /(?:بهدوء|صوت\\s*هادئ)/iu.test(incomingText)
+                : /(?:بهدوء|صوت\s*هادئ)/iu.test(incomingText)
                   ? "coral"
                   : "shimmer";
             try {
