@@ -32,8 +32,8 @@ jobs:
         shell: bash
         run: |
           set -e
-          sed -i 's/versionCode [0-9]*/versionCode 4/' android/app/build.gradle
-          sed -i 's/versionName "[^"]*"/versionName "1.1.0"/' android/app/build.gradle
+          sed -i 's/versionCode [0-9]*/versionCode 5/' android/app/build.gradle
+          sed -i 's/versionName "[^"]*"/versionName "1.1.1"/' android/app/build.gradle
       - name: Install official launcher logo
         shell: bash
         run: |
@@ -66,7 +66,7 @@ jobs:
           rm -f dar-alirtiqaa-release.jks app-release-aligned.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: dar-alirtiqaa-apks-v1.1.0
+          name: dar-alirtiqaa-apks-v1.1.1
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
             android/app-release-signed.apk
