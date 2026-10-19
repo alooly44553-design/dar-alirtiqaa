@@ -1,10 +1,12 @@
-const CACHE_NAME = "dar-alirtiqaa-v1.1.0";
+const CACHE_NAME = "dar-alirtiqaa-v1.1.1";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./businesses.html",
+  "./operations-templates.html",
   "./app.webmanifest",
   "./icon.svg",
-  "./logo.svg"
+  "./logo.svg",
 ];
 
 self.addEventListener("install", event => {
