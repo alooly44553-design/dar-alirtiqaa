@@ -8,7 +8,10 @@ const requiredFiles = [
   "index.html", "businesses.html", "education-packages.html", "admin.html",
   "portal.html", "student.html", "teacher.html", "parent.html", "reports.html",
   "brochure.html", "privacy.html", "terms.html", "operations-templates.html",
-  "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts"
+  "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
+  "business-portal/index.html", "business-health-app/index.html",
+  "business-public-services-app/index.html", "business-cards-app/index.html",
+  "lib/telegram-scope.js", "tests/business-isolation.test.js"
 ];
 for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "Missing required platform file: " + file);
 
@@ -34,8 +37,10 @@ for (const label of ["الطفولة والتأسيس","التعليم الأس�
 }
 const templates = read("operations-templates.html");
 const ids = [...templates.matchAll(/\{id:"([^"]+)",g:/gu)].map(match => match[1]);
-assert.equal(ids.length, 39, "Expected 39 operational templates");
+assert.equal(ids.length, 36, "Expected 36 education-only operational templates");
 assert.equal(new Set(ids).size, ids.length, "Operational template IDs must be unique");
+assert(!templates.includes('id="business"'), "Education template library must not include a business group");
+for (const id of ["health", "public-services", "cards"]) assert(!ids.includes(id), "Business-only template remained in education library: " + id);
 assert.match(templates, /30 حصة أسبوعيًا لكل فرد/u, "Weekly teaching-load invariant missing");
 for (const branch of ["القوزين","النزلة الشرقية","صبيا","أبو عريش","المناطق الحدودية"]) assert(templates.includes(branch), "Missing branch: " + branch);
 
@@ -49,6 +54,16 @@ for (const file of ["privacy.html", "terms.html"]) {
   assert.match(html, /<meta name="robots" content="noindex,follow">/u, file + " must stay out of search while draft");
   assert.match(html, /مسودة/u, file + " must clearly identify itself as a draft");
 }
+assert.equal((index.match(/href="businesses\.html"/gu) || []).length, 1, "Homepage must expose one business-portal entry only");
+assert(!read("sw.js").includes("businesses.html"), "Business pages must not be cached in the education app shell");
+assert(!sitemap.includes("businesses.html"), "Business portal must not be in education sitemap");
+assert(!templates.includes("businesses.html"), "Education template navigation must not point into business areas");
+const scope = read("lib/telegram-scope.js");
+assert.match(scope, /isBusinessOperationsRequest/u, "Telegram must include a business-scope guard");
+assert.match(scope, /isEducationPlatformRequest/u, "Telegram must include an educational-context guard");
+const telegram = read("api/telegram.js");
+assert.match(telegram, /scope: "education-only"/u, "Telegram API must identify an education-only scope");
+assert(!telegram.includes("CHANNEL_ID"), "Telegram assistant must not use a shared public channel destination");
 const zoom = read("lib/zoom-meetings.js");
 assert.match(zoom, /is_center_management_admin/u, "Zoom route must enforce administrator role");
 assert.match(zoom, /ADMIN_AUTH_REQUIRED/u, "Zoom route must fail closed without admin authorization");
