@@ -89,6 +89,45 @@ export default async function handler(req, res) {
     return res.status(503).json({ ok: false, error: "Telegram service is not configured" });
   }
 
+  // Telegram webhook updates are authenticated with Telegram's secret-token header.
+  const telegramSecret = req.headers["x-telegram-bot-api-secret-token"];
+  if (typeof telegramSecret === "string") {
+    if (!safeEqual(telegramSecret, expectedSecret)) {
+      return res.status(401).json({ ok: false, error: "Unauthorized webhook" });
+    }
+
+    const update = req.body || {};
+    const message = update.message || update.edited_message;
+    const chatId = message?.chat?.id;
+    const incomingText = typeof message?.text === "string" ? message.text.trim() : "";
+    if (chatId && incomingText) {
+      const command = incomingText.split(/\s+/)[0].split("@")[0].toLowerCase();
+      let reply = null;
+      if (command === "/start") {
+        reply = "مرحبًا بك في بوت دار الارتقاء الفكري التعليمي 🎓\n\nأنا مساعد لتنظيم الفعاليات والأنشطة وإعداد المحتوى والتنسيق الإعلامي.\n\nاستخدم /help لمعرفة الأوامر المتاحة.\n\nقناة تيليجرام الرسمية: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/";
+      } else if (command === "/help") {
+        reply = "الأوامر المتاحة:\n/start — بدء استخدام البوت والتعريف بالخدمات\n/help — عرض هذه المساعدة\n\nيمكنك استخدام البوت لمتابعة خدمات وفعاليات دار الارتقاء الفكري التعليمية.";
+      }
+
+      if (reply) {
+        try {
+          const sendResponse = await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ chat_id: chatId, text: reply, disable_web_page_preview: true })
+          });
+          const sent = await sendResponse.json().catch(() => null);
+          if (!sendResponse.ok || !sent?.ok) {
+            console.error("Telegram command reply failed", { status: sendResponse.status, error_code: sent?.error_code });
+          }
+        } catch (error) {
+          console.error("Telegram command reply request failed", error?.message || "unknown error");
+        }
+      }
+    }
+    return res.status(200).json({ ok: true });
+  }
+
   const authorization = req.headers.authorization || "";
   const suppliedSecret = authorization.startsWith("Bearer ")
     ? authorization.slice(7)
