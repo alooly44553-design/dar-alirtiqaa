@@ -1,8 +1,7 @@
-const CACHE_NAME = "dar-alirtiqaa-v1.1.3";
+const CACHE_NAME = "dar-alirtiqaa-v1.1.3-business-isolation-20261019-6";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./businesses.html",
   "./operations-templates.html",
   "./app.webmanifest",
   "./icon.svg",
