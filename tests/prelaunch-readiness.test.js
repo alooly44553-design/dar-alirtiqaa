@@ -21,12 +21,22 @@ assert.equal(manifest.name, appName, "PWA display name mismatch");
 assert.equal(manifest.short_name, appName, "PWA short name mismatch");
 assert.match(read("capacitor.config.ts"), /appName:\s*'منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية'/u, "Capacitor appName mismatch");
 assert.match(read("sw.js"), /dar-alirtiqaa-v1\.1\.3/u, "Service worker cache key was not bumped");
+assert.match(read("sw.js"), /business-isolation-20261019-6/u, "Business isolation cache key was not bumped");
 const android = read(".github/workflows/android-apk.yml");
 assert.match(android, /versionCode 7/u, "Android versionCode mismatch");
 assert.match(android, /versionName "1\.1\.3"/u, "Android versionName mismatch");
 
 const index = read("index.html");
 assert.match(index, /<html lang="ar" dir="rtl">/u, "Homepage must remain Arabic RTL");
+assert.equal((index.match(/https:\/\/alirtiqaa-business-ops\.vercel\.app\//gu) || []).length, 1, "The educational homepage must expose exactly one standalone business-work entry");
+assert(!index.includes("businesses.html"), "The educational homepage must not embed the former business page");
+for (const file of ["admin.html","early-learning.html","operations-templates.html"]) {
+  assert(!read(file).includes("businesses.html"), file + " must not link into business operations");
+}
+const businessLanding = read("businesses.html");
+assert.match(businessLanding, /noindex,nofollow/u, "Legacy business URL must not be indexed");
+assert.match(businessLanding, /https:\/\/alirtiqaa-business-ops\.vercel\.app\//u, "Legacy business URL must redirect to the separate portal");
+assert(!read("sw.js").includes('"./businesses.html"'), "The education PWA must not cache the old business page");
 assert.equal((index.match(/https:\\/\\/alirtiqaa-business-ops\\.vercel\\.app\\//gu) || []).length, 1, "The educational homepage must expose exactly one standalone business-work entry");
 assert(!index.includes("businesses.html"), "The educational homepage must not embed the former business page");
 for (const file of ["admin.html","early-learning.html","operations-templates.html"]) {
@@ -36,8 +46,8 @@ const businessLanding = read("businesses.html");
 assert.match(businessLanding, /noindex,nofollow/u, "Legacy business URL must not be indexed");
 assert.match(businessLanding, /https:\\/\\/alirtiqaa-business-ops\\.vercel\\.app\\//u, "Legacy business URL must redirect to the separate portal");
 assert(!read("sw.js").includes('"./businesses.html"'), "The education PWA must not cache the old business page");
-assert.match(index, /app\.webmanifest\?v=20261019-5/u, "Manifest cache version mismatch");
-assert.match(index, /sw\.js\?v=20261019-5/u, "Service worker cache version mismatch");
+assert.match(index, /app\.webmanifest\?v=20261019-6/u, "Manifest cache version mismatch");
+assert.match(index, /sw\.js\?v=20261019-6/u, "Service worker cache version mismatch");
 for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والعالي","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
   assert(index.includes(label), "Missing educational scope: " + label);
 }
