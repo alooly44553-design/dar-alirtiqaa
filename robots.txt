@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /reports.html
+Disallow: /student.html
+Disallow: /teacher.html
+Disallow: /parent.html
+Disallow: /portal.html
+Disallow: /reset-password.html
+
+Sitemap: https://alirtiqaa-educational-platform.vercel.app/sitemap.xml
