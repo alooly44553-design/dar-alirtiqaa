@@ -3,7 +3,8 @@
 'use strict';
 var STORE_KEY='irtiqaa_health_centers_local_v1';
 var NAV=[
- {id:'home',label:'الرئيسية',icon:'⌂'},\n {id:'quick-access',label:'الوصول السريع',icon:'▦'},
+ {id:'home',label:'الرئيسية',icon:'⌂'},
+ {id:'quick-access',label:'الوصول السريع',icon:'▦'},
  {id:'services',label:'مجالات وخدمات',icon:'✚'},
  {id:'appointments',label:'المواعيد',icon:'▦'},
  {id:'requests',label:'الطلبات الإدارية',icon:'▤'},
