@@ -7,5 +7,6 @@ Disallow: /teacher.html
 Disallow: /parent.html
 Disallow: /portal.html
 Disallow: /reset-password.html
+Disallow: /zoom-operations.html
 
 Sitemap: https://alirtiqaa-educational-platform.vercel.app/sitemap.xml
