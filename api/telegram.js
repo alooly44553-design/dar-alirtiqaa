@@ -2,7 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 
 const CHANNEL_ID = "@DarAlIrtiqaAlFikri";
 const TELEGRAM_API = "https://api.telegram.org";
-const PUBLIC_REQUESTS_URL = "https://alirtiqaa-educational-platform.vercel.app/api/public-services/requests";
+const EDUCATION_REQUESTS_URL = "https://alirtiqaa-educational-platform.vercel.app/api/education/service-requests";
 const EDUCATIONAL_FIELDS = ["الطفولة والتأسيس", "التعليم الأساسي والعام", "التعليم الجامعي والعالي", "التدريب المهني والتقني", "القرآن والإسلامية", "التقوية والعربية والتأهيل", "الإرشاد الأكاديمي"];
 
 function safeEqual(a, b) {
@@ -136,42 +136,54 @@ export default async function handler(req, res) {
       } else if (command === "/contact") {
         reply = "روابط التواصل الرسمية:\nقناة تيليجرام: https://t.me/DarAlIrtiqaAlFikri\nالمنصة التعليمية: https://alirtiqaa-educational-platform.vercel.app/\n\nاتصال مدارس البنين: 0538216050\nاتصال مدارس البنات: 0538838891";
       } else if (command === "/request") {
-        reply = "لتقديم طلب خدمة تعليمي، أرسل رسالة واحدة بهذا التنسيق:\n\nطلب | الاسم الكامل | رقم الهاتف | رقم المجال (1-7) | وصف الخدمة\n\nالمجالات:\n" +
+        reply = "لتقديم طلب خدمة تعليمي، أرسل رسالة واحدة بهذا التنسيق:\n\nطلب | أوافق | الاسم الكامل | رقم الهاتف | رقم المجال (1-7) | وصف الخدمة\n\nالمجالات:\n" +
           EDUCATIONAL_FIELDS.map((field, index) => (index + 1) + ". " + field).join("\n") +
-          "\n\nمثال توضيحي: طلب | أحمد محمد | 777123456 | 2 | أحتاج إلى دروس تقوية في الرياضيات\n\nسيُحفظ الطلب للمراجعة، ولن يُنشر رقم هاتفك في القناة العامة.";
+          "\n\nمثال توضيحي: طلب | أوافق | أحمد محمد | 777123456 | 2 | أحتاج إلى دروس تقوية في الرياضيات\n\nبإرسال الطلب فأنت توافق على مراجعة الطلب واستخدام بياناتك بالقدر اللازم لتنفيذ الخدمة. لن يُنشر رقم هاتفك في القناة العامة.";
       } else if (command === "/event_request") {
-        reply = "لإرسال مقترح فعالية للمراجعة، أرسل رسالة واحدة بهذا التنسيق:\n\nفعالية | الاسم الكامل | رقم الهاتف | التاريخ والوقت المقترح | وصف الفعالية\n\nمثال توضيحي: فعالية | أحمد محمد | 777123456 | 2026-11-10 17:00 | ورشة تعريفية بالبرامج التعليمية\n\nسيُحفظ المقترح للمراجعة فقط؛ لا يعني ذلك اعتماد الفعالية أو جدولتها آليًا.";
+        reply = "لإرسال مقترح فعالية للمراجعة، أرسل رسالة واحدة بهذا التنسيق:\n\nفعالية | أوافق | الاسم الكامل | رقم الهاتف | التاريخ والوقت المقترح | وصف الفعالية\n\nمثال توضيحي: فعالية | أوافق | أحمد محمد | 777123456 | 2026-11-10 17:00 | ورشة تعريفية بالبرامج التعليمية\n\nبإرسال الطلب فأنت توافق على مراجعة الطلب واستخدام بياناتك بالقدر اللازم لتنفيذ الخدمة. يُحفظ المقترح للمراجعة فقط؛ لا يعني ذلك اعتماد الفعالية أو جدولتها آليًا.";
       } else if (!incomingText.startsWith("/")) {
         const parts = incomingText.split("|").map(part => part.trim());
-        if (parts.length >= 5 && (parts[0] === "طلب" || parts[0] === "فعالية")) {
+        if (parts.length >= 6 && (parts[0] === "طلب" || parts[0] === "فعالية")) {
           const isEvent = parts[0] === "فعالية";
-          const applicantName = parts[1];
-          const phone = parts[2];
-          const categoryNumber = Number(parts[3]);
-          const description = parts.slice(4).join(" | ").slice(0, 3000);
+          const consentText = "أوافق على مراجعة الطلب واستخدام بياناتي بالقدر اللازم لتنفيذ الخدمة.";
+          const applicantName = parts[2];
+          const phone = parts[3];
+          const categoryNumber = Number(parts[4]);
+          const eventDate = parts[4];
+          const description = parts.slice(5).join(" | ").slice(0, 2000);
           const validPhone = /^[+0-9 ()-]{7,30}$/.test(phone);
-          if (applicantName.length < 2 || !validPhone || description.length < 5 ||
+          const validConsent = parts[1] === "أوافق";
+          if (!validConsent || applicantName.length < 2 || !validPhone || description.length < 5 ||
               (!isEvent && (!Number.isInteger(categoryNumber) || categoryNumber < 1 || categoryNumber > EDUCATIONAL_FIELDS.length)) ||
-              (isEvent && parts[3].length < 4)) {
+              (isEvent && eventDate.length < 4)) {
             reply = isEvent
-              ? "تعذر فهم مقترح الفعالية. أرسل /event_request لعرض الصيغة الصحيحة."
-              : "تعذر فهم طلب الخدمة. أرسل /request لعرض الصيغة الصحيحة.";
+              ? "تعذر فهم مقترح الفعالية أو لم يتم تأكيد الموافقة. أرسل /event_request لعرض الصيغة الصحيحة."
+              : "تعذر فهم طلب الخدمة أو لم يتم تأكيد الموافقة. أرسل /request لعرض الصيغة الصحيحة.";
           } else {
             try {
-              const serviceCode = isEvent ? "EVENT_PROPOSAL" : "EDU_FIELD_" + categoryNumber;
-              const payload = isEvent
-                ? { source: "telegram", request_type: "event_proposal", proposed_date: parts[3].slice(0, 120), description }
-                : { source: "telegram", request_type: "educational_service", educational_field: EDUCATIONAL_FIELDS[categoryNumber - 1], field_number: categoryNumber, description };
-              const submission = await fetch(PUBLIC_REQUESTS_URL, {
+              const fieldName = isEvent ? "مقترح فعالية" : EDUCATIONAL_FIELDS[categoryNumber - 1];
+              const details = isEvent
+                ? "التاريخ والوقت المقترح: " + eventDate.slice(0, 120) + "\nتفاصيل الفعالية: " + description
+                : "المجال التعليمي: " + fieldName + "\nتفاصيل الطلب: " + description;
+              const submission = await fetch(EDUCATION_REQUESTS_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ applicant_name: applicantName, phone, service_code: serviceCode, payload })
+                body: JSON.stringify({
+                  service_code: "general_service",
+                  consent_given: validConsent,
+                  consent_text: consentText,
+                  applicant_name: applicantName,
+                  applicant_phone: phone,
+                  service_name: fieldName,
+                  details,
+                  notes: "مصدر الطلب: بوت تيليجرام. " + (isEvent ? "مقترح فعالية للمراجعة، دون اعتماد أو جدولة تلقائية." : "طلب خدمة تعليمية للمراجعة.")
+                })
               });
               const submitted = await submission.json().catch(() => null);
               if (submission.ok && submitted?.ok && submitted?.request?.request_number) {
-                reply = (isEvent ? "تم استلام مقترح الفعالية وحفظه للمراجعة. رقم الطلب: " : "تم استلام طلب الخدمة وحفظه للمراجعة. رقم الطلب: ") +
+                reply = (isEvent ? "تم استلام مقترح الفعالية وحفظه في نظام الطلبات للمراجعة. رقم الطلب: " : "تم استلام طلب الخدمة وحفظه في نظام الطلبات للمراجعة. رقم الطلب: ") +
                   submitted.request.request_number +
-                  (isEvent ? "\n\nتنبيه: هذا تأكيد استلام للمراجعة وليس اعتمادًا أو جدولة للفعالية." : "\n\nيمكن متابعة التفاصيل عبر المنصة التعليمية.");
+                  (isEvent ? "\n\nهذا تأكيد استلام للمراجعة وليس اعتمادًا أو جدولة للفعالية." : "\n\nستراجع الإدارة الطلب؛ الاستلام لا يعني القبول النهائي.");
               } else {
                 console.error("Telegram request submission failed", { status: submission.status, error: submitted?.error });
                 reply = "لم أتمكن من حفظ الطلب الآن. يرجى المحاولة لاحقًا أو تقديم الطلب عبر المنصة:\nhttps://alirtiqaa-educational-platform.vercel.app/";
