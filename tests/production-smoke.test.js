@@ -8,7 +8,7 @@ let lastObservation = "no response";
 
 for (let attempt = 1; attempt <= 18; attempt++) {
   try {
-    const response = await fetch(baseUrl + "/app.webmanifest?v=20261019-5", {
+    const response = await fetch(baseUrl + "/app.webmanifest?v=20261019-6", {
       cache: "no-store",
       signal: AbortSignal.timeout(6000)
     });
@@ -49,9 +49,11 @@ async function getJson(route) {
 
 const home = await getText("/");
 assert.match(home, /<html lang="ar" dir="rtl">/u, "Homepage must remain Arabic RTL");
-assert.match(home, /app\.webmanifest\?v=20261019-5/u, "Homepage must reference the current PWA manifest");
-assert.match(home, /sw\.js\?v=20261019-5/u, "Homepage must reference the current service worker");
-const businessRedirect = await getText("/businesses.html");
+assert.match(home, /app\.webmanifest\?v=20261019-6/u, "Homepage must reference the current PWA manifest");
+assert.match(home, /sw\.js\?v=20261019-6/u, "Homepage must reference the current service worker");
+const businessRedirect = const businessRedirect = await getText("/businesses.html");
+assert.match(businessRedirect, /noindex,nofollow/u, "Legacy business URL must not be indexed");
+assert.match(businessRedirect, /https:\/\/alirtiqaa-business-ops\.vercel\.app\//u, "Legacy business URL must point to the separate portal");
 assert.match(businessRedirect, /noindex,nofollow/u, "Legacy business URL must not be indexed");
 assert.match(businessRedirect, /https:\\/\\/alirtiqaa-business-ops\\.vercel\\.app\\//u, "Legacy business URL must point to the separate portal");
 await getText("/operations-templates.html");
