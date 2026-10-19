@@ -4,14 +4,15 @@
   "lang": "ar",
   "dir": "rtl",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f6f8fc",
+  "background_color": "#000000",
   "theme_color": "#082f57",
-  "description": "منظومة تعليمية ذكية متكاملة للمدارس والمراكز والتعليم الإلكتروني والتعليم العالي والتدريب المهني.",
-  "version": "1.0.8",
+  "description": "منظومة مدارس ومراكز دار الارتقاء الفكري التعليمية. اليمنية - السورية - الإفريقية - جميع الدول العربية والإسلامية.",
+  "version": "1.0.9",
   "icons": [
     {
-      "src": "icon.svg?v=20261018-1",
+      "src": "./icon.svg?v=20261019-1",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
