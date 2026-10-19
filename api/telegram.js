@@ -309,7 +309,9 @@ export default async function handler(req, res) {
         }
         const wantsImage = /(?:صمم|صمّم|أنشئ|انشئ|اصنع|ابتكر|جهّز|جهز|ارسم|تصميم|بوستر|برشور|ملصق|صورة دعائية|صورة تعليمية|generate an image|create an image|design a poster)/iu.test(incomingText);
         const wantsVoice = /(?:اقرأ(?:\s+لي)?\s+(?:بصوت|هذا|النص)|اقرا(?:\s+لي)?\s+(?:بصوت|هذا|النص)|حوّل\s+(?:هذا\s+)?النص\s+إلى\s+صوت|حول\s+(?:هذا\s+)?النص\s+إلى\s+صوت|رد\s+بصوت|ارسِل\s+صوت|أرسل\s+صوت|خلّيني\s+أسمع|خليني\s+اسمع|speak aloud|read aloud|voice reply|audio response|voice response|بصوت|صوتي)/iu.test(incomingText);
-        if (taskIntentHandled) {\n          // The scheduling helper already produced the task confirmation or one clarification question.\n        } else if (wantsImage) {
+        if (taskIntentHandled) {
+          // The scheduling helper already produced the task confirmation or one clarification question.
+        } else if (wantsImage) {
           try {
             const imageBytes = await generateTelegramImage(incomingText, req.headers["x-vercel-oidc-token"] || "", chatId);
             const photoForm = new FormData();
