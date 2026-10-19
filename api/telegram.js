@@ -1,4 +1,4 @@
-import { generateAssistantReply, clearTelegramHistory } from "../lib/telegram-assistant.js";
+import { generateAssistantReply, clearTelegramHistory, transcribeTelegramAudio, generateTelegramImage, synthesizeTelegramSpeech } from "../lib/telegram-assistant.js";
 import { timingSafeEqual } from "node:crypto";
 
 const CHANNEL_ID = "@DarAlIrtiqaAlFikri";
@@ -44,6 +44,7 @@ export default async function handler(req, res) {
         }
 
         let webhookConfiguration = null;
+        let commandMenuConfigured = null;
         if (req.query?.configureWebhook === "1") {
           try {
             const webhookResponse = await fetch(`${TELEGRAM_API}/bot${token}/setWebhook`, {
@@ -60,6 +61,28 @@ export default async function handler(req, res) {
             webhookConfiguration = Boolean(webhookResponse.ok && webhookResult?.ok);
           } catch {
             webhookConfiguration = false;
+          }
+          try {
+            const menuResponse = await fetch(`${TELEGRAM_API}/bot${token}/setMyCommands`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                commands: [
+                  { command: "start", description: "بدء المحادثة" },
+                  { command: "help", description: "ماذا يمكنني أن أفعل لك؟" },
+                  { command: "services", description: "المجالات التعليمية" },
+                  { command: "events", description: "التخطيط للفعاليات" },
+                  { command: "contact", description: "التواصل مع المؤسسة" },
+                  { command: "request", description: "التحدث عن خدمة تعليمية" },
+                  { command: "event_request", description: "تطوير فكرة فعالية" },
+                  { command: "forget", description: "مسح سياق المحادثة" }
+                ]
+              })
+            });
+            const menuResult = await menuResponse.json().catch(() => null);
+            commandMenuConfigured = Boolean(menuResponse.ok && menuResult?.ok);
+          } catch {
+            commandMenuConfigured = false;
           }
         }
         const memberUrl = new URL(`${TELEGRAM_API}/bot${token}/getChatMember`);
@@ -81,7 +104,8 @@ export default async function handler(req, res) {
           channelMembershipChecked: Boolean(member?.ok),
           botIsAdmin: isAdmin,
           canPostMessages: Boolean(canPost),
-          ...(webhookConfiguration === null ? {} : { webhookConfigured: webhookConfiguration })
+          ...(webhookConfiguration === null ? {} : { webhookConfigured: webhookConfiguration }),
+          ...(commandMenuConfigured === null ? {} : { commandMenuConfigured })
         });
       } catch {
         return res.status(200).json({
@@ -123,6 +147,96 @@ export default async function handler(req, res) {
     const message = update.message || update.edited_message;
     const chatId = message?.chat?.id;
     const incomingText = typeof message?.text === "string" ? message.text.trim() : "";
+    const photo = Array.isArray(message?.photo) && message.photo.length
+      ? message.photo[message.photo.length - 1]
+      : null;
+    const imageDocument = message?.document?.mime_type?.startsWith("image/") ? message.document : null;
+    const audioAttachment = message?.voice || message?.audio || null;
+    const videoAttachment = message?.video || message?.video_note || null;
+    const attachment = photo
+      ? { kind: "image", fileId: photo.file_id, filename: "telegram-photo.jpg", mimeType: "image/jpeg" }
+      : imageDocument
+        ? { kind: "image", fileId: imageDocument.file_id, filename: String(imageDocument.file_name || "telegram-image").slice(0, 100), mimeType: imageDocument.mime_type || "image/jpeg" }
+        : audioAttachment
+          ? { kind: "audio", fileId: audioAttachment.file_id, filename: audioAttachment.file_unique_id ? "telegram-voice.ogg" : "telegram-audio", mimeType: audioAttachment.mime_type || (message?.voice ? "audio/ogg" : "audio/mpeg") }
+          : videoAttachment
+            ? { kind: "video", fileId: videoAttachment.file_id, filename: "telegram-video.mp4", mimeType: videoAttachment.mime_type || "video/mp4" }
+            : null;
+
+    if (chatId && attachment) {
+      const oidcToken = req.headers["x-vercel-oidc-token"] || "";
+      try {
+        const fileInfoResponse = await fetch(`${TELEGRAM_API}/bot${token}/getFile?file_id=${encodeURIComponent(attachment.fileId)}`);
+        const fileInfo = await fileInfoResponse.json().catch(() => null);
+        if (!fileInfoResponse.ok || !fileInfo?.ok || !fileInfo.result?.file_path) {
+          throw new Error("TELEGRAM_FILE_LOOKUP_FAILED");
+        }
+        const fileResponse = await fetch(`${TELEGRAM_API}/file/bot${token}/${fileInfo.result.file_path}`);
+        if (!fileResponse.ok) throw new Error("TELEGRAM_FILE_DOWNLOAD_FAILED");
+        const rawFile = Buffer.from(await fileResponse.arrayBuffer());
+        if (!rawFile.length || rawFile.length > 8 * 1024 * 1024) {
+          throw new Error("TELEGRAM_ATTACHMENT_TOO_LARGE");
+        }
+
+        let prompt = incomingText;
+        let imageDataUrl = "";
+        if (attachment.kind === "image") {
+          prompt = prompt || "حلّل هذه الصورة واشرح ما يظهر فيها، وساعدني في القراءة أو التعليم أو التصميم بحسب محتواها.";
+          imageDataUrl = `data:${attachment.mimeType};base64,${rawFile.toString("base64")}`;
+        } else {
+          const transcript = await transcribeTelegramAudio(rawFile, attachment.filename, attachment.mimeType, oidcToken);
+          prompt = (prompt ? prompt + "\n\n" : "") +
+            (attachment.kind === "video"
+              ? "هذا تفريغ الكلام المسموع في فيديو، وليس تحليلًا بصريًا لإطارات الفيديو:\n"
+              : "هذا تفريغ رسالتك الصوتية:\n") + transcript;
+        }
+
+        const replyText = await generateAssistantReply(chatId, prompt, oidcToken, imageDataUrl);
+        const sendReplyResponse = await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: chatId, text: replyText, disable_web_page_preview: true })
+        });
+        const sendReplyResult = await sendReplyResponse.json().catch(() => null);
+        if (!sendReplyResponse.ok || !sendReplyResult?.ok) {
+          throw new Error("TELEGRAM_MEDIA_REPLY_FAILED");
+        }
+
+        if (attachment.kind === "audio") {
+          try {
+            const voices = ["coral", "nova", "shimmer", "alloy", "sage"];
+            const voice = voices[Math.abs(Number(chatId) + Math.floor(Date.now() / 60000)) % voices.length];
+            const speech = await synthesizeTelegramSpeech(replyText, oidcToken, voice);
+            const audioForm = new FormData();
+            audioForm.append("chat_id", String(chatId));
+            audioForm.append("audio", new Blob([speech], { type: "audio/mpeg" }), "dar-alirtiqaa-reply.mp3");
+            audioForm.append("caption", "رد صوتي مولّد آليًا للمساعدة في المتابعة.");
+            const speechResponse = await fetch(`${TELEGRAM_API}/bot${token}/sendAudio`, { method: "POST", body: audioForm });
+            const speechResult = await speechResponse.json().catch(() => null);
+            if (!speechResponse.ok || !speechResult?.ok) {
+              console.error("TELEGRAM_TTS_DELIVERY_FAILED", { status: speechResponse.status });
+            }
+          } catch (speechError) {
+            console.error("TELEGRAM_TTS_FAILED", speechError?.message || "unknown error");
+          }
+        }
+      } catch (mediaError) {
+        console.error("TELEGRAM_MEDIA_PROCESSING_FAILED", mediaError?.message || "unknown error");
+        let fallback = "حاولت معالجة المرفق لكن تعذّر إكماله الآن. أعد إرساله بحجم أصغر أو اكتب لي ما تريد معرفته عنه.";
+        if (mediaError?.message === "TELEGRAM_ATTACHMENT_TOO_LARGE") {
+          fallback = "المرفق كبير على المعالجة الآمنة داخل البوت. أرسل صورة أو مقطعًا صوتيًا أقصر أو أقل من 8 ميغابايت.";
+        }
+        try {
+          await fetch(`${TELEGRAM_API}/bot${token}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ chat_id: chatId, text: fallback, disable_web_page_preview: true })
+          });
+        } catch {}
+      }
+      return res.status(200).json({ ok: true });
+    }
+
     if (chatId && incomingText) {
       const command = incomingText.split(/\s+/)[0].split("@")[0].toLowerCase();
       let reply = null;
@@ -204,11 +318,31 @@ export default async function handler(req, res) {
 
 
       if (!reply && !incomingText.startsWith("/")) {
-        try {
-          reply = await generateAssistantReply(chatId, incomingText, req.headers["x-vercel-oidc-token"] || "");
-        } catch (error) {
+        const wantsImage = /(?:صمم|صمّم|أنشئ|انشئ|اصنع|ابتكر|جهّز|جهز|ارسم|تصميم|بوستر|برشور|ملصق|صورة دعائية|صورة تعليمية|generate an image|create an image|design a poster)/iu.test(incomingText);
+        if (wantsImage) {
+          try {
+            const imageBytes = await generateTelegramImage(incomingText, req.headers["x-vercel-oidc-token"] || "", chatId);
+            const photoForm = new FormData();
+            photoForm.append("chat_id", String(chatId));
+            photoForm.append("photo", new Blob([imageBytes], { type: "image/png" }), "dar-alirtiqaa-design.png");
+            photoForm.append("caption", "تم إنشاء هذا التصور البصري باستخدام مولّد صور آلي. يمكنني أيضًا إعداد نص الإعلان المرافق له.");
+            const photoResponse = await fetch(`${TELEGRAM_API}/bot${token}/sendPhoto`, { method: "POST", body: photoForm });
+            const photoResult = await photoResponse.json().catch(() => null);
+            if (!photoResponse.ok || !photoResult?.ok) {
+              throw new Error("TELEGRAM_IMAGE_DELIVERY_FAILED");
+            }
+            reply = null;
+          } catch (imageError) {
+            console.error("TELEGRAM_IMAGE_REQUEST_FAILED", imageError?.message || "unknown error");
+            reply = "أستطيع مساعدتك في إعداد التصميم، لكن إنشاء الصورة تعذّر فنيًا الآن. صف لي الفكرة وسأجهز لك وصفًا تصميميًا واضحًا إلى أن تعود الخدمة.";
+          }
+        } else {
+          try {
+            reply = await generateAssistantReply(chatId, incomingText, req.headers["x-vercel-oidc-token"] || "");
+          } catch (error) {
           console.error("Telegram assistant reply failed", error?.message || "unknown error");
-          reply = "أهلًا بك 🌿 أواجه تعثرًا مؤقتًا في الرد الآن. أرسل رسالتك مرة أخرى بعد قليل، أو استخدم /services و/contact للمعلومات الأساسية.";
+            reply = "أهلًا بك 🌿 أواجه تعثرًا مؤقتًا في الرد الآن. أرسل رسالتك مرة أخرى بعد قليل، أو استخدم /services و/contact للمعلومات الأساسية.";
+          }
         }
       }
 
