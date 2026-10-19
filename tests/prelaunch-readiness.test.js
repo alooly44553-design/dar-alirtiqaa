@@ -64,6 +64,11 @@ assert.match(scope, /isEducationPlatformRequest/u, "Telegram must include an edu
 const telegram = read("api/telegram.js");
 assert.match(telegram, /scope: "education-only"/u, "Telegram API must identify an education-only scope");
 assert(!telegram.includes("CHANNEL_ID"), "Telegram assistant must not use a shared public channel destination");
+const telegramAssistant = read("lib/telegram-assistant.js");
+assert.match(telegramAssistant, /scope = 'education'/u, "Telegram conversation/task/video access must be scope-filtered");
+const scopeMigration = read("database/neon/migrations/20261019_telegram_education_scope.sql");
+assert.match(scopeMigration, /DEFAULT 'unclassified'/u, "Legacy Telegram rows must be left unclassified");
+assert.match(scopeMigration, /telegram_video_jobs/u, "Video-job scope migration missing");
 const zoom = read("lib/zoom-meetings.js");
 assert.match(zoom, /is_center_management_admin/u, "Zoom route must enforce administrator role");
 assert.match(zoom, /ADMIN_AUTH_REQUIRED/u, "Zoom route must fail closed without admin authorization");
