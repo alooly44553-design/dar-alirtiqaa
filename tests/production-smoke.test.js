@@ -8,13 +8,13 @@ let lastObservation = "no response";
 
 for (let attempt = 1; attempt <= 18; attempt++) {
   try {
-    const response = await fetch(baseUrl + "/app.webmanifest?v=20261019-5", {
+    const response = await fetch(baseUrl + "/app.webmanifest?v=20261020-1", {
       cache: "no-store",
       signal: AbortSignal.timeout(6000)
     });
     if (response.ok) {
       const candidate = await response.json();
-      if (candidate.version === "1.1.3" && candidate.name === targetName && candidate.short_name === targetName) {
+      if (candidate.version === "1.1.4" && candidate.name === targetName && candidate.short_name === targetName) {
         manifest = candidate;
         break;
       }
@@ -49,8 +49,8 @@ async function getJson(route) {
 
 const home = await getText("/");
 assert.match(home, /<html lang="ar" dir="rtl">/u, "Homepage must remain Arabic RTL");
-assert.match(home, /app\.webmanifest\?v=20261019-5/u, "Homepage must reference the current PWA manifest");
-assert.match(home, /sw\.js\?v=20261019-5/u, "Homepage must reference the current service worker");
+assert.match(home, /app\.webmanifest\?v=20261020-1/u, "Homepage must reference the current PWA manifest");
+assert.match(home, /sw\.js\?v=20261020-1/u, "Homepage must reference the current service worker");
 await getText("/businesses.html");
 await getText("/operations-templates.html");
 
@@ -64,10 +64,17 @@ assert.equal(sitemapUrls.length, new Set(sitemapUrls).size, "Sitemap URLs must b
 const catalog = await getJson("/api/education/services");
 assert.equal(catalog.ok, true, "Education service catalog must report ok=true");
 assert(Array.isArray(catalog.services) && catalog.services.length > 0, "Education service catalog must be nonempty");
+const registrationService = catalog.services.find(service => service.service_code === "student_registration");
+assert(registrationService?.id, "Student registration service must remain available");
+const feeCatalog = await getJson("/api/education/service-fees?service_id=" + encodeURIComponent(registrationService.id));
+assert.equal(feeCatalog.ok, true, "Student registration fee catalog must load");
+assert(Array.isArray(feeCatalog.fees), "Fee response must include an array");
+assert(feeCatalog.fees.every(fee => typeof fee.calculation_method === "string"), "Fee API must expose its pricing method");
+assert.match(home, /يُحدد بعرض سعر عند الحاجة/u, "Homepage must explain fees that require a quote");
 
 const telegram = await getJson("/api/telegram?diagnose=1");
 assert.equal(telegram.ok, true, "Telegram diagnostic must report ok=true");
 assert.equal(telegram.configured, true, "Telegram bot must be configured");
 assert(telegram.botUsername, "Telegram diagnostic must identify the validated bot without revealing its token");
 assert.equal(telegram.aiGatewayAuthAvailable, true, "AI Gateway authentication must be available in the runtime");
-console.log("Production smoke test passed: v1.1.3 manifest, Arabic RTL homepage, public pages, unique sitemap without draft policies, service catalog, and Telegram/AI Gateway readiness signal.");
+console.log("Production smoke test passed: v1.1.4 manifest, Arabic RTL homepage, public pages, unique sitemap without draft policies, service catalog, and Telegram/AI Gateway readiness signal.");
