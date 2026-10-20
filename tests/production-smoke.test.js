@@ -8,13 +8,13 @@ let lastObservation = "no response";
 
 for (let attempt = 1; attempt <= 18; attempt++) {
   try {
-    const response = await fetch(baseUrl + "/app.webmanifest?v=20261020-3", {
+    const response = await fetch(baseUrl + "/app.webmanifest?v=20261020-4", {
       cache: "no-store",
       signal: AbortSignal.timeout(6000)
     });
     if (response.ok) {
       const candidate = await response.json();
-      if (candidate.version === "1.1.4" && candidate.name === targetName && candidate.short_name === targetName) {
+      if (candidate.version === "1.1.5" && candidate.name === targetName && candidate.short_name === targetName) {
         manifest = candidate;
         break;
       }
@@ -49,8 +49,8 @@ async function getJson(route) {
 
 const home = await getText("/");
 assert.match(home, /<html lang="ar" dir="rtl">/u, "Homepage must remain Arabic RTL");
-assert.match(home, /app\.webmanifest\?v=20261020-3/u, "Homepage must reference the current PWA manifest");
-assert.match(home, /sw\.js\?v=20261020-3/u, "Homepage must reference the current service worker");
+assert.match(home, /app\.webmanifest\?v=20261020-4/u, "Homepage must reference the current PWA manifest");
+assert.match(home, /sw\.js\?v=20261020-4/u, "Homepage must reference the current service worker");
 await getText("/businesses.html");
 await getText("/operations-templates.html");
 
@@ -77,4 +77,4 @@ assert.equal(telegram.ok, true, "Telegram diagnostic must report ok=true");
 assert.equal(telegram.configured, true, "Telegram bot must be configured");
 assert(telegram.botUsername, "Telegram diagnostic must identify the validated bot without revealing its token");
 assert.equal(telegram.aiGatewayAuthAvailable, true, "AI Gateway authentication must be available in the runtime");
-console.log("Production smoke test passed: v1.1.4 manifest, Arabic RTL homepage, public pages, unique sitemap without draft policies, service catalog, and Telegram/AI Gateway readiness signal.");
+console.log("Production smoke test passed: v1.1.5 manifest, Arabic RTL homepage, public pages, unique sitemap without draft policies, service catalog, and Telegram/AI Gateway readiness signal.");
