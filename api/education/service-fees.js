@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     }
     const sql = getDatabase("education");
     const fees = await sql`
-      SELECT fee_code, fee_name, description, amount, currency, is_required, condition_rule
+      SELECT fee_code, fee_name, description, amount, currency, is_required, calculation_method, condition_rule
       FROM education.service_fee_items
       WHERE service_id = ${serviceId}::uuid
         AND is_active = true
