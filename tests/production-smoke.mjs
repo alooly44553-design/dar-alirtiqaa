@@ -78,7 +78,7 @@ for (const path of ["/app.webmanifest", "/sw.js", "/robots.txt", "/sitemap.xml",
       assert.equal(manifest.short_name, manifest.name, "PWA short name mismatch");
       assert.ok(manifest.start_url, "manifest missing start_url");
     }
-    if (path === "/sw.js") assert.match(body, /dar-alirtiqaa-v1\.1\.3/u, "service-worker cache version mismatch");
+    if (path === "/sw.js") assert.match(body, /const CACHE_NAME\s*=\s*"dar-alirtiqaa-v\d+\.\d+\.\d+"/u, "service-worker cache key must have a valid independent semantic version");
     if (path === "/sitemap.xml") {
       assert.match(body, /<urlset\b/i);
       assert(!body.includes("/privacy.html"), "draft privacy policy must not be listed in sitemap");
