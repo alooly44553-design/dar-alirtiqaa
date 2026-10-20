@@ -30,6 +30,8 @@ const admin = read("admin.html");
 assert.match(admin, /setInterval\(\(\)=>\{/u, "Education request dashboard must poll for new submissions");
 assert.match(admin, /document\.visibilityState!=="visible"/u, "Dashboard polling must pause in hidden tabs");
 assert.match(admin, /التحديث التلقائي كل 30 ثانية/u, "Dashboard must disclose its refresh cadence");
+assert.match(admin, /const registrationRefreshWait=setInterval\(/u, "Student registrations must load after the admin session is ready");
+assert.match(admin, /loadRegistrations\(\{silent:true\}\)/u, "Student registration list must receive read-only refreshes");
 
 const feeApi = read("api/education/service-fees.js");
 assert.match(feeApi, /calculation_method/u, "Fee API must expose pricing method metadata");
