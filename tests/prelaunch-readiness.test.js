@@ -15,15 +15,15 @@ for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "
 const packageJson = JSON.parse(read("package.json"));
 const manifest = JSON.parse(read("app.webmanifest"));
 const appName = "منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية";
-assert.equal(packageJson.version, "1.1.4", "Package version must match intended release");
+assert.equal(packageJson.version, "1.1.5", "Package version must match intended release");
 assert.equal(manifest.version, packageJson.version, "Manifest and package versions differ");
 assert.equal(manifest.name, appName, "PWA display name mismatch");
 assert.equal(manifest.short_name, appName, "PWA short name mismatch");
 assert.match(read("capacitor.config.ts"), /appName:\s*'منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية'/u, "Capacitor appName mismatch");
 assert.match(read("sw.js"), /const CACHE_NAME\s*=\s*"dar-alirtiqaa-v\d+\.\d+\.\d+"/u, "Service worker cache key must have a valid independent semantic version");
 const android = read(".github/workflows/android-apk.yml");
-assert.match(android, /versionCode 8/u, "Android versionCode mismatch");
-assert.match(android, /versionName "1\.1\.4"/u, "Android versionName mismatch");
+assert.match(android, /versionCode 9/u, "Android versionCode mismatch");
+assert.match(android, /versionName "1\.1\.5"/u, "Android versionName mismatch");
 
 const index = read("index.html");
 const admin = read("admin.html");
