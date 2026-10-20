@@ -8,7 +8,7 @@ let lastObservation = "no response";
 
 for (let attempt = 1; attempt <= 18; attempt++) {
   try {
-    const response = await fetch(baseUrl + "/app.webmanifest?v=20261020-1", {
+    const response = await fetch(baseUrl + "/app.webmanifest?v=20261020-3", {
       cache: "no-store",
       signal: AbortSignal.timeout(6000)
     });
@@ -49,8 +49,8 @@ async function getJson(route) {
 
 const home = await getText("/");
 assert.match(home, /<html lang="ar" dir="rtl">/u, "Homepage must remain Arabic RTL");
-assert.match(home, /app\.webmanifest\?v=20261020-1/u, "Homepage must reference the current PWA manifest");
-assert.match(home, /sw\.js\?v=20261020-1/u, "Homepage must reference the current service worker");
+assert.match(home, /app\.webmanifest\?v=20261020-3/u, "Homepage must reference the current PWA manifest");
+assert.match(home, /sw\.js\?v=20261020-3/u, "Homepage must reference the current service worker");
 await getText("/businesses.html");
 await getText("/operations-templates.html");
 

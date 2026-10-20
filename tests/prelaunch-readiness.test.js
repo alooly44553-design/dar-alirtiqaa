@@ -26,14 +26,25 @@ assert.match(android, /versionCode 8/u, "Android versionCode mismatch");
 assert.match(android, /versionName "1\.1\.4"/u, "Android versionName mismatch");
 
 const index = read("index.html");
+const admin = read("admin.html");
+assert.match(admin, /setInterval\(\(\)=>\{/u, "Education request dashboard must poll for new submissions");
+assert.match(admin, /document\.visibilityState!=="visible"/u, "Dashboard polling must pause in hidden tabs");
+assert.match(admin, /التحديث التلقائي كل 30 ثانية/u, "Dashboard must disclose its refresh cadence");
+assert.match(admin, /const registrationRefreshWait=setInterval\(/u, "Student registrations must load after the admin session is ready");
+assert.match(admin, /loadRegistrations\(\{silent:true\}\)/u, "Student registration list must receive read-only refreshes");
+
 const feeApi = read("api/education/service-fees.js");
 assert.match(feeApi, /calculation_method/u, "Fee API must expose pricing method metadata");
 assert.match(index, /const displayFees=\[\.\.\.fees,\.\.\.unpricedFees\]/u, "Unpriced quote and conditional fee items must remain visible");
 assert.match(index, /يُحدد بعرض سعر عند الحاجة/u, "Quoted fees must be shown without inventing an amount");
 assert.match(index, /غير محدد — يتطلب تأكيد الإدارة/u, "Unconfigured fee amounts must be flagged for management review");
 assert.match(index, /<html lang="ar" dir="rtl">/u, "Homepage must remain Arabic RTL");
-assert.match(index, /app\.webmanifest\?v=20261020-1/u, "Manifest cache version mismatch");
-assert.match(index, /sw\.js\?v=20261020-1/u, "Service worker cache version mismatch");
+const manifestCacheVersion = index.match(/app\.webmanifest\?v=([\w-]+)/u)?.[1];
+const serviceWorkerCacheVersion = index.match(/sw\.js\?v=([\w-]+)/u)?.[1];
+assert(manifestCacheVersion, "Manifest must have a cache-busting version");
+assert(serviceWorkerCacheVersion, "Service worker must have a cache-busting version");
+assert.equal(manifestCacheVersion, serviceWorkerCacheVersion, "Manifest and service-worker cache-busters must stay aligned");
+
 for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والعالي","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
   assert(index.includes(label), "Missing educational scope: " + label);
 }

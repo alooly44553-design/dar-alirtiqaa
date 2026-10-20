@@ -287,7 +287,10 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
    if(!response.ok)throw new Error(result.error||"تعذر الاتصال بخدمة طلبات التعليم.");
    return result;
   }
+  let loading=false;
   async function load(){
+   if(loading)return;
+   loading=true;
    msg.textContent="جارٍ تحميل طلبات الخدمات من قاعدة التعليم المستقلة…";
    try{
     const result=await api("GET"),data=result.requests||[];
@@ -296,8 +299,9 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
      const fields=Object.entries(d).filter(([k])=>!["consent_given","consent_text","attachments"].includes(k)).map(([k,v])=>'<div><strong>'+safe(k)+':</strong> '+safe(typeof v==="object"?JSON.stringify(v):v)+'</div>').join("");
      return '<article class="card" style="margin:12px 0"><h3>'+safe(s.service_name||"خدمة")+' — '+safe(x.submission_number)+'</h3><p>'+safe(x.applicant_name||"")+' | '+safe(x.applicant_phone||"")+' | '+safe(x.applicant_email||"")+'</p><p><strong>طريقة التسجيل:</strong> '+safe(s.registration_method_label||"")+' | <strong>الحالة:</strong> '+safe(x.status==="approved"?"مقبول ومعتمد نهائيًا بعد المراجعة الإدارية":x.status==="rejected"?"مرفوض بعد المراجعة الإدارية":"قيد المراجعة الإدارية")+'</p><p><strong>متابعة الذكاء الاصطناعي:</strong> '+safe(x.follow_up_status||"لم تُنشأ مهمة متابعة")+' · '+safe(x.follow_up_assigned_to||"غير محدد")+(x.follow_up_due_at?' · موعد المتابعة: '+safe(new Date(x.follow_up_due_at).toLocaleString("ar-SA")):'')+'</p><details><summary>بيانات الطلب</summary>'+fields+'</details><div class="toolbar" style="margin-top:10px"><button data-action="accept" data-id="'+safe(x.id)+'">اعتماد</button><button data-action="reject" data-id="'+safe(x.id)+'">رفض</button><button data-action="document" data-id="'+safe(x.id)+'">توثيق</button></div></article>';
     }).join("")||"<p>لا توجد طلبات خدمات حتى الآن.</p>";
-    msg.textContent="تم تحديث الطلبات من قاعدة التعليم المستقلة.";
+    msg.textContent="تم تحديث الطلبات من قاعدة التعليم المستقلة. التحديث التلقائي كل 30 ثانية؛ آخر تحديث: "+new Date().toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"});
    }catch(error){msg.textContent="تعذر تحميل طلبات الخدمات: "+error.message}
+   finally{loading=false}
   }
   list.addEventListener("click",async e=>{
    const b=e.target.closest("button[data-action]");if(!b)return;
@@ -310,6 +314,11 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
    }catch(error){msg.textContent="تعذر تنفيذ الإجراء: "+error.message}
   });
   document.getElementById("refreshServiceSubmissions").onclick=load;
+  setInterval(()=>{
+   if(document.visibilityState!=="visible"||!window.sb||loading)return;
+   if(list.contains(document.activeElement)||list.querySelector("details[open]"))return;
+   load();
+  },30000);
   load();
  },200);
 })();</script>
@@ -695,14 +704,20 @@ async function educationAdminApi(method,body){
  if(!response.ok)throw new Error(result.error||"تعذر الاتصال بخدمة التسجيلات.");
  return result;
 }
-async function loadRegistrations(){
- const box=document.getElementById("registrationsList"),sum=document.getElementById("registrationsSummary");if(!box)return;
+let registrationsLoading=false;
+async function loadRegistrations({silent=false}={}){
+ const box=document.getElementById("registrationsList"),sum=document.getElementById("registrationsSummary");
+ if(!box||registrationsLoading)return;
+ registrationsLoading=true;
+ if(!silent)box.innerHTML='<div class="muted">جارٍ تحميل سجلات التسجيل من قاعدة التعليم المستقلة…</div>';
  try{
-  box.innerHTML='<div class="muted">جارٍ تحميل سجلات التسجيل من قاعدة التعليم المستقلة…</div>';
   const result=await educationAdminApi("GET");
-  const rows=result.registrations||[];if(sum)sum.textContent="إجمالي السجلات المعروضة: "+rows.length;
+  if(silent&&box.contains(document.activeElement))return;
+  const rows=result.registrations||[];
+  if(sum)sum.textContent="إجمالي السجلات المعروضة: "+rows.length+" · آخر تحديث: "+new Date().toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"})+" · تحديث تلقائي كل 30 ثانية";
   box.innerHTML=rows.map(x=>'<div class="item"><strong>'+escapeHtml(x.student_name)+' — '+escapeHtml(x.registration_number||"بانتظار الرقم")+'</strong><div class="small">الجنس: '+(x.gender==="female"?"طالبة":"طالب")+' · الهاتف: '+escapeHtml(x.phone||"غير مسجل")+' · ولي الأمر: '+escapeHtml(x.guardian_name||"غير مسجل")+' · المرحلة/الصف: '+escapeHtml(x.requested_program||"غير محدد")+'</div><div class="small">الحالة: <span class="badge '+(x.approval_status==="approved"?"ok":x.approval_status==="rejected"?"danger":"warn")+'">'+escapeHtml(x.approval_status)+'</span> · التوثيق: '+(x.documented?"موثق":"غير موثق")+'</div><div class="row" style="margin-top:7px"><button type="button" data-reg-approve="'+x.id+'">اعتماد</button><button type="button" class="secondary" data-reg-reject="'+x.id+'">رفض</button><button type="button" class="secondary" data-reg-doc="'+x.id+'">'+(x.documented?"تحديث التوثيق":"توثيق قبول التسجيل")+'</button></div></div>').join("")||'<span class="muted">لا توجد سجلات تسجيل.</span>';
- }catch(error){box.innerHTML='<div class="item dangerText">تعذر تحميل سجلات التسجيل: '+escapeHtml(error.message)+'</div>'}
+ }catch(error){if(!silent)box.innerHTML='<div class="item dangerText">تعذر تحميل سجلات التسجيل: '+escapeHtml(error.message)+'</div>'}
+ finally{registrationsLoading=false}
 }
 const regAdminStage=document.getElementById("regAdminStage"),regAdminGrade=document.getElementById("regAdminGrade");
 const regAdminGrades={primary:["الأول الابتدائي","الثاني الابتدائي","الثالث الابتدائي","الرابع الابتدائي","الخامس الابتدائي","السادس الابتدائي"],middle:["الأول المتوسط","الثاني المتوسط","الثالث المتوسط"],secondary:["الأول الثانوي","الثاني الثانوي","الثالث الثانوي"]};
@@ -730,6 +745,17 @@ document.getElementById("registrationsList")?.addEventListener("click",async e=>
   m.className="small successText";m.textContent="تم تحديث سجل التسجيل في قاعدة التعليم المستقلة.";await loadRegistrations();
  }catch(error){m.className="small dangerText";m.textContent="تعذر تحديث السجل: "+error.message}
 });
+const registrationRefreshWait=setInterval(()=>{
+ if(!window.sb)return;
+ clearInterval(registrationRefreshWait);
+ loadRegistrations();
+ setInterval(()=>{
+  const box=document.getElementById("registrationsList");
+  if(document.visibilityState!=="visible"||!window.sb||registrationsLoading||!box)return;
+  if(box.contains(document.activeElement))return;
+  loadRegistrations({silent:true});
+ },30000);
+},200);
 
 async function loadAuditDashboard(){
  const summary=document.getElementById("auditSummary"),box=document.getElementById("auditFindings");
