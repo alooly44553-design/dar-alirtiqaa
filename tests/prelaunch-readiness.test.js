@@ -26,6 +26,11 @@ assert.match(android, /versionCode 8/u, "Android versionCode mismatch");
 assert.match(android, /versionName "1\.1\.4"/u, "Android versionName mismatch");
 
 const index = read("index.html");
+const admin = read("admin.html");
+assert.match(admin, /setInterval\(\(\)=>\{/u, "Education request dashboard must poll for new submissions");
+assert.match(admin, /document\.visibilityState!=="visible"/u, "Dashboard polling must pause in hidden tabs");
+assert.match(admin, /التحديث التلقائي كل 30 ثانية/u, "Dashboard must disclose its refresh cadence");
+
 const feeApi = read("api/education/service-fees.js");
 assert.match(feeApi, /calculation_method/u, "Fee API must expose pricing method metadata");
 assert.match(index, /const displayFees=\[\.\.\.fees,\.\.\.unpricedFees\]/u, "Unpriced quote and conditional fee items must remain visible");
