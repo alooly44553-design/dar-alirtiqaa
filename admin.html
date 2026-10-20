@@ -704,14 +704,20 @@ async function educationAdminApi(method,body){
  if(!response.ok)throw new Error(result.error||"تعذر الاتصال بخدمة التسجيلات.");
  return result;
 }
-async function loadRegistrations(){
- const box=document.getElementById("registrationsList"),sum=document.getElementById("registrationsSummary");if(!box)return;
+let registrationsLoading=false;
+async function loadRegistrations({silent=false}={}){
+ const box=document.getElementById("registrationsList"),sum=document.getElementById("registrationsSummary");
+ if(!box||registrationsLoading)return;
+ registrationsLoading=true;
+ if(!silent)box.innerHTML='<div class="muted">جارٍ تحميل سجلات التسجيل من قاعدة التعليم المستقلة…</div>';
  try{
-  box.innerHTML='<div class="muted">جارٍ تحميل سجلات التسجيل من قاعدة التعليم المستقلة…</div>';
   const result=await educationAdminApi("GET");
-  const rows=result.registrations||[];if(sum)sum.textContent="إجمالي السجلات المعروضة: "+rows.length;
+  if(silent&&box.contains(document.activeElement))return;
+  const rows=result.registrations||[];
+  if(sum)sum.textContent="إجمالي السجلات المعروضة: "+rows.length+" · آخر تحديث: "+new Date().toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"})+" · تحديث تلقائي كل 30 ثانية";
   box.innerHTML=rows.map(x=>'<div class="item"><strong>'+escapeHtml(x.student_name)+' — '+escapeHtml(x.registration_number||"بانتظار الرقم")+'</strong><div class="small">الجنس: '+(x.gender==="female"?"طالبة":"طالب")+' · الهاتف: '+escapeHtml(x.phone||"غير مسجل")+' · ولي الأمر: '+escapeHtml(x.guardian_name||"غير مسجل")+' · المرحلة/الصف: '+escapeHtml(x.requested_program||"غير محدد")+'</div><div class="small">الحالة: <span class="badge '+(x.approval_status==="approved"?"ok":x.approval_status==="rejected"?"danger":"warn")+'">'+escapeHtml(x.approval_status)+'</span> · التوثيق: '+(x.documented?"موثق":"غير موثق")+'</div><div class="row" style="margin-top:7px"><button type="button" data-reg-approve="'+x.id+'">اعتماد</button><button type="button" class="secondary" data-reg-reject="'+x.id+'">رفض</button><button type="button" class="secondary" data-reg-doc="'+x.id+'">'+(x.documented?"تحديث التوثيق":"توثيق قبول التسجيل")+'</button></div></div>').join("")||'<span class="muted">لا توجد سجلات تسجيل.</span>';
- }catch(error){box.innerHTML='<div class="item dangerText">تعذر تحميل سجلات التسجيل: '+escapeHtml(error.message)+'</div>'}
+ }catch(error){if(!silent)box.innerHTML='<div class="item dangerText">تعذر تحميل سجلات التسجيل: '+escapeHtml(error.message)+'</div>'}
+ finally{registrationsLoading=false}
 }
 const regAdminStage=document.getElementById("regAdminStage"),regAdminGrade=document.getElementById("regAdminGrade");
 const regAdminGrades={primary:["الأول الابتدائي","الثاني الابتدائي","الثالث الابتدائي","الرابع الابتدائي","الخامس الابتدائي","السادس الابتدائي"],middle:["الأول المتوسط","الثاني المتوسط","الثالث المتوسط"],secondary:["الأول الثانوي","الثاني الثانوي","الثالث الثانوي"]};
@@ -739,6 +745,17 @@ document.getElementById("registrationsList")?.addEventListener("click",async e=>
   m.className="small successText";m.textContent="تم تحديث سجل التسجيل في قاعدة التعليم المستقلة.";await loadRegistrations();
  }catch(error){m.className="small dangerText";m.textContent="تعذر تحديث السجل: "+error.message}
 });
+const registrationRefreshWait=setInterval(()=>{
+ if(!window.sb)return;
+ clearInterval(registrationRefreshWait);
+ loadRegistrations();
+ setInterval(()=>{
+  const box=document.getElementById("registrationsList");
+  if(document.visibilityState!=="visible"||!window.sb||registrationsLoading||!box)return;
+  if(box.contains(document.activeElement))return;
+  loadRegistrations({silent:true});
+ },30000);
+},200);
 
 async function loadAuditDashboard(){
  const summary=document.getElementById("auditSummary"),box=document.getElementById("auditFindings");
