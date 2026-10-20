@@ -354,9 +354,10 @@ loadServices();
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js?v=20261020-1", { scope: "./", updateViaCache: "none" }).catch(() => {});
+    navigator.serviceWorker.register("./sw.js?v=20261020-2", { scope: "./", updateViaCache: "none" }).catch(() => {});
   });
 }
 </script>
+<script src="./education-announcement.js?v=20261020-1" defer></script>
 </body>
 </html>
