@@ -20,7 +20,7 @@ assert.equal(manifest.version, packageJson.version, "Manifest and package versio
 assert.equal(manifest.name, appName, "PWA display name mismatch");
 assert.equal(manifest.short_name, appName, "PWA short name mismatch");
 assert.match(read("capacitor.config.ts"), /appName:\s*'منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية'/u, "Capacitor appName mismatch");
-assert.match(read("sw.js"), /dar-alirtiqaa-v1\.1\.3/u, "Service worker cache key was not bumped");
+assert.match(read("sw.js"), /const CACHE_NAME\s*=\s*"dar-alirtiqaa-v\d+\.\d+\.\d+"/u, "Service worker cache key must have a valid independent semantic version");
 const android = read(".github/workflows/android-apk.yml");
 assert.match(android, /versionCode 7/u, "Android versionCode mismatch");
 assert.match(android, /versionName "1\.1\.3"/u, "Android versionName mismatch");
