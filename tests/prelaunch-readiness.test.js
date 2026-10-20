@@ -31,6 +31,8 @@ assert.match(admin, /setInterval\(\(\)=>\{/u, "Education request dashboard must 
 assert.match(admin, /document\.visibilityState!=="visible"/u, "Dashboard polling must pause in hidden tabs");
 assert.match(admin, /التحديث التلقائي كل 30 ثانية/u, "Dashboard must disclose its refresh cadence");
 assert.match(admin, /const registrationRefreshWait=setInterval\(/u, "Student registrations must load after the admin session is ready");
+assert.match(admin, /option value="early_childhood">مرحلة الطفولة المبكرة/u, "Admin registration must support early-childhood stage");
+assert.match(admin, /early_childhood:\["الحضانة","تمهيدي 1 KG1","تمهيدي 2 KG2","تمهيدي 3 KG3"\]/u, "Admin registration must include all early-childhood grade choices");
 assert.match(admin, /loadRegistrations\(\{silent:true\}\)/u, "Student registration list must receive read-only refreshes");
 
 const feeApi = read("api/education/service-fees.js");
