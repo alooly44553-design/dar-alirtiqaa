@@ -39,8 +39,12 @@ assert.match(index, /const displayFees=\[\.\.\.fees,\.\.\.unpricedFees\]/u, "Unp
 assert.match(index, /يُحدد بعرض سعر عند الحاجة/u, "Quoted fees must be shown without inventing an amount");
 assert.match(index, /غير محدد — يتطلب تأكيد الإدارة/u, "Unconfigured fee amounts must be flagged for management review");
 assert.match(index, /<html lang="ar" dir="rtl">/u, "Homepage must remain Arabic RTL");
-assert.match(index, /app\.webmanifest\?v=20261020-1/u, "Manifest cache version mismatch");
-assert.match(index, /sw\.js\?v=20261020-1/u, "Service worker cache version mismatch");
+const manifestCacheVersion = index.match(/app\.webmanifest\?v=([\w-]+)/u)?.[1];
+const serviceWorkerCacheVersion = index.match(/sw\.js\?v=([\w-]+)/u)?.[1];
+assert(manifestCacheVersion, "Manifest must have a cache-busting version");
+assert(serviceWorkerCacheVersion, "Service worker must have a cache-busting version");
+assert.equal(manifestCacheVersion, serviceWorkerCacheVersion, "Manifest and service-worker cache-busters must stay aligned");
+
 for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والعالي","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
   assert(index.includes(label), "Missing educational scope: " + label);
 }
