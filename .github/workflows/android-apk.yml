@@ -32,8 +32,8 @@ jobs:
         shell: bash
         run: |
           set -e
-          sed -i 's/versionCode [0-9]*/versionCode 10/' android/app/build.gradle
-          sed -i 's/versionName "[^"]*"/versionName "1.1.6"/' android/app/build.gradle
+          sed -i 's/versionCode [0-9]*/versionCode 11/' android/app/build.gradle
+          sed -i 's/versionName "[^"]*"/versionName "1.1.7"/' android/app/build.gradle
       - name: Install official launcher logo
         shell: bash
         run: |
@@ -68,13 +68,13 @@ jobs:
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' && env.ANDROID_KEYSTORE_PASSWORD != '' && env.ANDROID_KEY_ALIAS != '' && env.ANDROID_KEY_PASSWORD != '' }}
         uses: actions/upload-artifact@v7
         with:
-          name: dar-alirtiqaa-android-release-v1.1.6
+          name: dar-alirtiqaa-android-release-v1.1.7
           path: android/app-release-signed.apk
           if-no-files-found: error
       - name: Upload Debug APK (testing only)
         if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' || env.ANDROID_KEYSTORE_PASSWORD == '' || env.ANDROID_KEY_ALIAS == '' || env.ANDROID_KEY_PASSWORD == '' }}
         uses: actions/upload-artifact@v7
         with:
-          name: dar-alirtiqaa-android-debug-v1.1.6
+          name: dar-alirtiqaa-android-debug-v1.1.7
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
