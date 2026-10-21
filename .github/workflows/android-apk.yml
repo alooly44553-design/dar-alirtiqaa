@@ -51,11 +51,11 @@ jobs:
         run: npx cap sync android
       - name: Build Debug APK
         run: cd android && chmod +x gradlew && ./gradlew assembleDebug
-      - name: Build stable Release APK when signing secrets are configured
-        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+      - name: Build stable Release APK when all signing secrets are configured
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' && env.ANDROID_KEYSTORE_PASSWORD != '' && env.ANDROID_KEY_ALIAS != '' && env.ANDROID_KEY_PASSWORD != '' }}
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
           cd android
           echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > dar-alirtiqaa-release.jks
           ./gradlew assembleRelease
@@ -64,10 +64,17 @@ jobs:
           "$BUILD_TOOLS/apksigner" sign --ks dar-alirtiqaa-release.jks --ks-pass "pass:$ANDROID_KEYSTORE_PASSWORD" --key-pass "pass:$ANDROID_KEY_PASSWORD" --ks-key-alias "$ANDROID_KEY_ALIAS" --out app-release-signed.apk app-release-aligned.apk
           "$BUILD_TOOLS/apksigner" verify --verbose app-release-signed.apk
           rm -f dar-alirtiqaa-release.jks app-release-aligned.apk
-      - uses: actions/upload-artifact@v7
+      - name: Upload signed Android release APK
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' && env.ANDROID_KEYSTORE_PASSWORD != '' && env.ANDROID_KEY_ALIAS != '' && env.ANDROID_KEY_PASSWORD != '' }}
+        uses: actions/upload-artifact@v7
         with:
-          name: dar-alirtiqaa-apks-v1.1.6
-          path: |
-            android/app/build/outputs/apk/debug/app-debug.apk
-            android/app-release-signed.apk
-          if-no-files-found: warn
+          name: dar-alirtiqaa-android-release-v1.1.6
+          path: android/app-release-signed.apk
+          if-no-files-found: error
+      - name: Upload Debug APK (testing only)
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' || env.ANDROID_KEYSTORE_PASSWORD == '' || env.ANDROID_KEY_ALIAS == '' || env.ANDROID_KEY_PASSWORD == '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: dar-alirtiqaa-android-debug-v1.1.6
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
