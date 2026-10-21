@@ -73,7 +73,7 @@
     document.getElementById('progress-bar').style.width = pct + '%';
   }
   const date = document.getElementById('report-date');
-  if (date && !date.value) date.value = new Date().toISOString().slice(0, 10);
+  if (date && !date.value) { const now = new Date(); date.value = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-'); }
   document.getElementById('make-report').addEventListener('click', () => {
     const done = allTasks.filter(t => checks[t.id] === true);
     const left = allTasks.filter(t => checks[t.id] !== true);
