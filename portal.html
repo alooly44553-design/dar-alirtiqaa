@@ -130,7 +130,7 @@ $("requestAiDraft").addEventListener("click",async()=>{
   aiDraftState.title=topic;
   $("aiDraftPreview").textContent=aiDraftState.text;
   $("useAiDraft").classList.remove("hide");
-  msg("aiDraftStatus","مسودة منشأة بنجاح. راجعها وصحّحها قبل الحفظ أو النشر. لم تُحفظ أو تُنشر تلقائيًا.",true);
+  msg("aiDraftStatus","مسودة منشأة بنجاح. راجعها وصحّحها قبل الحفظ أو النشر. لم تُحفظ ولم تُنشر تلقائيًا.",true);
  }catch(error){
   $("aiDraftPreview").textContent="لم يتم إنشاء مسودة.";
   msg("aiDraftStatus",error.message||"المساعد غير متاح مؤقتًا.");
