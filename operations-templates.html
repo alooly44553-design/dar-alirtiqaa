@@ -9,10 +9,12 @@
 <link rel="icon" href="./icon.svg?v=20261019-2" type="image/svg+xml">
 <title>مكتبة القوالب التشغيلية | منظومة دار الإرتقاء الفكري التعليمية</title>
 <style>
+body:not(.authorized)>header,body:not(.authorized)>main,body:not(.authorized)>footer{display:none}#accessDenied{display:none;min-height:100vh;padding:30px 16px;background:#f2f6fa}body:not(.authorized) #accessDenied{display:block}.access-card{max-width:600px;margin:8vh auto;padding:24px;background:#fff;border:1px solid #dce5ee;border-radius:16px}
 :root{--navy:#082f57;--blue:#0d5c91;--teal:#0f7b83;--gold:#c89b2c;--ink:#17283b;--muted:#617286;--bg:#f2f6fa;--line:#dce5ee;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;line-height:1.8}a{color:inherit}.container{width:min(1180px,calc(100% - 28px));margin:auto}.hero{background:linear-gradient(125deg,#061f3a,#0d477c 60%,#0f7b83);color:#fff;padding:22px 0 32px}.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.nav a{color:#f5d879;text-decoration:none}.hero h1{font-size:clamp(28px,4.8vw,44px);line-height:1.3;margin:18px 0 6px}.hero p{color:#d8e8f8;max-width:940px;margin:6px 0 0}.container main{padding:20px 0 45px}.notice{padding:16px 18px;border:1px solid #e6d28e;border-right:5px solid var(--gold);border-radius:14px;background:#fff7df;color:#705817;margin:18px 0}.notice strong{color:#503f12}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.summary article,.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 5px 20px #0f172a08}.summary strong{display:block;color:var(--navy);font-size:18px}.summary span{color:var(--muted);font-size:13px}.filters{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.filters input,.filters select{font:inherit;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}.filters input{flex:1;min-width:230px}.group{margin:30px 0;scroll-margin-top:20px}.group h2{color:var(--navy);font-size:24px}.group>p{color:var(--muted);margin-top:0}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{display:flex;flex-direction:column;gap:9px}.card h3{margin:0;color:var(--navy);font-size:17px}.card p{margin:0;color:var(--muted);font-size:13px;flex:1}.fields{font-size:12px;color:#334155;background:#f8fafc;border-radius:10px;padding:10px}.fields b{display:block;margin-bottom:4px}.btn{border:0;border-radius:10px;padding:10px 12px;font:inherit;font-weight:800;cursor:pointer;background:var(--navy);color:#fff}.btn.secondary{background:#e2e8f0;color:#1e293b}.btn:hover{filter:brightness(1.08)}.empty{display:none;background:#fff;border:1px dashed #cbd5e1;border-radius:12px;padding:20px;text-align:center;color:var(--muted)}.branch-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.branch{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}.branch b{display:block;color:var(--navy)}footer{background:#061f3a;color:#d3e1ee;padding:20px 0;font-size:13px}footer a{color:#f5d879}.hide{display:none!important}@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.grid,.summary,.branch-list{grid-template-columns:1fr}.hero h1{font-size:29px}}
 </style>
 </head>
 <body>
+<div id="accessDenied" dir="rtl"><div class="access-card"><h1>مكتبة التشغيل مخصصة للمخوّلين</h1><p id="accessMessage">يتم التحقق من جلسة الدخول وصلاحية الإدارة…</p><p><a href="./admin.html">تسجيل الدخول إلى لوحة الإدارة</a> · <a href="./">العودة إلى المنصة الرئيسية</a></p></div></div>
 <header class="hero"><div class="container">
 <nav class="nav"><a href="./">← العودة إلى المنصة الرئيسية</a><div><a href="./admin.html">لوحة الإدارة</a></div></nav>
 <h1>مكتبة القوالب التشغيلية والسجلات</h1>
@@ -22,12 +24,12 @@
 <div class="notice"><strong>حماية الجدول المعتمد:</strong> هذه المكتبة لا تعدّل جدول الحصص أو أوقاته أو الرسوم. في التعليم الأساسي والعام تبقى قاعدة الطاقم التعليمي <strong>30 حصة أسبوعيًا لكل فرد</strong> وفق توزيع الإدارة السابق. نموذج التدقيق أدناه للمقارنة مع السجل المعتمد فقط، وليس لإنشاء جدول بديل أو تغيير أي خانة أو وقت.</div>
 <div class="summary"><article><strong>5 فروع حضورية</strong><span>قوالب موحدة مع إبقاء سجل كل فرع مستقلًا.</span></article><article><strong>39 قالبًا قابلًا للتنزيل</strong><span>سجلات وقوائم تحقق فارغة قابلة للفتح في Excel أو الجداول الإلكترونية.</span></article><article><strong>مراجعة واعتماد بشري</strong><span>المهام والقرارات المالية والقانونية والصحية والنشر الخارجي لا تُعتمد تلقائيًا.</span></article></div>
 <h2 style="color:var(--navy)">الفروع الحضورية المعتمدة في القوالب</h2>
-<div class="branch-list">
-<div class="branch"><b>مدارس دار الإرتقاء الفكري - فرع القوزين</b><span>سجل الفرع مستقل.</span></div>
-<div class="branch"><b>مدارس دار الإرتقاء الفكري - فرع النزلة الشرقية</b><span>سجل الفرع مستقل.</span></div>
-<div class="branch"><b>مدارس دار الإرتقاء الفكري - فرع صبيا</b><span>سجل الفرع مستقل.</span></div>
-<div class="branch"><b>مدارس دار الإرتقاء الفكري - فرع أبو عريش</b><span>سجل الفرع مستقل.</span></div>
-<div class="branch"><b>مدارس دار الإرتقاء الفكري - فرع المناطق الحدودية</b><span>سجل الفرع مستقل.</span></div>
+<div class="branch-list" id="branchOptions">
+<div class="branch"><b>📍 مدارس دار الإرتقاء الفكري — فرع القوزين</b><span>خيارات التشغيل والسجلات الخاصة بالفرع.</span><p><a class="btn" href="#branches">فتح قوالب التشغيل</a></p></div>
+<div class="branch"><b>📍 مدارس دار الإرتقاء الفكري — فرع النزلة الشرقية</b><span>خيارات التشغيل والسجلات الخاصة بالفرع.</span><p><a class="btn" href="#branches">فتح قوالب التشغيل</a></p></div>
+<div class="branch"><b>📍 مدارس دار الإرتقاء الفكري — فرع صبيا</b><span>خيارات التشغيل والسجلات الخاصة بالفرع.</span><p><a class="btn" href="#branches">فتح قوالب التشغيل</a></p></div>
+<div class="branch"><b>📍 مدارس دار الإرتقاء الفكري — فرع أبو عريش</b><span>خيارات التشغيل والسجلات الخاصة بالفرع.</span><p><a class="btn" href="#branches">فتح قوالب التشغيل</a></p></div>
+<div class="branch"><b>📍 مدارس دار الإرتقاء الفكري — فرع المناطق الحدودية</b><span>خيارات التشغيل والسجلات الخاصة بالفرع.</span><p><a class="btn" href="#branches">فتح قوالب التشغيل</a></p></div>
 </div>
 <div class="notice"><strong>ضابط حجم الطاقم الحضوري:</strong> يعتمد تخطيط الموارد البشرية للفروع الحضورية سقفًا لا يتجاوز خمسة أشخاص بشريين للفرع، ضمن نطاق 3–5 بحسب احتياج التشغيل المعتمد. يظهر سقف العدد البشري في سجل خاص لكل فرع. لا يعيّن القالب موظفين ولا ينشئ عقودًا أو صلاحيات دخول؛ يُراجع التوزيع بشريًا مع مراعاة التغطية والأنظمة.</div>
 <div class="filters"><input id="search" type="search" placeholder="ابحث عن قالب: حضور، رواتب، قبول، فعالية..."><select id="filter"><option value="all">كل الأقسام</option><option value="people">الموارد البشرية والمالية</option><option value="education">التعليم والتقييم</option><option value="admissions">القبول والتسجيل</option><option value="branches">الفروع والإشراف</option><option value="business">الأعمال والخدمات</option><option value="digital">الاجتماعات والتسويق</option></select><button class="btn secondary" onclick="window.print()">طباعة الصفحة</button></div>
@@ -116,6 +118,21 @@ function applyFilter(){
  document.querySelectorAll(".group").forEach(section=>{const cards=[...section.querySelectorAll(".card[data-group]")];section.style.display=cards.some(c=>!c.classList.contains("hide"))?"block":"none";});
 }
 search.addEventListener("input",applyFilter);filter.addEventListener("change",applyFilter);
+</script>
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+const authClient=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
+(async()=>{
+ const msg=document.getElementById("accessMessage");
+ try{
+  const {data,error}=await authClient.auth.getSession();
+  const token=data?.session?.access_token;
+  if(error||!token){msg.textContent="سجّل الدخول أولًا من لوحة الإدارة، ثم افتح مكتبة القوالب التشغيلية.";return;}
+  const response=await fetch("/api/education/admin-service-requests",{method:"GET",headers:{Authorization:"Bearer "+token},cache:"no-store"});
+  if(!response.ok){msg.textContent="هذا الحساب غير مخوّل للوصول إلى المكتبة. راجع مسؤول المنظومة.";await authClient.auth.signOut();return;}
+  document.body.classList.add("authorized");
+ }catch(e){msg.textContent="تعذر التحقق من الصلاحية. أعد المحاولة بعد تسجيل الدخول من لوحة الإدارة.";}
+})();
 </script>
 </body>
 </html>

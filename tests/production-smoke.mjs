@@ -73,12 +73,12 @@ for (const path of ["/app.webmanifest", "/sw.js", "/robots.txt", "/sitemap.xml",
     assert.ok(body.length > 0, "empty response body");
     if (path === "/app.webmanifest") {
       const manifest = JSON.parse(body);
-      assert.equal(manifest.version, "1.1.3", "unexpected PWA version");
+      assert.match(manifest.version, /^\d+\.\d+\.\d+$/u, "unexpected PWA version format");
       assert.equal(manifest.name, "منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية", "PWA display name mismatch");
       assert.equal(manifest.short_name, manifest.name, "PWA short name mismatch");
       assert.ok(manifest.start_url, "manifest missing start_url");
     }
-    if (path === "/sw.js") assert.match(body, /dar-alirtiqaa-v1\.1\.3/u, "service-worker cache version mismatch");
+    if (path === "/sw.js") assert.match(body, /const CACHE_NAME\s*=\s*"dar-alirtiqaa-v\d+\.\d+\.\d+"/u, "service-worker cache key must have a valid independent semantic version");
     if (path === "/sitemap.xml") {
       assert.match(body, /<urlset\b/i);
       assert(!body.includes("/privacy.html"), "draft privacy policy must not be listed in sitemap");

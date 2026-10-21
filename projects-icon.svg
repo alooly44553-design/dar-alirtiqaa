@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+<title id="title">أيقونة مشاريع وأعمال الإرتقاء الفكري</title>
+<desc id="desc">ثلاث وحدات مترابطة ترمز إلى مشاريع مستقلة ضمن هوية مشتركة.</desc>
+<rect width="128" height="128" rx="28" fill="#174b42"/>
+<path d="M64 15 103 37.5v45L64 105 25 82.5v-45Z" fill="none" stroke="#c7a65a" stroke-width="3"/>
+<rect x="30" y="42" width="27" height="27" rx="6" fill="#fff"/>
+<rect x="71" y="42" width="27" height="27" rx="6" fill="#c7a65a"/>
+<rect x="51" y="74" width="27" height="27" rx="6" fill="#4e8a70" stroke="#fff" stroke-width="2"/>
+<path d="M57 55.5h14M64 62.5v11.5" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+<circle cx="64" cy="29" r="4" fill="#c7a65a"/>
+</svg>

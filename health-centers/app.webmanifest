@@ -1,0 +1,13 @@
+{
+  "name": "مراكز الإرتقاء الفكري الصحية",
+  "short_name": "مراكز الإرتقاء",
+  "description": "تطبيق تنظيمي مستقل لمراكز الإرتقاء الفكري الصحية",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html#home",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f7f7",
+  "theme_color": "#0a4550",
+  "icons": [{"src":"./icon.svg?v=20261020-1","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}

@@ -1,20 +1,114 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ولي الأمر — منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية</title><style>:root{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:#f5f7fb;color:#172033}*{box-sizing:border-box}body{margin:0;background:#f5f7fb}header{padding:18px 20px;background:#13233f;color:#fff}header h1{margin:0;font-size:21px}header p{margin:5px 0 0;color:#cbd5e1;font-size:13px}.wrap{width:min(1120px,calc(100% - 28px));margin:auto;padding:18px 0 40px}.hero,.card{background:#fff;border:1px solid #e2e8f0;border-radius:17px;padding:17px;box-shadow:0 5px 18px #0f172a08}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px}.item{padding:11px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;margin-top:8px}.muted{color:#64748b;font-size:13px}.badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#fef3c7;color:#92400e;font-size:12px}.readonly{background:#eff6ff;border:1px solid #bfdbfe;padding:12px;border-radius:12px}</style></head><body><header><h1>👨‍👩‍👧 منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية</h1><p>بوابة ولي الأمر — متابعة ومشاهدة فقط، دون التدخل في الفصل الافتراضي</p></header><main class="wrap"><section class="hero"><span class="badge">وضع ولي الأمر — مشاهدة</span><h2>متابعة الأبناء بأمان وخصوصية</h2><p class="muted">يمكن لولي الأمر مشاهدة الفصل المباشر أو التسجيل، ومتابعة الحضور والتقدم والواجبات حسب الصلاحيات المعتمدة.</p><div class="readonly"><strong>🔒 صلاحيات المشاهدة:</strong> لا كتابة، لا تحدث، لا مشاركة شاشة أو ملفات، ولا تواصل مباشر داخل فصل الطالب.</div></section><section class="grid"><div class="card"><h2>🎥 الفصول المباشرة</h2><div id="sessions" class="item">جارٍ التحميل...</div></div><div class="card"><h2>📊 تقدم الابن/الابنة</h2><div class="item">الحضور: —</div><div class="item">الواجبات: —</div><div class="item">التقدم التعليمي: —</div></div><div class="card"><h2>📅 الجدول</h2><div class="item">يظهر جدول الابن/الابنة بعد ربط حساب ولي الأمر بالمتعلم والتحقق من وجود جدول منشور فعليًا.</div><p class="muted">عرض فقط؛ لا يتيح هذا القسم تعديل الجدول أو التدخل في الحصة.</p></div><div class="card"><h2>💬 التواصل</h2><div class="item">التواصل مع المدرسة يكون عبر القنوات الرسمية المعتمدة، وليس داخل الفصل أثناء الدرس.</div></div></section><section class="card" style="margin-top:14px"><h2>💳 الرسوم والفواتير</h2><div id="financeSummary" class="item">جارٍ التحقق من حساب ولي الأمر...</div><div id="financeList" class="list" style="margin-top:10px"></div></section></main><script type="module">import{createClient}from"https://esm.sh/@supabase/supabase-js@2";const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");async function load(){const r=await sb.from("edu_virtual_sessions").select("title_ar,status").order("scheduled_start",{ascending:true}).limit(8);document.getElementById("sessions").textContent=r.error?"سيظهر المحتوى بعد ربط حساب ولي الأمر بالابن أو الابنة.":((r.data||[]).map(x=>(x.title_ar||"فصل افتراضي")+" — "+(x.status||"scheduled")).join(" | ")||"لا توجد حصص مجدولة حاليًا.")}load();</script><script type="module">
-import{createClient}from"https://esm.sh/@supabase/supabase-js@2";
-const financeClient=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
-const financeSummary=document.getElementById("financeSummary"),financeList=document.getElementById("financeList");
-const escFinance=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
-async function loadFinance(){
- try{
-  const {data:{user},error:userError}=await financeClient.auth.getUser();
-  if(userError||!user){financeSummary.textContent="سجّل الدخول بحساب ولي الأمر لعرض الرسوم والفواتير.";return}
-  const {data:g,error:guardianError}=await financeClient.from("edu_guardians").select("id,full_name").eq("auth_user_id",user.id).maybeSingle();
-  if(guardianError||!g){financeSummary.textContent="لم يتم ربط هذا الحساب بملف ولي الأمر بعد.";return}
-  const {data:rows,error}=await financeClient.from("edu_parent_financial_overview").select("*").eq("guardian_id",g.id).order("due_date",{ascending:true});
-  if(error){financeSummary.textContent="تعذر تحميل البيانات المالية.";return}
-  const rs=rows||[],paid=rs.reduce((n,x)=>n+Number(x.paid_amount||0),0),remaining=rs.reduce((n,x)=>n+Number(x.remaining_amount||0),0);
-  financeSummary.innerHTML="<strong>"+escFinance(g.full_name)+"</strong><div class=\"muted\">الفواتير: "+rs.length+" · المدفوع: "+paid.toFixed(2)+" · المتبقي: "+remaining.toFixed(2)+"</div>";
-  financeList.innerHTML=rs.map(x=>"<div class=\"item\"><strong>"+escFinance(x.invoice_number||"فاتورة")+"</strong><div class=\"muted\">"+escFinance(x.learner_name||"")+"</div><div>الإجمالي: "+escFinance(x.net_amount)+" "+escFinance(x.currency)+" · المدفوع: "+escFinance(x.paid_amount)+" · المتبقي: "+escFinance(x.remaining_amount)+"</div><div class=\"muted\">الاستحقاق: "+escFinance(x.due_date)+" · القسط "+escFinance(x.installment_no||1)+" من "+escFinance(x.installment_count||1)+"</div></div>").join("")||"<div class=\"item\">لا توجد فواتير حالياً.</div>";
- }catch(_){financeSummary.textContent="تعذر تحميل البيانات المالية. حاول التحديث لاحقًا."}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="./icon.svg?v=20261021-2" type="image/svg+xml">
+<meta name="theme-color" content="#082f57">
+<title>ولي الأمر — منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:#f5f7fb;color:#172033;--navy:#13233f;--blue:#0d5c91;--line:#e2e8f0;--muted:#64748b}
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb}header{padding:18px 20px;background:var(--navy);color:#fff}header h1{margin:0;font-size:21px}header p{margin:5px 0 0;color:#cbd5e1;font-size:13px}.wrap{width:min(1120px,calc(100% - 28px));margin:auto;padding:18px 0 40px}.hero,.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:17px;box-shadow:0 5px 18px #0f172a08}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px}.item{padding:11px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;margin-top:8px}.muted{color:var(--muted);font-size:13px}.badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#fef3c7;color:#92400e;font-size:12px}.readonly{background:#eff6ff;border:1px solid #bfdbfe;padding:12px;border-radius:12px}.field{display:flex;flex-direction:column;gap:6px;margin:10px 0}.field label{font-weight:750;font-size:14px}.field input{font:inherit;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;width:100%}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:11px;padding:10px 14px;background:var(--navy);color:#fff;text-decoration:none;font:inherit;font-weight:750;cursor:pointer}.btn.secondary{background:#e2e8f0;color:#172033}.btn:disabled{opacity:.55;cursor:wait}.actions{display:flex;gap:8px;flex-wrap:wrap}.status{padding:11px 13px;border-radius:12px;margin-top:10px;background:#f1f5f9;border:1px solid var(--line)}.status.error{background:#fff1f2;color:#9f1239}.status.ok{background:#ecfdf5;color:#166534}.hidden{display:none!important}.rows{display:grid;gap:9px}.row{padding:12px;background:#f8fafc;border:1px solid var(--line);border-radius:12px}.row strong{display:block}.row p{margin:5px 0}.list{display:grid;gap:9px;margin-top:10px}@media(max-width:600px){header{padding:16px}.wrap{width:calc(100% - 20px)}}
+</style>
+</head>
+<body>
+<header><h1>👨‍👩‍👧 بوابة ولي الأمر</h1><p>متابعة الأبناء والجدول والدروس والواجبات والنتائج والرسوم — مشاهدة فقط</p></header>
+<main class="wrap">
+<section class="card" id="loginCard">
+ <span class="badge">دخول موثق مطلوب</span>
+ <h2>تسجيل الدخول بحساب ولي الأمر</h2>
+ <p class="muted">يتطلب هذا القسم حسابًا مرتبطًا بملف ولي الأمر وبالأبناء المعتمدين. لا تنشئ الصفحة علاقة ولي أمر أو تسجيلًا دراسيًا تلقائيًا.</p>
+ <form id="parentLogin">
+  <div class="field"><label for="parentEmail">البريد الإلكتروني</label><input id="parentEmail" type="email" autocomplete="username" required maxlength="254"></div>
+  <div class="field"><label for="parentPassword">كلمة المرور</label><input id="parentPassword" type="password" autocomplete="current-password" required maxlength="512"></div>
+  <div class="actions"><button class="btn" id="loginBtn" type="submit">تسجيل الدخول</button><a class="btn secondary" href="./portal.html">بوابة العمل المدرسي</a></div>
+ </form>
+ <div id="parentAuthStatus" class="status" role="status" aria-live="polite">سجّل الدخول لعرض بيانات الأبناء المرتبطين بحسابك فقط.</div>
+</section>
+<section id="parentDashboard" class="hidden">
+ <section class="hero">
+  <div class="actions"><span class="badge">صلاحية ولي الأمر — قراءة فقط</span><button type="button" class="btn secondary" id="refreshParent">تحديث البيانات</button><button type="button" class="btn secondary" id="logoutParent">تسجيل الخروج</button></div>
+  <h2 id="welcomeParent">متابعة الأبناء</h2>
+  <p class="muted">تظهر هنا بيانات الأبناء الذين ربطتهم الإدارة بهذا الحساب فقط. لا تسمح هذه البوابة بتعديل الدرجات أو الجدول أو روابط الفصول.</p>
+  <div class="readonly"><strong>ضابط الخصوصية:</strong> لا تُعرض معلومات متعلم غير مرتبط بالحساب؛ ولا تظهر روابط مباشرة للفصول إلا عند إنشاء الربط المصرح به والتحقق منه.</div>
+ </section>
+ <section class="grid">
+  <article class="card"><h2>👨‍👩‍👧 الأبناء المرتبطون</h2><div id="childrenList" class="rows">جارٍ التحقق...</div></article>
+  <article class="card"><h2>📅 الجدول والحصص</h2><div id="parentLessons" class="rows">جارٍ التحميل...</div></article>
+  <article class="card"><h2>📝 الواجبات</h2><div id="parentAssignments" class="rows">جارٍ التحميل...</div></article>
+  <article class="card"><h2>📊 التسليمات والنتائج</h2><div id="parentSubmissions" class="rows">جارٍ التحميل...</div></article>
+ </section>
+ <section class="card" style="margin-top:14px"><h2>🎥 الفصول الافتراضية</h2><div id="parentSessions" class="rows">جارٍ التحقق من الصلاحيات...</div><p class="muted">لا يعرض هذا القسم روابط Zoom لمجرد وجود حصة؛ يجب أن تكون مشاركة ولي الأمر والجلسة والرابط قد رُبطت ونُشرت رسميًا.</p></section>
+ <section class="card" style="margin-top:14px"><h2>💳 الرسوم والفواتير</h2><div id="financeSummary" class="item">جارٍ التحقق من الحساب...</div><div id="financeList" class="list"></div></section>
+ <div id="parentDataStatus" class="status" role="status" aria-live="polite">جارٍ تحميل بيانات الحساب.</div>
+</section>
+</main>
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+function status(text,kind=""){const e=$("parentAuthStatus");e.textContent=text;e.className="status"+(kind?" "+kind:"");}
+function card(title,body,meta=""){return '<article class="row"><strong>'+esc(title)+'</strong><p>'+esc(body||"")+'</p>'+(meta?'<p class="muted">'+esc(meta)+'</p>':"")+'</article>'}
+async function portalRequest(){
+ const sessionResult=await sb.auth.getSession(),token=sessionResult.data?.session?.access_token;
+ if(!token)throw new Error("AUTH_REQUIRED");
+ const res=await fetch("./api/education/portal?resource=parent",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+ const data=await res.json().catch(()=>({}));
+ if(!res.ok)throw new Error(data.error||"PARENT_PORTAL_FAILED");
+ return data;
 }
-loadFinance();
+async function loadFinance(){
+ const box=$("financeSummary"),list=$("financeList");
+ try{
+  const {data:{user},error:userError}=await sb.auth.getUser();
+  if(userError||!user){box.textContent="سجّل الدخول بحساب ولي الأمر لعرض الفواتير.";list.innerHTML="";return;}
+  const {data:g,error:guardianError}=await sb.from("edu_guardians").select("id,full_name").eq("auth_user_id",user.id).maybeSingle();
+  if(guardianError||!g){box.textContent="لم يُربط هذا الحساب بعد بملف ولي الأمر.";list.innerHTML="";return;}
+  const {data:rows,error}=await sb.from("edu_parent_financial_overview").select("*").eq("guardian_id",g.id).order("due_date",{ascending:true});
+  if(error){box.textContent="تعذر تحميل ملخص الرسوم الآمن؛ راجع الإدارة.";list.innerHTML="";return;}
+  const rs=rows||[],paid=rs.reduce((n,x)=>n+Number(x.paid_amount||0),0),remaining=rs.reduce((n,x)=>n+Number(x.remaining_amount||0),0);
+  box.innerHTML="<strong>"+esc(g.full_name)+"</strong><div class=\"muted\">الفواتير: "+rs.length+" · المدفوع: "+paid.toFixed(2)+" · المتبقي: "+remaining.toFixed(2)+"</div>";
+  list.innerHTML=rs.map(x=>card(x.invoice_number||"فاتورة",(x.learner_name||"")+(x.description?" — "+x.description:""),"الإجمالي: "+x.net_amount+" "+x.currency+" · المدفوع: "+x.paid_amount+" · المتبقي: "+x.remaining_amount+" · الاستحقاق: "+x.due_date)).join("")||'<div class="row muted">لا توجد فواتير مسجلة حاليًا.</div>';
+ }catch(_){box.textContent="تعذر تحميل الرسوم حاليًا.";list.innerHTML="";}
+}
+async function loadParent(){
+ $("refreshParent").disabled=true;
+ try{
+  const data=await portalRequest();
+  $("loginCard").classList.add("hidden");
+  $("parentDashboard").classList.remove("hidden");
+  $("welcomeParent").textContent="مرحبًا، "+(data.parent?.full_name||"ولي الأمر");
+  const children=data.children||[];
+  $("childrenList").innerHTML=children.map(x=>card(x.full_name,x.relationship||"صلة القرابة غير محددة","الشعب المسندة: "+(x.classroom_count||0))).join("")||'<div class="row muted">لا يوجد أبناء مرتبطون بهذا الحساب حتى الآن. اطلب من الإدارة إتمام الربط بعد اعتماد التسجيل.</div>';
+  $("parentLessons").innerHTML=(data.lessons||[]).map(x=>card(x.title,x.explanation,(x.child_names||[]).join("، ")+(x.scheduled_for?" · "+new Date(x.scheduled_for).toLocaleString("ar-SA"):" · موعد غير محدد"))).join("")||'<div class="row muted">لا توجد دروس منشورة مرتبطة بالأبناء المسجلين.</div>';
+  $("parentAssignments").innerHTML=(data.assignments||[]).map(x=>card(x.title,x.instructions,(x.child_names||[]).join("، ")+" · آخر موعد: "+(x.due_at?new Date(x.due_at).toLocaleString("ar-SA"):"غير محدد")+" · الدرجة القصوى: "+x.max_score)).join("")||'<div class="row muted">لا توجد واجبات منشورة مرتبطة بالأبناء.</div>';
+  $("parentSubmissions").innerHTML=(data.submissions||[]).map(x=>card(x.learner_name+" — "+(x.assignment_title||"تسليم"),x.feedback||"لا توجد ملاحظات من المعلم بعد.","الحالة: "+x.status+" · الدرجة: "+(x.score??"لم ترصد")+" من "+x.max_score+" · التسليم: "+(x.submitted_at?new Date(x.submitted_at).toLocaleString("ar-SA"):"غير مسجل"))).join("")||'<div class="row muted">لا توجد تسليمات أو نتائج مسجلة للأبناء المرتبطين.</div>';
+  const sess=await sb.from("edu_virtual_sessions").select("id,title_ar,starts_at,ends_at,delivery_mode,status").order("starts_at",{ascending:true}).limit(50);
+  $("parentSessions").innerHTML=sess.error?'<div class="row muted">تعذر تحميل الفصول المصرح بها.</div>':(sess.data||[]).map(x=>card(x.title_ar,x.delivery_mode||"عن بُعد",x.starts_at?new Date(x.starts_at).toLocaleString("ar-SA"):"الموعد غير محدد")+"").join("")||'<div class="row muted">لا توجد جلسات مرتبطة بمشاركة ولي الأمر المصرح بها حاليًا.</div>';
+  $("parentDataStatus").textContent="تم جلب بيانات ولي الأمر والأبناء المرتبطين من واجهة محمية؛ صلاحيات هذه الصفحة للقراءة فقط.";
+  $("parentDataStatus").className="status ok";
+  await loadFinance();
+ }catch(error){
+  $("parentDashboard").classList.add("hidden");
+  $("loginCard").classList.remove("hidden");
+  if(error.message==="AUTH_REQUIRED")status("سجّل الدخول بحساب ولي الأمر المعتمد لعرض البيانات.");
+  else if(error.message==="PARENT_PROFILE_REQUIRED")status("الدخول صحيح، لكن الحساب غير مرتبط بملف ولي أمر نشط. اطلب من الإدارة إتمام الربط.", "error");
+  else status("تعذر تحميل بوابة ولي الأمر: "+error.message, "error");
+ }finally{$("refreshParent").disabled=false;}
+}
+$("parentLogin").addEventListener("submit",async event=>{
+ event.preventDefault();$("loginBtn").disabled=true;status("جارٍ التحقق من بيانات الدخول...");
+ try{
+  const result=await sb.auth.signInWithPassword({email:$("parentEmail").value.trim(),password:$("parentPassword").value});
+  if(result.error)throw new Error("تعذر تسجيل الدخول؛ تحقق من البيانات وحاول مجددًا.");
+  await loadParent();
+ }catch(error){await sb.auth.signOut();status(error.message||"تعذر تسجيل الدخول.", "error");}
+ finally{$("loginBtn").disabled=false;}
+});
+$("refreshParent").addEventListener("click",loadParent);
+$("logoutParent").addEventListener("click",async()=>{await sb.auth.signOut();$("parentDashboard").classList.add("hidden");$("loginCard").classList.remove("hidden");status("تم تسجيل الخروج.");});
+sb.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){$("parentDashboard").classList.add("hidden");$("loginCard").classList.remove("hidden");}else if(event==="SIGNED_IN"&&session){loadParent();}});
+const existing=await sb.auth.getSession();
+if(existing.data?.session)await loadParent();
 </script>
+</body></html>

@@ -1,10 +1,16 @@
 const CACHE_NAME = "dar-alirtiqaa-v1.1.3-business-isolation-20261019-6";
+const CACHE_NAME = "dar-alirtiqaa-v1.1.10";
+const ANNOUNCEMENT_SCRIPT = "/education-announcement.js?v=20261020-1";
+const ANNOUNCEMENT_SCRIPT = "/education-announcement.js?v=20261021-2";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./operations-templates.html",
+  "./education-announcement.html",
+  "./education-announcement.js",
   "./app.webmanifest",
   "./icon.svg",
+  "./projects-icon.svg",
   "./logo.svg",
 ];
 
@@ -34,14 +40,36 @@ self.addEventListener("fetch", event => {
   if (url.origin !== self.location.origin) return;
   const shellUrl = new URL("./", self.location.href);
   const appShellUrls = new Set(APP_SHELL.map(path => new URL(path, shellUrl).href));
-  if (url.search || !appShellUrls.has(url.href)) return;
+
   if (request.mode === "navigate") {
-    event.respondWith(fetch(request).catch(async () => {
-      const cache = await caches.open(CACHE_NAME);
-      return (await cache.match("./index.html")) || Response.error();
-    }));
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request);
+        const contentType = response.headers.get("content-type") || "";
+        if (!response.ok || !/text\/html/i.test(contentType)) return response;
+        const html = await response.clone().text();
+        if (html.includes("education-announcement.js") || !/<\/body\s*>/i.test(html)) return response;
+        const injected = '<script src="' + ANNOUNCEMENT_SCRIPT + '" defer></script>\n</body>';
+        const transformedHtml = html.replace(/<\/body\s*>/i, injected);
+        const headers = new Headers(response.headers);
+        headers.delete("content-length");
+        headers.delete("content-encoding");
+        headers.delete("etag");
+        return new Response(transformedHtml, {
+          status: response.status,
+          statusText: response.statusText,
+          headers
+        });
+      } catch (error) {
+        if (url.search || !appShellUrls.has(url.href)) return Response.error();
+        const cache = await caches.open(CACHE_NAME);
+        return (await cache.match("./index.html")) || Response.error();
+      }
+    })());
     return;
   }
+
+  if (url.search || !appShellUrls.has(url.href)) return;
   event.respondWith(caches.open(CACHE_NAME).then(async cache => {
     const cached = await cache.match(request);
     if (cached) return cached;
