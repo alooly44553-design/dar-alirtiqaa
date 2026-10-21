@@ -1,6 +1,6 @@
 import { createAuthClient } from 'https://esm.sh/@neondatabase/auth@0.6.0-beta?bundle';
 
-const AUTH_BASE_URL = 'https://ep-dark-frost-b3sqm6rz.neonauth.c-4.aws.neon.tech/neondb/auth';
+const AUTH_BASE_URL = 'https://ep-dark-frost-b3sqm6rz.neonauth.c-4.ap-southeast-1.aws.neon.tech/neondb/auth';
 const auth = createAuthClient(AUTH_BASE_URL);
 
 const form = document.querySelector('#admin-login-form');
