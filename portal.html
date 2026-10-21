@@ -63,7 +63,13 @@ async function api(path,method="GET",body){
   INVALID_SUBMISSION_FIELDS:"اكتب إجابة الواجب قبل الإرسال.",
   ASSIGNMENT_NOT_ASSIGNED_TO_LEARNER:"هذا الواجب غير مخصص لبرنامجك أو فصلك.",
   SUBMISSION_NOT_FOUND:"التسليم غير موجود أو لا يتبع هذا المعلم.",
-  SCORE_EXCEEDS_MAXIMUM:"الدرجة أعلى من الدرجة القصوى للواجب."
+  SCORE_EXCEEDS_MAXIMUM:"الدرجة أعلى من الدرجة القصوى للواجب.",
+  INVALID_AI_DRAFT_FIELDS:"أدخل موضوع الدرس والمادة والمرحلة ومدة صحيحة.",
+  PERSONAL_CONTACT_DETAILS_NOT_ALLOWED:"احذف بيانات التواصل الشخصية أو معلومات تعريف المتعلمين من الطلب.",
+  AI_ASSISTANT_NOT_CONFIGURED:"خدمة إنشاء مسودات الذكاء الاصطناعي غير مهيأة في بيئة الإنتاج بعد.",
+  AI_DRAFT_RATE_LIMITED:"وصلت إلى الحد المؤقت لطلبات المسودات؛ حاول بعد دقيقة.",
+  AI_ASSISTANT_TEMPORARILY_UNAVAILABLE:"تعذر حفظ حد الاستخدام أو الوصول إلى المساعد مؤقتًا.",
+  AI_ASSISTANT_UPSTREAM_FAILED:"تعذر الاتصال بخدمة الذكاء الاصطناعي؛ لم تُنشأ مسودة."
  })[result.error]||result.error||"تعذر تنفيذ العملية المدرسية.");
  return result;
 }
