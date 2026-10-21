@@ -135,7 +135,7 @@ forgotButton.addEventListener('click', async () => {
   try {
     const result = await auth.requestPasswordReset({
       email,
-      redirectTo: window.location.origin + '/admin.html'
+      redirectTo: window.location.origin + '/reset-password.html'
     });
     if (result?.error) throw new Error('Password reset request failed');
     showMessage('إذا كان البريد مسجلًا وكانت خدمة البريد مهيأة، فستصلك تعليمات إعادة تعيين كلمة المرور. تحقق من صندوق الوارد والرسائل غير المرغوب فيها.', 'success');
