@@ -91,8 +91,11 @@ form.addEventListener('submit', async (event) => {
     const account = await checkAuthorization();
     renderAccount(account);
     document.querySelector('#admin-password').value = '';
-  } catch (_) {
-    showMessage('تعذر إكمال الدخول أو التحقق من الصلاحيات. إذا كان الحساب غير معتمد، تواصل مع المسؤول الرسمي.', 'error');
+  } catch (error) {
+    const safeMessage = typeof error?.message === 'string' && error.message.length <= 220
+      ? error.message
+      : 'تعذر إكمال الدخول أو التحقق من الصلاحيات. إذا كان الحساب غير معتمد، تواصل مع المسؤول الرسمي.';
+    showMessage(safeMessage, 'error');
   } finally {
     setBusy(false);
   }
