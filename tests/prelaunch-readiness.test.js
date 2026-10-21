@@ -9,6 +9,8 @@ const requiredFiles = [
   "portal.html", "student.html", "teacher.html", "parent.html", "reports.html",
   "brochure.html", "privacy.html", "terms.html", "operations-templates.html",
   "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
+  "supabase/migrations/20261021_guardian_portal_read_only_access.sql",
+  ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md"
   ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md",
   "docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md"
 ];
@@ -24,6 +26,10 @@ assert.equal(manifest.short_name, appName, "PWA short name mismatch");
 assert.match(read("capacitor.config.ts"), /appName:\s*'منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية'/u, "Capacitor appName mismatch");
 assert.match(read("sw.js"), /const CACHE_NAME\s*=\s*"dar-alirtiqaa-v\d+\.\d+\.\d+"/u, "Service worker cache key must have a valid independent semantic version");
 const android = read(".github/workflows/android-apk.yml");
+assert.match(android, /versionCode 11/u, "Android versionCode mismatch");
+assert.match(android, /versionName "1\.1\.7"/u, "Android versionName mismatch");
+assert(android.includes("Upload Debug APK (testing only)"), "Debug builds must be labeled as test-only");
+assert(android.includes("name: dar-alirtiqaa-android-debug-v1.1.7"), "Debug builds must be clearly labeled as test artifacts");
 assert.match(android, /VERSION_CODE=\$\(\(10#\$MAJOR \* 1000000 \+ 10#\$MINOR \* 1000 \+ 10#\$PATCH\)\)/u, "Android versionCode must use the shared monotonic semantic-version formula");
 assert.match(android, /versionName/u, "Android versionName must follow package.json");
 assert(android.includes("Upload Debug APK (testing only)"), "Debug builds must be labeled as test-only");
@@ -53,6 +59,30 @@ for (const canonicalUrl of [
   "https://dar-alirtiqaa-management.vercel.app/"
 ]) assert(projectHub.includes(canonicalUrl), "Project hub must use the canonical public URL: " + canonicalUrl);
 const admin = read("admin.html");
+const portalApi = read("api/education/portal.js");
+const portalAuth = read("lib/education-portal-auth.js");
+const guardianRls = read("supabase/migrations/20261021_guardian_portal_read_only_access.sql");
+const teacherPage = read("teacher.html");
+const studentPage = read("student.html");
+const parentPage = read("parent.html");
+assert.match(portalApi, /parent:\s*\["GET"\]/u, "Parent API must be read-only");
+assert.match(portalApi, /case "parent":\s*return await handleParent/u, "Parent API must dispatch to the linked-family handler");
+assert.match(portalApi, /PARENT_PROFILE_REQUIRED/u, "Parent access must require an active guardian profile");
+assert.match(portalAuth, /guardianLearners/u, "Auth identity must resolve explicitly linked learners for the guardian");
+assert.match(parentPage, /signInWithPassword/u, "Parent portal must require interactive authenticated sign-in");
+for (const [page, source] of [["teacher.html", teacherPage], ["student.html", studentPage], ["parent.html", parentPage]]) {
+  assert.match(source, /getSession\(\)/u, page + " must check the authenticated session before protected reads");
+}
+assert.match(teacherPage, /Authorization:\s*"Bearer "\s*\+\s*token/u, "Teacher API reads must forward the signed-in bearer token");
+assert.match(studentPage, /Authorization:\s*"Bearer "\s*\+\s*token/u, "Student API reads must forward the signed-in bearer token");
+assert.match(parentPage, /Authorization:\s*"Bearer "\s*\+\s*token/u, "Parent API reads must forward the signed-in bearer token");
+assert.match(guardianRls, /guardian_read_linked_learners/u, "Guardian RLS migration must restrict learners to explicit guardian links");
+assert.match(guardianRls, /guardian_read_linked_school_submissions/u, "Guardian RLS migration must restrict assignment results to linked children");
+assert.match(guardianRls, /teacher_read_own_schedule_assignments/u, "Teacher RLS migration must restrict schedule reads to the assigned teacher");
+assert.doesNotMatch(guardianRls, /FOR\s+(INSERT|UPDATE|DELETE|ALL)\s+TO\s+authenticated/iu, "Guardian/teacher role migration must not grant write access through these policies");
+assert(!teacherPage.includes('order("scheduled_start"'), "Teacher session query must use the actual starts_at column");
+assert(!studentPage.includes('order("scheduled_start"'), "Student session query must use the actual starts_at column");
+assert(!parentPage.includes('order("scheduled_start"'), "Parent session query must use the actual starts_at column");
 assert.match(admin, /setInterval\(\(\)=>\{/u, "Education request dashboard must poll for new submissions");
 assert.match(admin, /document\.visibilityState!=="visible"/u, "Dashboard polling must pause in hidden tabs");
 assert.match(admin, /التحديث التلقائي كل 30 ثانية/u, "Dashboard must disclose its refresh cadence");
