@@ -178,7 +178,7 @@ async function handleAiDraft(req, res, identity) {
     return sendJson(res, 400, { error: "PERSONAL_CONTACT_DETAILS_NOT_ALLOWED" });
   }
 
-  const gatewayToken = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+  const gatewayToken = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || req.headers["x-vercel-oidc-token"] || "";
   if (!gatewayToken) {
     return sendJson(res, 503, { error: "AI_ASSISTANT_NOT_CONFIGURED" });
   }
