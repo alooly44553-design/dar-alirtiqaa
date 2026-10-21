@@ -164,10 +164,10 @@ async function handleParent(req, res, identity) {
   }
 
   const children = identity.guardianLearners || [];
-  const childIds = new Set(children.map(child => child.id));
+  const childIds = [...new Set(children.map(child => child.id))].slice(0, 100);
   const childById = new Map(children.map(child => [child.id, child]));
-  const enrollments = identity.enrollments.filter(row => childIds.has(row.learner_id));
-  const classroomIds = [...new Set(enrollments.map(row => row.classroom_id).filter(Boolean))];
+  const enrollments = identity.enrollments.filter(row => childById.has(row.learner_id));
+  const classroomIds = [...new Set(enrollments.map(row => row.classroom_id).filter(Boolean))].slice(0, 100);
   const classroomChildren = new Map();
   for (const enrollment of enrollments) {
     if (!enrollment.classroom_id) continue;
@@ -179,42 +179,41 @@ async function handleParent(req, res, identity) {
   let lessons = [];
   let assignments = [];
   let submissions = [];
-  if (classroomIds.length || childIds.size) {
+  if (classroomIds.length || childIds.length) {
     const sql = getDatabase("education");
-    const results = await Promise.all([
-      classroomIds.length ? sql`
+    const [lessonGroups, assignmentGroups, submissionGroups] = await Promise.all([
+      Promise.all(classroomIds.map(classroomId => sql`
         SELECT id, title, explanation, objectives, scheduled_for, program_id, subject_id, classroom_id
         FROM education.school_lessons
-        WHERE status = 'published'
-          AND classroom_id = ANY(${classroomIds}::uuid[])
+        WHERE status = 'published' AND classroom_id = ${classroomId}::uuid
         ORDER BY scheduled_for ASC NULLS LAST, created_at DESC
-        LIMIT 500
-      ` : Promise.resolve([]),
-      classroomIds.length ? sql`
+        LIMIT 100
+      `)),
+      Promise.all(classroomIds.map(classroomId => sql`
         SELECT a.id, a.lesson_id, a.classroom_id, a.subject_id, a.title,
                a.instructions, a.due_at, a.max_score
         FROM education.school_assignments a
         JOIN education.school_lessons l ON l.id = a.lesson_id
         WHERE a.status = 'published'
           AND l.status = 'published'
-          AND a.classroom_id = ANY(${classroomIds}::uuid[])
+          AND a.classroom_id = ${classroomId}::uuid
         ORDER BY a.due_at ASC NULLS LAST, a.created_at DESC
-        LIMIT 1000
-      ` : Promise.resolve([]),
-      childIds.size ? sql`
+        LIMIT 200
+      `)),
+      Promise.all(childIds.map(learnerId => sql`
         SELECT s.id, s.learner_id, s.assignment_id, s.status, s.score,
                s.feedback, s.submitted_at, a.title AS assignment_title,
                a.max_score, a.due_at
         FROM education.school_submissions s
         JOIN education.school_assignments a ON a.id = s.assignment_id
-        WHERE s.learner_id = ANY(${[...childIds]}::uuid[])
+        WHERE s.learner_id = ${learnerId}::uuid
         ORDER BY s.submitted_at DESC NULLS LAST, s.created_at DESC
-        LIMIT 500
-      ` : Promise.resolve([])
+        LIMIT 100
+      `))
     ]);
-    lessons = results[0];
-    assignments = results[1];
-    submissions = results[2];
+    lessons = lessonGroups.flat();
+    assignments = assignmentGroups.flat();
+    submissions = submissionGroups.flat();
   }
 
   const namesForClassroom = classroomId => [...(classroomChildren.get(classroomId) || new Set())];
