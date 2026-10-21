@@ -53,6 +53,16 @@ for (const canonicalUrl of [
   "https://btaqat-alirtiqaa-alfikri-alnamothaj.vercel.app/?utm_source=chatgpt.com",
   "https://dar-alirtiqaa-management.vercel.app/"
 ]) assert(projectHub.includes(canonicalUrl), "Project hub must use the canonical public URL: " + canonicalUrl);
+const aiPortalApi = read("api/education/portal.js");
+const schoolPortal = read("portal.html");
+assert.match(aiPortalApi, /"ai-draft":\s*\["POST"\]/u, "AI lesson drafting must be a POST-only role API");
+assert.match(aiPortalApi, /identity\.staff\.is_active !== true/u, "AI lesson drafting must require an active staff account");
+assert.match(aiPortalApi, /AI_DRAFT_RATE_LIMITED/u, "AI lesson drafting must enforce a rate limit");
+assert.match(aiPortalApi, /requires_teacher_review:\s*true/u, "AI lesson output must require teacher review");
+assert.match(aiPortalApi, /auto_published:\s*false/u, "AI lesson output must never auto-publish");
+assert.match(schoolPortal, /resource=ai-draft/u, "Teacher portal must be wired to the AI draft API");
+assert.match(schoolPortal, /لم تُحفظ ولم تُنشر تلقائيًا/u, "AI lesson page must clearly disclose that drafts aren't saved or published automatically");
+assert.match(schoolPortal, /إدراج المسودة في شرح الدرس للتحرير/u, "Teacher must explicitly choose to insert the draft for editing");
 const admin = read("admin.html");
 const portalApi = read("api/education/portal.js");
 const portalAuth = read("lib/education-portal-auth.js");
