@@ -10,7 +10,8 @@ const requiredFiles = [
   "brochure.html", "privacy.html", "terms.html", "operations-templates.html",
   "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
   ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md",
-  "docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md"
+  "docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md",
+  "supabase/migrations/20261021_guardian_portal_read_only_access.sql"
 ];
 for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "Missing required platform file: " + file);
 
@@ -53,6 +54,30 @@ for (const canonicalUrl of [
   "https://dar-alirtiqaa-management.vercel.app/"
 ]) assert(projectHub.includes(canonicalUrl), "Project hub must use the canonical public URL: " + canonicalUrl);
 const admin = read("admin.html");
+const portalApi = read("api/education/portal.js");
+const portalAuth = read("lib/education-portal-auth.js");
+const guardianRls = read("supabase/migrations/20261021_guardian_portal_read_only_access.sql");
+const teacherPage = read("teacher.html");
+const studentPage = read("student.html");
+const parentPage = read("parent.html");
+assert.match(portalApi, /parent:\s*\["GET"\]/u, "Parent API must be read-only");
+assert.match(portalApi, /case "parent":\s*return await handleParent/u, "Parent API must dispatch to the linked-family handler");
+assert.match(portalApi, /PARENT_PROFILE_REQUIRED/u, "Parent access must require an active guardian profile");
+assert.match(portalAuth, /guardianLearners/u, "Auth identity must resolve explicitly linked learners for the guardian");
+assert.match(parentPage, /signInWithPassword/u, "Parent portal must require interactive authenticated sign-in");
+for (const [page, source] of [["teacher.html", teacherPage], ["student.html", studentPage], ["parent.html", parentPage]]) {
+  assert.match(source, /getSession\(\)/u, page + " must check the authenticated session before protected reads");
+}
+for (const [page, source] of [["teacher.html", teacherPage], ["student.html", studentPage], ["parent.html", parentPage]]) {
+  assert.match(source, /Authorization:\s*"Bearer "\s*\+\s*token/u, page + " must forward a signed-in bearer token for protected API requests");
+}
+assert.match(guardianRls, /guardian_read_linked_learners/u, "Guardian RLS migration must restrict learners to explicit guardian links");
+assert.match(guardianRls, /guardian_read_linked_school_submissions/u, "Guardian RLS migration must restrict results to linked children");
+assert.match(guardianRls, /teacher_read_own_schedule_assignments/u, "Teacher RLS migration must restrict schedule reads to assigned teachers");
+assert.doesNotMatch(guardianRls, /FOR\s+(INSERT|UPDATE|DELETE|ALL)\s+TO\s+authenticated/iu, "Guardian/teacher migration must not grant write access");
+for (const [page, source] of [["teacher.html", teacherPage], ["student.html", studentPage], ["parent.html", parentPage]]) {
+  assert(!source.includes('order("scheduled_start"'), page + " must use the actual starts_at field for sessions");
+}
 assert.match(admin, /setInterval\(\(\)=>\{/u, "Education request dashboard must poll for new submissions");
 assert.match(admin, /document\.visibilityState!=="visible"/u, "Dashboard polling must pause in hidden tabs");
 assert.match(admin, /التحديث التلقائي كل 30 ثانية/u, "Dashboard must disclose its refresh cadence");
