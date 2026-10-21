@@ -25,7 +25,7 @@ assert.match(read("sw.js"), /const CACHE_NAME\s*=\s*"dar-alirtiqaa-v\d+\.\d+\.\d
 const android = read(".github/workflows/android-apk.yml");
 assert.match(android, /versionCode 10/u, "Android versionCode mismatch");
 assert.match(android, /versionName "1\.1\.6"/u, "Android versionName mismatch");
-assert.match(android, /dar-alirtiqaa-debug-apk-v1\\.1\\.6/u, "Routine Android artifacts must be labeled Debug");
+assert(android.includes("name: dar-alirtiqaa-debug-apk-v1.1.6"), "Routine Android artifacts must be labeled Debug");
 const officialAndroid = read(".github/workflows/android-official-release.yml");
 for (const secretName of ["ANDROID_KEYSTORE_BASE64", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]) {
   assert(officialAndroid.includes(secretName), "Official release workflow must require signing secret " + secretName);
