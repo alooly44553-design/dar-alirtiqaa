@@ -158,6 +158,86 @@ async function handleStudent(req, res, identity) {
   return sendJson(res, 200, { ok: true, lessons: visibleLessons, assignments: visibleAssignments });
 }
 
+async function handleParent(req, res, identity) {
+  if (!identity.guardian || !identity.guardian.is_active) {
+    return sendJson(res, 403, { error: "PARENT_PROFILE_REQUIRED" });
+  }
+
+  const children = identity.guardianLearners || [];
+  const childIds = new Set(children.map(child => child.id));
+  const childById = new Map(children.map(child => [child.id, child]));
+  const enrollments = identity.enrollments.filter(row => childIds.has(row.learner_id));
+  const classroomIds = [...new Set(enrollments.map(row => row.classroom_id).filter(Boolean))];
+  const classroomChildren = new Map();
+  for (const enrollment of enrollments) {
+    if (!enrollment.classroom_id) continue;
+    if (!classroomChildren.has(enrollment.classroom_id)) classroomChildren.set(enrollment.classroom_id, new Set());
+    const child = childById.get(enrollment.learner_id);
+    if (child?.full_name) classroomChildren.get(enrollment.classroom_id).add(child.full_name);
+  }
+
+  let lessons = [];
+  let assignments = [];
+  let submissions = [];
+  if (classroomIds.length || childIds.size) {
+    const sql = getDatabase("education");
+    const results = await Promise.all([
+      classroomIds.length ? sql`
+        SELECT id, title, explanation, objectives, scheduled_for, program_id, subject_id, classroom_id
+        FROM education.school_lessons
+        WHERE status = 'published'
+          AND classroom_id = ANY(${classroomIds}::uuid[])
+        ORDER BY scheduled_for ASC NULLS LAST, created_at DESC
+        LIMIT 500
+      ` : Promise.resolve([]),
+      classroomIds.length ? sql`
+        SELECT a.id, a.lesson_id, a.classroom_id, a.subject_id, a.title,
+               a.instructions, a.due_at, a.max_score
+        FROM education.school_assignments a
+        JOIN education.school_lessons l ON l.id = a.lesson_id
+        WHERE a.status = 'published'
+          AND l.status = 'published'
+          AND a.classroom_id = ANY(${classroomIds}::uuid[])
+        ORDER BY a.due_at ASC NULLS LAST, a.created_at DESC
+        LIMIT 1000
+      ` : Promise.resolve([]),
+      childIds.size ? sql`
+        SELECT s.id, s.learner_id, s.assignment_id, s.status, s.score,
+               s.feedback, s.submitted_at, a.title AS assignment_title,
+               a.max_score, a.due_at
+        FROM education.school_submissions s
+        JOIN education.school_assignments a ON a.id = s.assignment_id
+        WHERE s.learner_id = ANY(${[...childIds]}::uuid[])
+        ORDER BY s.submitted_at DESC NULLS LAST, s.created_at DESC
+        LIMIT 500
+      ` : Promise.resolve([])
+    ]);
+    lessons = results[0];
+    assignments = results[1];
+    submissions = results[2];
+  }
+
+  const namesForClassroom = classroomId => [...(classroomChildren.get(classroomId) || new Set())];
+  return sendJson(res, 200, {
+    ok: true,
+    parent: { full_name: identity.guardian.full_name },
+    children: children.map(child => ({
+      full_name: child.full_name,
+      relationship: child.relationship,
+      is_primary: child.is_primary,
+      classroom_count: new Set(enrollments.filter(row => row.learner_id === child.id).map(row => row.classroom_id).filter(Boolean)).size
+    })),
+    lessons: lessons.map(lesson => ({ ...lesson, child_names: namesForClassroom(lesson.classroom_id) })),
+    assignments: assignments.map(assignment => ({ ...assignment, child_names: namesForClassroom(assignment.classroom_id) })),
+    submissions: submissions.map(({ learner_id, ...submission }) => ({
+      ...submission,
+      learner_name: childById.get(learner_id)?.full_name || "المتعلم المرتبط بالحساب"
+    })),
+    sessions: [],
+    session_access_note: "تظهر روابط الفصول المباشرة فقط بعد ربط مشاركة الطالب وصلاحية ولي الأمر ورابط الجلسة المنشور."
+  });
+}
+
 async function handleSubmissions(req, res, identity) {
   const sql = getDatabase("education");
   const body = req.body && typeof req.body === "object" ? req.body : {};
@@ -253,6 +333,7 @@ export default async function handler(req, res) {
   if (resource === "zoom-meetings") return handleZoomMeetings(req, res);
   const methods = {
     profile: ["GET"],
+    parent: ["GET"],
     teacher: ["GET", "POST"],
     assignments: ["POST"],
     student: ["GET"],
@@ -277,6 +358,8 @@ export default async function handler(req, res) {
             role: identity.staff ? "teacher" : "student"
           }
         });
+      case "parent":
+        return await handleParent(req, res, identity);
       case "teacher":
         return await handleTeacher(req, res, identity);
       case "assignments":
@@ -293,6 +376,7 @@ export default async function handler(req, res) {
       resource === "teacher" ? "SCHOOL_PORTAL_SERVICE_UNAVAILABLE" :
       resource === "assignments" ? "SCHOOL_ASSIGNMENT_SERVICE_UNAVAILABLE" :
       resource === "student" ? "SCHOOL_STUDENT_SERVICE_UNAVAILABLE" :
+      resource === "parent" ? "SCHOOL_PARENT_SERVICE_UNAVAILABLE" :
       "SCHOOL_SUBMISSION_SERVICE_UNAVAILABLE";
     return sendJson(res, 503, { error: errorCode });
   }
