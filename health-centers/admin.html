@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0a4550">
   <meta name="robots" content="noindex,nofollow">
   <title>دخول إدارة المراكز الصحية | الإرتقاء الفكري</title>
-  <link rel="stylesheet" href="./styles.css?v=20261021-3">
+  <link rel="stylesheet" href="./styles.css?v=20261021-4">
   <style>
     .admin-auth-wrap{max-width:620px;margin:32px auto;padding:20px}
     .admin-auth-card{background:var(--surface,#fff);border:1px solid var(--border,#d8e2e3);border-radius:18px;padding:clamp(20px,4vw,32px);box-shadow:0 12px 36px #0a45500d}
@@ -45,6 +45,11 @@
         </label>
         <button id="admin-login-button" class="admin-primary" type="submit">تسجيل الدخول والتحقق من الصلاحية</button>
       </form>
+      <div class="admin-auth-actions" id="admin-auth-options">
+        <button id="admin-forgot-button" class="admin-secondary" type="button">نسيت كلمة المرور؟</button>
+        <button id="admin-register-button" class="admin-secondary" type="button">إنشاء حساب بالبريد وكلمة المرور</button>
+      </div>
+      <p class="admin-foot">إنشاء الحساب يفتح حساب دخول فقط ولا يمنح صلاحية إدارة. يلزم اعتماد الحساب وربطه بدور من الإدارة الرسمية.</p>
       <div id="admin-message" class="admin-message" role="status" aria-live="polite" hidden></div>
       <section id="admin-account" class="admin-status" aria-live="polite" hidden>
         <h2 style="margin-top:0;font-size:1.2rem">حالة الحساب</h2>
@@ -61,6 +66,6 @@
       <p class="admin-foot">لا تشارك كلمة المرور أو رموز التحقق. لا تُدخل بيانات مرضى في هذه البوابة. إذا لم يُعتمد حسابك، تواصل مع الإدارة الرسمية.</p>
     </section>
   </main>
-  <script type="module" src="./admin.js?v=20261021-3"></script>
+  <script type="module" src="./admin.js?v=20261021-4"></script>
 </body>
 </html>
