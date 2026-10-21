@@ -87,6 +87,7 @@ load();
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 const financeClient=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
 const escFinance=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+financeClient.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT")document.getElementById("studentFinance").textContent="سجّل الدخول لعرض الرسوم."});
 (async()=>{
   const box=document.getElementById("studentFinance");
   try {
