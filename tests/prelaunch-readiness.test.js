@@ -8,7 +8,8 @@ const requiredFiles = [
   "index.html", "businesses.html", "education-packages.html", "admin.html",
   "portal.html", "student.html", "teacher.html", "parent.html", "reports.html",
   "brochure.html", "privacy.html", "terms.html", "operations-templates.html",
-  "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts"
+  "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
+  ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md"
 ];
 for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "Missing required platform file: " + file);
 
@@ -24,6 +25,19 @@ assert.match(read("sw.js"), /const CACHE_NAME\s*=\s*"dar-alirtiqaa-v\d+\.\d+\.\d
 const android = read(".github/workflows/android-apk.yml");
 assert.match(android, /versionCode 10/u, "Android versionCode mismatch");
 assert.match(android, /versionName "1\.1\.6"/u, "Android versionName mismatch");
+assert(android.includes("Upload Debug APK (testing only)"), "Debug builds must be labeled as test-only");
+assert(android.includes("name: dar-alirtiqaa-android-debug-v1.1.6"), "Unsigned builds must not be labeled as official release");
+assert.match(android, /Upload signed Android release APK/u, "Signed APK artifact must be labeled separately");
+const officialAndroid = read(".github/workflows/android-official-release.yml");
+for (const secretName of ["ANDROID_KEYSTORE_BASE64", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]) {
+  assert(officialAndroid.includes(secretName), "Official release workflow must require signing secret " + secretName);
+}
+assert.match(officialAndroid, /assembleRelease bundleRelease/u, "Official release must build both APK and AAB");
+assert.match(officialAndroid, /apksigner" sign/u, "Official APK must be signed");
+assert.match(officialAndroid, /jarsigner -verify/u, "Official AAB signature must be verified");
+assert.match(officialAndroid, /gh release upload/u, "Official signed artifacts must be attached to a GitHub release");
+assert.match(read("docs/OFFICIAL_RELEASE_CHECKLIST.md"), /لا توجد روابط حسابات/u, "Launch checklist must document the real-account prerequisite");
+
 
 const index = read("index.html");
 const projectHub = read("health-centers/businesses.html");
