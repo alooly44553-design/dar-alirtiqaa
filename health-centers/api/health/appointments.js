@@ -25,7 +25,7 @@ function validDate(value) {
   const day = 24 * 60 * 60 * 1000;
   const today = new Date();
   const utcToday = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
-  return ms >= utcToday && ms <= utcToday + 180 * day && new Date(ms).toISOString().slice(0, 10) === value;
+  return ms >= utcToday && ms <= utcToday + 90 * day && new Date(ms).toISOString().slice(0, 10) === value;
 }
 
 module.exports = async function handler(req, res) {
@@ -76,7 +76,7 @@ module.exports = async function handler(req, res) {
   const consent = body.privacy_consent === true;
 
   if (fullName.length < 2 || !/^[+0-9()\s.-]{6,24}$/.test(phone) ||
-      specialty.length < 2 || !validDate(preferredDate) ||
+      specialty.length < 2 || specialty.length > 80 || !validDate(preferredDate) ||
       !/^([01]\d|2[0-3]):[0-5]\d$/.test(preferredTime) || !consent) {
     return send(res, 400, {
       ok: false,
