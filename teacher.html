@@ -38,6 +38,20 @@ const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 function message(text,kind=""){ $("authStatus").className="status"+(kind?" "+kind:""); $("authStatus").textContent=text; }
+function clearPrivateData(){
+ $("teacherDashboard").classList.add("hidden");
+ $("teacherSchedule").textContent="سجّل الدخول لعرض جدولك المسند.";
+ $("teacherLessons").textContent="لا توجد بيانات معروضة.";
+ $("teacherSubmissions").textContent="لا توجد بيانات معروضة.";
+ $("sessions").textContent="لا توجد بيانات معروضة.";
+ $("loginHelp").classList.remove("hidden");
+}
+sb.auth.onAuthStateChange(event=>{
+ if(event==="SIGNED_OUT"){
+  clearPrivateData();
+  message("تم تسجيل الخروج؛ أُخفيت بيانات التدريس من هذه الصفحة.");
+ }
+});
 async function api(resource){
  const sessionResult=await sb.auth.getSession(),token=sessionResult.data?.session?.access_token;
  if(!token)throw new Error("AUTH_REQUIRED");
