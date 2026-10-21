@@ -27,7 +27,7 @@ for (const relativePath of ["zoom-operations.html", "portal.html", "teacher.html
     continue;
   }
   const html = fs.readFileSync(htmlPath, "utf8");
-  const blocks = [...html.matchAll(/<script type="module">([\\s\\S]*?)<\\/script>/gu)];
+  const blocks = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/gu)];
   if (!blocks.length) {
     failures.push({ file: relativePath, output: "Expected at least one embedded JavaScript module." });
     continue;
