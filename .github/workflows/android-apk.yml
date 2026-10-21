@@ -9,11 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v6
@@ -51,23 +46,8 @@ jobs:
         run: npx cap sync android
       - name: Build Debug APK
         run: cd android && chmod +x gradlew && ./gradlew assembleDebug
-      - name: Build stable Release APK when signing secrets are configured
-        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
-        shell: bash
-        run: |
-          set -e
-          cd android
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > dar-alirtiqaa-release.jks
-          ./gradlew assembleRelease
-          BUILD_TOOLS="$(ls -1d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
-          "$BUILD_TOOLS/zipalign" -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
-          "$BUILD_TOOLS/apksigner" sign --ks dar-alirtiqaa-release.jks --ks-pass "pass:$ANDROID_KEYSTORE_PASSWORD" --key-pass "pass:$ANDROID_KEY_PASSWORD" --ks-key-alias "$ANDROID_KEY_ALIAS" --out app-release-signed.apk app-release-aligned.apk
-          "$BUILD_TOOLS/apksigner" verify --verbose app-release-signed.apk
-          rm -f dar-alirtiqaa-release.jks app-release-aligned.apk
       - uses: actions/upload-artifact@v7
         with:
-          name: dar-alirtiqaa-apks-v1.1.6
-          path: |
-            android/app/build/outputs/apk/debug/app-debug.apk
-            android/app-release-signed.apk
-          if-no-files-found: warn
+          name: dar-alirtiqaa-debug-apk-v1.1.6
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
