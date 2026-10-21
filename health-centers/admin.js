@@ -8,6 +8,9 @@ const loginButton = document.querySelector('#admin-login-button');
 const message = document.querySelector('#admin-message');
 const accountPanel = document.querySelector('#admin-account');
 const signoutButton = document.querySelector('#admin-signout-button');
+const forgotButton = document.querySelector('#admin-forgot-button');
+const registerButton = document.querySelector('#admin-register-button');
+const authOptions = document.querySelector('#admin-auth-options');
 
 const roleLabels = {
   owner: 'مالك المنظومة',
@@ -26,6 +29,8 @@ function showMessage(text, kind = 'info') {
 
 function setBusy(busy) {
   loginButton.disabled = busy;
+  forgotButton.disabled = busy;
+  registerButton.disabled = busy;
   loginButton.textContent = busy ? 'جارٍ التحقق…' : 'تسجيل الدخول والتحقق من الصلاحية';
 }
 
@@ -40,6 +45,7 @@ function renderAccount(account) {
     : 'لا توجد صلاحيات مفعّلة';
   accountPanel.hidden = false;
   form.hidden = true;
+  authOptions.hidden = true;
   showMessage('تم التحقق من الحساب والصلاحيات بنجاح.', 'success');
 }
 
@@ -105,6 +111,7 @@ signoutButton.addEventListener('click', async () => {
   signoutButton.disabled = true;
   try { await auth.signOut(); } catch (_) {}
   form.hidden = false;
+  authOptions.hidden = false;
   accountPanel.hidden = true;
   document.querySelector('#admin-password').value = '';
   showMessage('تم إنهاء جلسة الدخول على هذا المتصفح.');
@@ -114,3 +121,58 @@ signoutButton.addEventListener('click', async () => {
 if (!window.isSecureContext) {
   showMessage('يجب فتح بوابة الإدارة عبر اتصال HTTPS آمن.', 'error');
 }
+
+
+forgotButton.addEventListener('click', async () => {
+  const email = document.querySelector('#admin-email').value.trim().toLowerCase();
+  if (!email) {
+    showMessage('أدخل بريدك الإلكتروني أولًا، ثم اضغط «نسيت كلمة المرور؟».', 'error');
+    document.querySelector('#admin-email').focus();
+    return;
+  }
+  setBusy(true);
+  showMessage('جارٍ طلب رسالة استعادة كلمة المرور…');
+  try {
+    const result = await auth.requestPasswordReset({
+      email,
+      redirectTo: window.location.origin + '/admin.html'
+    });
+    if (result?.error) throw new Error('Password reset request failed');
+    showMessage('إذا كان البريد مسجلًا وكانت خدمة البريد مهيأة، فستصلك تعليمات إعادة تعيين كلمة المرور. تحقق من صندوق الوارد والرسائل غير المرغوب فيها.', 'success');
+  } catch (_) {
+    showMessage('تعذر إكمال طلب الاستعادة حاليًا. تحقق من إعدادات خدمة البريد في مزود المصادقة أو حاول لاحقًا.', 'error');
+  } finally {
+    setBusy(false);
+  }
+});
+
+registerButton.addEventListener('click', async () => {
+  const email = document.querySelector('#admin-email').value.trim().toLowerCase();
+  const password = document.querySelector('#admin-password').value;
+  if (!email) {
+    showMessage('أدخل البريد الإلكتروني الذي تملكه لإنشاء الحساب.', 'error');
+    document.querySelector('#admin-email').focus();
+    return;
+  }
+  if (!password || password.length < 8) {
+    showMessage('أنشئ كلمة مرور لا تقل عن 8 أحرف، ويفضل أن تجمع بين أحرف كبيرة وصغيرة وأرقام ورموز.', 'error');
+    document.querySelector('#admin-password').focus();
+    return;
+  }
+  setBusy(true);
+  showMessage('جارٍ إنشاء حساب الدخول…');
+  try {
+    const result = await auth.signUp.email({
+      email,
+      password,
+      name: email.split('@')[0]
+    });
+    if (result?.error) throw new Error('Sign up failed');
+    showMessage('تم إرسال طلب إنشاء الحساب إذا كانت الخدمة تسمح بذلك. الحساب الجديد لا يحصل على صلاحيات الإدارة تلقائيًا؛ يجب اعتماد الحساب وربطه بدور رسمي.', 'success');
+    document.querySelector('#admin-password').value = '';
+  } catch (_) {
+    showMessage('تعذر إنشاء الحساب. تحقق من البريد وكلمة المرور، ومن أن التسجيل بالبريد مفعّل لدى مزود المصادقة.', 'error');
+  } finally {
+    setBusy(false);
+  }
+});
