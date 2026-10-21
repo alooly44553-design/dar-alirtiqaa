@@ -25,8 +25,8 @@ assert.match(read("sw.js"), /const CACHE_NAME\s*=\s*"dar-alirtiqaa-v\d+\.\d+\.\d
 const android = read(".github/workflows/android-apk.yml");
 assert.match(android, /versionCode 10/u, "Android versionCode mismatch");
 assert.match(android, /versionName "1\.1\.6"/u, "Android versionName mismatch");
-assert.match(android, /Upload Debug APK \\(testing only\\)/u, "Debug builds must be labeled as test-only");
-assert.match(android, /dar-alirtiqaa-android-debug-v1\\.1\\.6/u, "Unsigned builds must not be labeled as official release");
+assert(android.includes("Upload Debug APK (testing only)"), "Debug builds must be labeled as test-only");
+assert(android.includes("name: dar-alirtiqaa-android-debug-v1.1.6"), "Unsigned builds must not be labeled as official release");
 assert.match(android, /Upload signed Android release APK/u, "Signed APK artifact must be labeled separately");
 const officialAndroid = read(".github/workflows/android-official-release.yml");
 for (const secretName of ["ANDROID_KEYSTORE_BASE64", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]) {
