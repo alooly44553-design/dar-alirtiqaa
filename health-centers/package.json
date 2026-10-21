@@ -1,0 +1,12 @@
+{
+  "name": "al-irtiqaa-health-centers",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Server-side API for the independent Irtiqaa Health Centers application",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
+  }
+}
