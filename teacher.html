@@ -1,2 +1,94 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="./icon.svg?v=20261020-1" type="image/svg+xml">
-<title>المعلم — منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية</title><style>:root{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:#f5f7fb;color:#172033}*{box-sizing:border-box}body{margin:0;background:#f5f7fb}header{padding:18px 20px;background:#13233f;color:#fff}header h1{margin:0;font-size:21px}header p{margin:5px 0 0;color:#cbd5e1;font-size:13px}.wrap{width:min(1120px,calc(100% - 28px));margin:auto;padding:18px 0 40px}.hero,.card{background:#fff;border:1px solid #e2e8f0;border-radius:17px;padding:17px;box-shadow:0 5px 18px #0f172a08}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:14px}.item{padding:11px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;margin-top:8px}.muted{color:#64748b;font-size:13px}.badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#dcfce7;color:#166534;font-size:12px}</style></head><body><header><h1>👩‍🏫 منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية</h1><p>مساحة المعلم/المعلمة — تحضير، تدريس، تقييم، متابعة، وأنشطة</p></header><main class="wrap"><section class="hero"><span class="badge">مساحة المعلم</span><h2>أدواتك التعليمية في مكان واحد</h2><p class="muted">إعداد الدرس، تشغيل الفصل الافتراضي، الأنشطة، الواجبات، الحضور، التقييم والتغذية الراجعة. الذكاء الاصطناعي مساعد وليس بديلًا عن قرار المعلم.</p></section><section class="grid"><div class="card"><h2>🗓️ حصص اليوم</h2><div id="teacherSchedule" class="item">لا يُعرض جدول حتى يُحمّل من جدول منشور ومُسند إلى حساب المعلم.</div><p class="muted">تُحدد المواعيد وفق الصف والمادة والمسار والمنهج السعودي المعتمد، مع مراعاة الفسح والأنشطة خارج الشاشة.</p></div><div class="card"><h2>🧑‍🎓 الحضور</h2><div class="item"><strong>تسجيل سريع</strong><p class="muted">حاضر / متأخر / غائب / بعذر، مع سجل قابل للمراجعة.</p></div></div><div class="card"><h2>📝 الواجبات</h2><div class="item"><strong>إعداد واجب أو نشاط</strong><p class="muted">أسئلة، مشروع، تجربة، نشاط حركي أو مهمة خارج الشاشة.</p></div></div><div class="card"><h2>🤖 مساعد المعلم الذكي</h2><div class="item"><strong>يقترح ولا يعتمد</strong><p class="muted">خطة درس، أسئلة، تفريد تعلم، وملاحظات تقييم؛ الاعتماد النهائي للمعلم أو الإدارة حسب الصلاحية.</p></div></div></section><section class="card" style="margin-top:14px"><h2>🎥 الفصول الافتراضية</h2><div id="sessions" class="item">جارٍ تحميل الفصول...</div></section></main><script type="module">import{createClient}from"https://esm.sh/@supabase/supabase-js@2";const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");async function load(){const r=await sb.from("edu_virtual_sessions").select("title_ar,status").order("scheduled_start",{ascending:true}).limit(8);document.getElementById("sessions").textContent=r.error?"سيظهر المحتوى بعد ربط حساب المعلم وصلاحياته.":((r.data||[]).map(x=>(x.title_ar||"فصل افتراضي")+" — "+(x.status||"scheduled")).join(" | ")||"لا توجد فصول مجدولة حاليًا.")}load();</script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="./icon.svg?v=20261021-2" type="image/svg+xml">
+<meta name="theme-color" content="#082f57">
+<title>المعلم والمعلمة — منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:#f5f7fb;color:#172033;--navy:#13233f;--blue:#0d5c91;--line:#e2e8f0;--muted:#64748b}
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb}header{padding:18px 20px;background:var(--navy);color:#fff}header h1{margin:0;font-size:21px}header p{margin:5px 0 0;color:#cbd5e1;font-size:13px}.wrap{width:min(1120px,calc(100% - 28px));margin:auto;padding:18px 0 40px}.hero,.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:17px;box-shadow:0 5px 18px #0f172a08}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:14px}.item{padding:11px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;margin-top:8px}.muted{color:var(--muted);font-size:13px}.badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#dcfce7;color:#166534;font-size:12px}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:11px;padding:10px 14px;background:var(--navy);color:#fff;text-decoration:none;font-weight:750;cursor:pointer}.btn.secondary{background:#e2e8f0;color:#172033}.actions{display:flex;gap:8px;flex-wrap:wrap}.notice{padding:11px 13px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;margin-top:12px}.status{padding:11px 13px;border-radius:12px;margin-top:10px;background:#f1f5f9;border:1px solid var(--line)}.status.error{background:#fff1f2;color:#9f1239}.status.ok{background:#ecfdf5;color:#166534}.hidden{display:none!important}.rows{display:grid;gap:9px}.row{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px}.row strong{display:block}.row p{margin:5px 0}.row a{color:var(--blue);font-weight:700}@media(max-width:600px){header{padding:16px}.wrap{width:calc(100% - 20px)}}
+</style>
+</head>
+<body>
+<header><h1>👩‍🏫 مساحة المعلم والمعلمة</h1><p>الجداول المسندة، الدروس، الواجبات، مراجعة التسليمات والفصول الافتراضية</p></header>
+<main class="wrap">
+<section class="hero">
+ <div class="actions"><span class="badge">بوابة مخصصة للحساب المعتمد</span><a class="btn" href="./portal.html">فتح بوابة التدريس والواجبات</a><button class="btn secondary" id="refresh" type="button">تحديث البيانات</button></div>
+ <h2 id="teacherName">مساحة المعلم/المعلمة</h2>
+ <p class="muted">لا تظهر السجلات المحمية إلا بعد تسجيل الدخول وربط حساب المعلم بملف الموظف النشط. مساعد الذكاء الاصطناعي يقترح المواد التعليمية ولا يعتمد الدرجات أو القرارات بدلًا عن الطاقم المخوّل.</p>
+ <div id="authStatus" class="status">جارٍ التحقق من جلسة الدخول...</div>
+</section>
+<section id="teacherDashboard" class="hidden">
+ <section class="grid">
+  <article class="card"><h2>🗓️ جدولي المسند</h2><p class="muted">يعرض فقط حصص المعلم المرتبطة بحسابه والصفوف المنشورة له.</p><div id="teacherSchedule" class="rows">جارٍ التحميل...</div></article>
+  <article class="card"><h2>📚 دروسي</h2><div id="teacherLessons" class="rows">جارٍ التحميل...</div></article>
+  <article class="card"><h2>📝 مراجعة الواجبات</h2><div id="teacherSubmissions" class="rows">جارٍ التحميل...</div></article>
+  <article class="card"><h2>🎥 الفصول الافتراضية</h2><div id="sessions" class="rows">جارٍ التحقق من الفصول المصرح بها...</div><p class="muted">رابط الانضمام لا يظهر إلا إذا كانت جلسة حقيقية منشورة ومصرحًا لهذا الحساب بالمشاركة فيها.</p></article>
+ </section>
+ <div class="notice">إعداد الدروس والواجبات وتقييمها يتم من <a href="./portal.html">بوابة العمل المدرسي</a>. لا ينشئ هذا العرض تلقائيًا اجتماعات Zoom أو يعلن جداول غير منشورة.</div>
+</section>
+<section id="loginHelp" class="card hidden" style="margin-top:14px">
+ <h2>ابدأ بتسجيل الدخول</h2><p class="muted">سجّل الدخول من البوابة المدرسية بحساب المعلم المعتمد، ثم عُد إلى هذه الصفحة.</p><a class="btn" href="./portal.html">تسجيل الدخول إلى البوابة المدرسية</a>
+</section>
+</main>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+function message(text,kind=""){ $("authStatus").className="status"+(kind?" "+kind:""); $("authStatus").textContent=text; }
+async function api(resource){
+ const sessionResult=await sb.auth.getSession(),token=sessionResult.data?.session?.access_token;
+ if(!token)throw new Error("AUTH_REQUIRED");
+ const res=await fetch("./api/education/portal?resource="+encodeURIComponent(resource),{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+ const data=await res.json().catch(()=>({}));
+ if(!res.ok)throw new Error(data.error||"PORTAL_REQUEST_FAILED");
+ return data;
+}
+async function load(){
+ $("refresh").disabled=true;
+ $("teacherDashboard").classList.add("hidden");
+ $("loginHelp").classList.add("hidden");
+ try{
+  const session=await sb.auth.getSession();
+  if(!session.data?.session){$("loginHelp").classList.remove("hidden");message("لم يتم تسجيل الدخول. افتح البوابة المدرسية للدخول بحسابك.");return;}
+  const profile=await api("profile");
+  if(!profile.profile?.staff || profile.profile.learner){message("هذا الحساب غير مرتبط بملف معلم/موظف نشط؛ لا يمكن عرض جدول أو سجلات التدريس.", "error");$("loginHelp").classList.remove("hidden");return;}
+  $("teacherName").textContent="مرحبًا، "+(profile.profile.staff.full_name||"المعلم/المعلمة");
+  const teacher=await api("teacher");
+  $("teacherLessons").innerHTML=(teacher.lessons||[]).map(x=>'<article class="row"><strong>'+esc(x.title)+'</strong><p class="muted">'+esc(x.status||"مسودة")+' · '+esc(x.created_at||"")+'</p></article>').join("")||'<div class="row muted">لا توجد دروس مرتبطة بهذا الحساب بعد.</div>';
+  $("teacherSubmissions").innerHTML=(teacher.submissions||[]).map(x=>'<article class="row"><strong>'+esc(x.learners?.full_name||"طالب")+' — '+esc(x.school_assignments?.title||"واجب")+'</strong><p>الحالة: '+esc(x.status)+' · الدرجة: '+esc(x.score??"لم تُرصد")+'</p><p class="muted">'+esc(x.feedback||"لا توجد ملاحظات بعد.")+'</p></article>').join("")||'<div class="row muted">لا توجد تسليمات للمراجعة حاليًا.</div>';
+  const token=session.data.session.access_token;
+  const [scheduleResult,sessionResult]=await Promise.all([
+   sb.from("edu_teacher_schedule_assignments").select("id,academic_year,term,teacher_id,period_id,section_id,subject_id,assignment_type,title_ar,notes,zoom_meeting_id,zoom_join_url,virtual_staff_names,zoom_host_required").eq("teacher_id",profile.profile.staff.id).order("academic_year",{ascending:false}).limit(100),
+   sb.from("edu_virtual_sessions").select("id,title_ar,starts_at,ends_at,delivery_mode,status").order("starts_at",{ascending:true}).limit(50)
+  ]);
+  if(scheduleResult.error){$("teacherSchedule").innerHTML='<div class="row muted">تعذر تحميل الجدول المصرح به. قد يحتاج الحساب إلى ربط أو إسناد جدول.</div>';}
+  else{
+   const rows=scheduleResult.data||[],periodIds=[...new Set(rows.map(x=>x.period_id).filter(Boolean))],sectionIds=[...new Set(rows.map(x=>x.section_id).filter(Boolean))];
+   const [periodsResult,sectionsResult]=await Promise.all([
+    periodIds.length?sb.from("edu_schedule_periods").select("id,day_of_week,period_number,start_time,end_time,lesson_minutes,period_type").in("id",periodIds):Promise.resolve({data:[],error:null}),
+    sectionIds.length?sb.from("edu_class_sections").select("id,section_code,section_name,academic_year,term,is_active,zoom_join_url,zoom_host_required").in("id",sectionIds):Promise.resolve({data:[],error:null})
+   ]);
+   const periods=new Map((periodsResult.data||[]).map(x=>[x.id,x])),sections=new Map((sectionsResult.data||[]).map(x=>[x.id,x]));
+   $("teacherSchedule").innerHTML=rows.map(x=>{
+    const p=periods.get(x.period_id)||{},s=sections.get(x.section_id)||{};
+    const title=x.title_ar||x.assignment_type||"حصة مسندة",times=[p.start_time,p.end_time].filter(Boolean).map(v=>String(v).slice(0,5)).join("–");
+    const join=(x.zoom_join_url||s.zoom_join_url||"").trim(),safeJoin=/^https:\/\//i.test(join);
+    return '<article class="row"><strong>'+esc(title)+'</strong><p>'+esc(s.section_name||s.section_code||"الشعبة غير محددة")+' · '+esc(x.academic_year||s.academic_year||"")+' · الفصل '+esc(x.term||s.term||"")+'</p><p class="muted">اليوم '+esc(p.day_of_week??"—")+' · الحصة '+esc(p.period_number??"—")+' · '+esc(times||"الوقت غير محدد")+' · '+esc(p.lesson_minutes??"—")+' دقيقة</p>'+(safeJoin?'<p><a href="'+esc(join)+'" target="_blank" rel="noopener noreferrer">فتح غرفة Zoom</a> '+((x.zoom_host_required||s.zoom_host_required)?'<span class="muted"> — يتطلب حضور المضيف</span>':"")+'</p>':'<p class="muted">لم يُربط رابط غرفة منشور بهذه الحصة.</p>')+'</article>';
+   }).join("")||'<div class="row muted">لا يوجد جدول مسند منشور لهذا الحساب حتى الآن.</div>';
+  }
+  if(sessionResult.error){$("sessions").innerHTML='<div class="row muted">تعذر تحميل الفصول المصرح بها.</div>';}
+  else $("sessions").innerHTML=(sessionResult.data||[]).map(x=>'<article class="row"><strong>'+esc(x.title_ar)+'</strong><p>'+esc(x.delivery_mode||"online")+' · '+esc(x.status||"")+'</p><p class="muted">'+esc(x.starts_at?new Date(x.starts_at).toLocaleString("ar-SA"):"موعد غير محدد")+'</p></article>').join("")||'<div class="row muted">لا توجد فصول منشورة ومصرح بها لهذا الحساب.</div>';
+  $("teacherDashboard").classList.remove("hidden");
+  message("تم التحقق من جلسة الدخول والدور؛ المعروض مقيد بملف الحساب وصلاحيات قاعدة البيانات.","ok");
+ }catch(err){
+  if(err.message==="AUTH_REQUIRED"){$("loginHelp").classList.remove("hidden");message("سجّل الدخول أولًا من البوابة المدرسية.");}
+  else message("لم يكتمل تحميل مساحة المعلم: "+esc(err.message),"error");
+ }finally{$("refresh").disabled=false;}
+}
+$("refresh").addEventListener("click",load);
+load();
+</script>
+</body></html>
