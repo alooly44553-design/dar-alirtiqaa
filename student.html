@@ -75,6 +75,13 @@ async function load(){
  finally{$("refresh").disabled=false;}
 }
 $("refresh").addEventListener("click",load);
+sb.auth.onAuthStateChange(event=>{
+ if(event==="SIGNED_OUT"){
+  $("today").innerHTML='<a href="./portal.html">تسجيل الدخول إلى بوابة الطالب</a>';
+  $("activities").textContent="سجّل الدخول لعرض واجباتك.";
+  $("sessions").textContent="سجّل الدخول لعرض الفصول المصرح بها.";
+ }
+});
 load();
 </script><script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
