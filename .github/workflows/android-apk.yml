@@ -44,7 +44,7 @@ jobs:
             exit 1
           fi
           sed -i "s/versionCode [0-9]*/versionCode $VERSION_CODE/" android/app/build.gradle
-          sed -i "s/versionName \\"[^\\"]*\\"/versionName \\"$APP_VERSION\\"/" android/app/build.gradle
+          sed -i "s/versionName .*/versionName \"$APP_VERSION\"/" android/app/build.gradle
           echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_ENV"
           echo "ANDROID_VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
       - name: Install official launcher logo
