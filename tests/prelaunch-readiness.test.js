@@ -16,17 +16,17 @@ for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "
 const packageJson = JSON.parse(read("package.json"));
 const manifest = JSON.parse(read("app.webmanifest"));
 const appName = "منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية";
-assert.equal(packageJson.version, "1.1.6", "Package version must match intended release");
+assert.equal(packageJson.version, "1.1.7", "Package version must match intended release");
 assert.equal(manifest.version, packageJson.version, "Manifest and package versions differ");
 assert.equal(manifest.name, appName, "PWA display name mismatch");
 assert.equal(manifest.short_name, appName, "PWA short name mismatch");
 assert.match(read("capacitor.config.ts"), /appName:\s*'منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية'/u, "Capacitor appName mismatch");
 assert.match(read("sw.js"), /const CACHE_NAME\s*=\s*"dar-alirtiqaa-v\d+\.\d+\.\d+"/u, "Service worker cache key must have a valid independent semantic version");
 const android = read(".github/workflows/android-apk.yml");
-assert.match(android, /versionCode 10/u, "Android versionCode mismatch");
-assert.match(android, /versionName "1\.1\.6"/u, "Android versionName mismatch");
+assert.match(android, /versionCode 11/u, "Android versionCode mismatch");
+assert.match(android, /versionName "1\.1\.7"/u, "Android versionName mismatch");
 assert(android.includes("Upload Debug APK (testing only)"), "Debug builds must be labeled as test-only");
-assert(android.includes("name: dar-alirtiqaa-android-debug-v1.1.6"), "Unsigned builds must not be labeled as official release");
+assert(android.includes("name: dar-alirtiqaa-android-debug-v1.1.7"), "Debug builds must be clearly labeled as test artifacts");
 assert.match(android, /Upload signed Android release APK/u, "Signed APK artifact must be labeled separately");
 const officialAndroid = read(".github/workflows/android-official-release.yml");
 for (const secretName of ["ANDROID_KEYSTORE_BASE64", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]) {
