@@ -84,6 +84,11 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  // Keep intake disabled until the authenticated staff review workflow and privacy notice are deployed.
+  if (process.env.HEALTH_INTAKE_ENABLED !== 'true') {
+    return send(res, 503, { ok: false, message: 'استقبال الطلبات عبر الإنترنت غير مفعّل بعد.' });
+  }
+
   if (!process.env.DATABASE_URL) {
     return send(res, 503, { ok: false, message: 'خدمة استقبال الطلبات غير مهيأة حاليًا.' });
   }
