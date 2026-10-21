@@ -1,5 +1,6 @@
 const CACHE_NAME = "dar-alirtiqaa-v1.1.10";
 const ANNOUNCEMENT_SCRIPT = "/education-announcement.js?v=20261020-1";
+const ANNOUNCEMENT_SCRIPT = "/education-announcement.js?v=20261021-2";
 const APP_SHELL = [
   "./",
   "./index.html",

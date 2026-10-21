@@ -11,6 +11,8 @@ const requiredFiles = [
   "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
   "supabase/migrations/20261021_guardian_portal_read_only_access.sql",
   ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md"
+  ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md",
+  "docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md"
 ];
 for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "Missing required platform file: " + file);
 
@@ -28,6 +30,10 @@ assert.match(android, /versionCode 11/u, "Android versionCode mismatch");
 assert.match(android, /versionName "1\.1\.7"/u, "Android versionName mismatch");
 assert(android.includes("Upload Debug APK (testing only)"), "Debug builds must be labeled as test-only");
 assert(android.includes("name: dar-alirtiqaa-android-debug-v1.1.7"), "Debug builds must be clearly labeled as test artifacts");
+assert.match(android, /VERSION_CODE=\$\(\(10#\$MAJOR \* 1000000 \+ 10#\$MINOR \* 1000 \+ 10#\$PATCH\)\)/u, "Android versionCode must use the shared monotonic semantic-version formula");
+assert.match(android, /versionName/u, "Android versionName must follow package.json");
+assert(android.includes("Upload Debug APK (testing only)"), "Debug builds must be labeled as test-only");
+assert.match(android, /name: dar-alirtiqaa-android-debug-v\$\{\{ env\.APP_VERSION \}\}/u, "Unsigned builds must be versioned and labeled as test-only");
 assert.match(android, /Upload signed Android release APK/u, "Signed APK artifact must be labeled separately");
 const officialAndroid = read(".github/workflows/android-official-release.yml");
 for (const secretName of ["ANDROID_KEYSTORE_BASE64", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]) {
@@ -37,6 +43,11 @@ assert.match(officialAndroid, /assembleRelease bundleRelease/u, "Official releas
 assert.match(officialAndroid, /apksigner" sign/u, "Official APK must be signed");
 assert.match(officialAndroid, /jarsigner -verify/u, "Official AAB signature must be verified");
 assert.match(officialAndroid, /gh release upload/u, "Official signed artifacts must be attached to a GitHub release");
+assert.match(officialAndroid, /VERSION_CODE=\$\(\(10#\$MAJOR \* 1000000 \+ 10#\$MINOR \* 1000 \+ 10#\$PATCH\)\)/u, "Official and debug releases must share the same Android versionCode formula");
+const rollout = read("docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md");
+for (const operationalTerm of ["تُفتح البرامج تدريجيًا", "لا يعني الاستلام القبول النهائي", "Zoom", "الخطط الدراسية", "مساعد الذكاء الاصطناعي"]) {
+  assert(rollout.includes(operationalTerm), "Daily rollout playbook missing: " + operationalTerm);
+}
 assert.match(read("docs/OFFICIAL_RELEASE_CHECKLIST.md"), /لا توجد روابط حسابات/u, "Launch checklist must document the real-account prerequisite");
 
 

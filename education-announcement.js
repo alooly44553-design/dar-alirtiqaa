@@ -41,7 +41,7 @@
     '<div class="dar-promo-actions"><a class="dar-promo-link gold" href="/education-announcement.html">قراءة الإعلان كاملًا</a>',
     '<a class="dar-promo-link" href="https://alirtiqaa-educational-platform.vercel.app/">استكشف المنصة</a></div>',
     '<div class="dar-promo-phone-row"><a class="dar-promo-phone" href="tel:+966538216050">☎ 0538216050</a><a class="dar-promo-phone" href="tel:+966538838891">☎ 0538838891</a></div>',
-    '<p class="dar-promo-note">الإعلان تعريفي؛ يخضع توفر البرامج والرسوم وشروط القبول للمراجعة والتأكيد من الجهة المختصة. إرسال الطلب لا يضمن القبول أو توفر مقعد.</p>',
+    '<p class="dar-promo-note">استقبال الطلبات عبر النماذج المنشورة فوري، لكن فتح كل برنامج ومجموعته يتم تدريجيًا بحسب الإقبال والطاقم المؤهل والطاقة الاستيعابية وبعد اعتماد الخطة والرسوم. إرسال الطلب لا يضمن القبول أو توفر مقعد.</p>',
     '</aside>'
   ].join("");
   document.body.appendChild(root);

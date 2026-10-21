@@ -34,6 +34,22 @@ jobs:
           set -e
           sed -i 's/versionCode [0-9]*/versionCode 11/' android/app/build.gradle
           sed -i 's/versionName "[^"]*"/versionName "1.1.7"/' android/app/build.gradle
+          set -euo pipefail
+          APP_VERSION="$(node -p "require('./package.json').version")"
+          if [[ ! "$APP_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::package.json must use a stable semantic version such as 1.1.7."
+            exit 1
+          fi
+          IFS=. read -r MAJOR MINOR PATCH <<< "$APP_VERSION"
+          VERSION_CODE=$((10#$MAJOR * 1000000 + 10#$MINOR * 1000 + 10#$PATCH))
+          if (( VERSION_CODE <= 0 || VERSION_CODE > 2100000000 )); then
+            echo "::error::Calculated Android versionCode is out of range."
+            exit 1
+          fi
+          sed -i "s/versionCode [0-9]*/versionCode $VERSION_CODE/" android/app/build.gradle
+          sed -i "s/versionName .*/versionName \"$APP_VERSION\"/" android/app/build.gradle
+          echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_ENV"
+          echo "ANDROID_VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
       - name: Install official launcher logo
         shell: bash
         run: |
@@ -69,6 +85,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: dar-alirtiqaa-android-release-v1.1.7
+          name: dar-alirtiqaa-android-release-v${{ env.APP_VERSION }}
           path: android/app-release-signed.apk
           if-no-files-found: error
       - name: Upload Debug APK (testing only)
@@ -76,5 +93,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: dar-alirtiqaa-android-debug-v1.1.7
+          name: dar-alirtiqaa-android-debug-v${{ env.APP_VERSION }}
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
