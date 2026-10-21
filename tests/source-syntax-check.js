@@ -19,22 +19,33 @@ for (const file of jsFiles) {
   const result = spawnSync(process.execPath, ["--check", file], { encoding: "utf8" });
   if (result.status !== 0) failures.push({ file: path.relative(root, file), output: (result.stderr || result.stdout).trim() });
 }
-const zoomHtmlPath = path.join(root, "zoom-operations.html");
-if (fs.existsSync(zoomHtmlPath)) {
-  const html = fs.readFileSync(zoomHtmlPath, "utf8");
-  const blocks = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/gu)];
-  if (blocks.length !== 1) failures.push({ file: "zoom-operations.html", output: "Expected exactly one embedded module, found " + blocks.length });
-  else {
+let checkedEmbeddedModules = 0;
+for (const relativePath of ["zoom-operations.html", "portal.html", "teacher.html", "student.html", "parent.html"]) {
+  const htmlPath = path.join(root, relativePath);
+  if (!fs.existsSync(htmlPath)) {
+    if (relativePath !== "zoom-operations.html") failures.push({ file: relativePath, output: "Missing role page for module syntax checks." });
+    continue;
+  }
+  const html = fs.readFileSync(htmlPath, "utf8");
+  const blocks = [...html.matchAll(/<script type="module">([\\s\\S]*?)<\\/script>/gu)];
+  if (!blocks.length) {
+    failures.push({ file: relativePath, output: "Expected at least one embedded JavaScript module." });
+    continue;
+  }
+  for (let index = 0; index < blocks.length; index += 1) {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "dar-alirtiqaa-syntax-"));
-    const tempFile = path.join(tempDir, "zoom-operations.mjs");
+    const tempFile = path.join(tempDir, "embedded-" + index + ".mjs");
     try {
-      fs.writeFileSync(tempFile, blocks[0][1]);
+      fs.writeFileSync(tempFile, blocks[index][1]);
       const result = spawnSync(process.execPath, ["--check", tempFile], { encoding: "utf8" });
-      if (result.status !== 0) failures.push({ file: "zoom-operations.html#module", output: (result.stderr || result.stdout).trim() });
-    } finally { fs.rmSync(tempDir, { recursive: true, force: true }); }
+      if (result.status !== 0) failures.push({ file: relativePath + "#module-" + (index + 1), output: (result.stderr || result.stdout).trim() });
+      else checkedEmbeddedModules += 1;
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
   }
 }
 if (failures.length) {
   for (const failure of failures) console.error("SYNTAX ERROR " + failure.file + "\n" + failure.output);
   process.exitCode = 1;
-} else console.log("JavaScript syntax checks passed for " + jsFiles.length + " files and the embedded Zoom browser module.");
+} else console.log("JavaScript syntax checks passed for " + jsFiles.length + " files and " + checkedEmbeddedModules + " embedded modules across role pages and Zoom operations.");
