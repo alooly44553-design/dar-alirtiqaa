@@ -8,6 +8,7 @@ const loginButton = document.querySelector('#admin-login-button');
 const message = document.querySelector('#admin-message');
 const accountPanel = document.querySelector('#admin-account');
 const signoutButton = document.querySelector('#admin-signout-button');
+const consoleButton = document.querySelector('#admin-open-console');
 const forgotButton = document.querySelector('#admin-forgot-button');
 const registerButton = document.querySelector('#admin-register-button');
 const authOptions = document.querySelector('#admin-auth-options');
@@ -52,6 +53,7 @@ function renderAccount(account) {
     ? account.permissions.join('، ')
     : 'لا توجد صلاحيات مفعّلة';
   accountPanel.hidden = false;
+  if (consoleButton) consoleButton.hidden = false;
   form.hidden = true;
   authOptions.hidden = true;
   showMessage('تم التحقق من الحساب والصلاحيات بنجاح.', 'success');
@@ -115,12 +117,15 @@ form.addEventListener('submit', async (event) => {
   }
 });
 
+if (consoleButton) consoleButton.addEventListener('click', () => { window.location.href = './admin-console.html'; });
+
 signoutButton.addEventListener('click', async () => {
   signoutButton.disabled = true;
   try { await auth.signOut(); } catch (_) {}
   form.hidden = false;
   authOptions.hidden = false;
   accountPanel.hidden = true;
+  if (consoleButton) consoleButton.hidden = true;
   document.querySelector('#admin-password').value = '';
   showMessage('تم إنهاء جلسة الدخول على هذا المتصفح.');
   signoutButton.disabled = false;
