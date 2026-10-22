@@ -74,7 +74,8 @@ async function checkAuthorization() {
   const data = await response.json().catch(() => ({}));
   if (!response.ok || !data.ok || !data.account) {
     if (response.status === 403) {
-      throw new Error('تم تسجيل الدخول، لكن هذا الحساب غير معتمد لإدارة المراكز. يمكنك توثيق البريد أدناه؛ التوثيق وحده لا يمنح صلاحيات الإدارة.');
+      showOtpPanel(document.querySelector('#admin-email').value.trim().toLowerCase());
+      throw new Error('تم تسجيل الدخول، لكن الحساب غير معتمد بعد. يمكنك توثيق البريد أدناه؛ التوثيق وحده لا يمنح صلاحيات الإدارة.');
     }
     if (response.status === 401) {
       throw new Error('تعذر التحقق من الجلسة. تحقق من البريد وكلمة المرور ثم أعد المحاولة.');
