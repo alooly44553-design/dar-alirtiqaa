@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0a4550">
   <meta name="robots" content="noindex,nofollow">
   <title>دخول إدارة المراكز الصحية | الإرتقاء الفكري</title>
-  <link rel="stylesheet" href="./styles.css?v=20261021-4">
+  <link rel="stylesheet" href="./styles.css?v=20261022-1">
   <style>
     .admin-auth-wrap{max-width:620px;margin:32px auto;padding:20px}
     .admin-auth-card{background:var(--surface,#fff);border:1px solid var(--border,#d8e2e3);border-radius:18px;padding:clamp(20px,4vw,32px);box-shadow:0 12px 36px #0a45500d}
@@ -45,6 +45,20 @@
         </label>
         <button id="admin-login-button" class="admin-primary" type="submit">تسجيل الدخول والتحقق من الصلاحية</button>
       </form>
+      <section id="admin-email-verification" class="admin-status" hidden>
+        <h2 style="margin-top:0;font-size:1.1rem">تأكيد ملكية البريد الإلكتروني</h2>
+        <p>أرسل رمز تحقق إلى البريد المسجل في حساب الدخول، ثم أدخل الرمز لإثبات ملكية البريد. التحقق لا يمنح صلاحيات إدارية تلقائيًا.</p>
+        <div class="admin-auth-form">
+          <label for="admin-email-otp">رمز التحقق
+            <input id="admin-email-otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="12" pattern="[0-9]{6,12}">
+          </label>
+          <div class="admin-auth-actions">
+            <button id="admin-send-otp-button" class="admin-secondary" type="button">إرسال رمز التحقق</button>
+            <button id="admin-verify-otp-button" class="admin-primary" type="button">تأكيد الرمز</button>
+            <button id="admin-cancel-otp-button" class="admin-secondary" type="button">رجوع</button>
+          </div>
+        </div>
+      </section>
       <div class="admin-auth-actions" id="admin-auth-options">
         <button id="admin-forgot-button" class="admin-secondary" type="button">نسيت كلمة المرور؟</button>
         <button id="admin-register-button" class="admin-secondary" type="button">إنشاء حساب بالبريد وكلمة المرور</button>
@@ -66,6 +80,6 @@
       <p class="admin-foot">لا تشارك كلمة المرور أو رموز التحقق. لا تُدخل بيانات مرضى في هذه البوابة. إذا لم يُعتمد حسابك، تواصل مع الإدارة الرسمية.</p>
     </section>
   </main>
-  <script type="module" src="./admin.js?v=20261021-4"></script>
+  <script type="module" src="./admin.js?v=20261022-1"></script>
 </body>
 </html>
