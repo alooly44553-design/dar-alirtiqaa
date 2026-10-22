@@ -33,7 +33,7 @@ module.exports = async function handler(req, res) {
     const { createRemoteJWKSet, jwtVerify } = await import('jose');
     const JWKS = createRemoteJWKSet(JWKS_URL);
     const { payload } = await jwtVerify(match[1], JWKS, {
-      issuer: AUTH_BASE_URL,
+      issuer: new URL(AUTH_BASE_URL).origin,
       algorithms: ['EdDSA']
     });
 
