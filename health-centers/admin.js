@@ -11,6 +11,12 @@ const signoutButton = document.querySelector('#admin-signout-button');
 const forgotButton = document.querySelector('#admin-forgot-button');
 const registerButton = document.querySelector('#admin-register-button');
 const authOptions = document.querySelector('#admin-auth-options');
+const otpPanel = document.querySelector('#admin-email-verification');
+const sendOtpButton = document.querySelector('#admin-send-otp-button');
+const verifyOtpButton = document.querySelector('#admin-verify-otp-button');
+const cancelOtpButton = document.querySelector('#admin-cancel-otp-button');
+const otpInput = document.querySelector('#admin-email-otp');
+let otpEmail = '';
 
 const roleLabels = {
   owner: 'مالك المنظومة',
@@ -31,6 +37,8 @@ function setBusy(busy) {
   loginButton.disabled = busy;
   forgotButton.disabled = busy;
   registerButton.disabled = busy;
+  if (sendOtpButton) sendOtpButton.disabled = busy;
+  if (verifyOtpButton) verifyOtpButton.disabled = busy;
   loginButton.textContent = busy ? 'جارٍ التحقق…' : 'تسجيل الدخول والتحقق من الصلاحية';
 }
 
@@ -66,8 +74,8 @@ async function checkAuthorization() {
   const data = await response.json().catch(() => ({}));
   if (!response.ok || !data.ok || !data.account) {
     if (response.status === 403) {
-      await auth.signOut().catch(() => {});
-      throw new Error('تم تسجيل الدخول، لكن هذا الحساب غير معتمد لإدارة المراكز. لم تُمنح أي صلاحيات.');
+      showOtpPanel(document.querySelector('#admin-email').value.trim().toLowerCase());
+      throw new Error('تم تسجيل الدخول، لكن الحساب غير معتمد بعد. يمكنك توثيق البريد أدناه؛ التوثيق وحده لا يمنح صلاحيات الإدارة.');
     }
     if (response.status === 401) {
       throw new Error('تعذر التحقق من الجلسة. تحقق من البريد وكلمة المرور ثم أعد المحاولة.');
@@ -176,3 +184,84 @@ registerButton.addEventListener('click', async () => {
     setBusy(false);
   }
 });
+
+
+function showOtpPanel(email) {
+  otpEmail = email;
+  otpPanel.hidden = false;
+  form.hidden = true;
+  authOptions.hidden = true;
+  otpInput.value = '';
+  showMessage('يمكنك طلب رمز تحقق لإثبات ملكية البريد. لن تتغير صلاحيات الإدارة بمجرد التحقق.', 'info');
+}
+
+sendOtpButton.addEventListener('click', async () => {
+  if (!otpEmail) {
+    showMessage('أعد إدخال البريد الإلكتروني أولًا.', 'error');
+    return;
+  }
+  setBusy(true);
+  try {
+    const result = await auth.emailOtp.sendVerificationOtp({
+      email: otpEmail,
+      type: 'email-verification'
+    });
+    if (result?.error) throw new Error('تعذر إرسال الرمز. تحقق من إعدادات البريد في خدمة المصادقة ثم أعد المحاولة.');
+    showMessage('إذا كان البريد مدعومًا للتحقق، فسيصلك رمز. افحص الوارد والرسائل غير المرغوب فيها.', 'success');
+  } catch (_) {
+    showMessage('تعذر إرسال رمز التحقق حاليًا. يلزم التأكد من تفعيل التحقق بالبريد ومزوّد الإرسال في Neon Auth.', 'error');
+  } finally {
+    setBusy(false);
+  }
+});
+
+verifyOtpButton.addEventListener('click', async () => {
+  const otp = otpInput.value.trim();
+  if (!otpEmail || !/^[0-9]{6,12}$/.test(otp)) {
+    showMessage('أدخل رمز التحقق الرقمي كما وصلك في البريد.', 'error');
+    return;
+  }
+  setBusy(true);
+  try {
+    const result = await auth.emailOtp.verifyEmail({ email: otpEmail, otp });
+    if (result?.error) throw new Error('رمز التحقق غير صحيح أو منتهي الصلاحية. اطلب رمزًا جديدًا.');
+    const tokenResult = await auth.token();
+    const token = tokenResult?.data?.token;
+    if (!token || tokenResult?.error) throw new Error('تم التحقق من الرمز، لكن تعذر تأكيد جلسة الدخول.');
+    const response = await fetch('./api/health/admin/link-verified-identity', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({ email: otpEmail }),
+      cache: 'no-store',
+      credentials: 'omit'
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) {
+      throw new Error(data.message || 'تعذر ربط الهوية. قد تحتاج خدمة المصادقة إلى إصدار جلسة تتضمن حالة التحقق.');
+    }
+    otpPanel.hidden = true;
+    form.hidden = false;
+    authOptions.hidden = false;
+    showMessage(data.active
+      ? 'تم توثيق البريد وربط الهوية. أعد تسجيل الدخول للتحقق من الصلاحيات.'
+      : 'تم توثيق البريد وربط الهوية، لكن الحساب الإداري ما زال بانتظار الاعتماد الرسمي. لم تُمنح أي صلاحيات.', 'success');
+  } catch (error) {
+    showMessage(error?.message || 'تعذر إكمال التحقق. حاول إرسال رمز جديد.', 'error');
+  } finally {
+    setBusy(false);
+  }
+});
+
+cancelOtpButton.addEventListener('click', () => {
+  otpPanel.hidden = true;
+  form.hidden = false;
+  authOptions.hidden = false;
+  otpInput.value = '';
+  otpEmail = '';
+  showMessage('أُغلق نموذج التحقق. يمكنك متابعة تسجيل الدخول.');
+});
+
