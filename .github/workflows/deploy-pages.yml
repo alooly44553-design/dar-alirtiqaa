@@ -76,12 +76,13 @@ jobs:
         shell: bash
         run: |
           set -e
+          APP_VERSION="$(node -p "require('./package.json').version")"
           mkdir -p site/downloads
           cp *.html app.webmanifest logo.svg icon.svg sw.js site/
           for dir in ads assets lib projects; do
             if [ -d "$dir" ]; then cp -R "$dir" site/; fi
           done
-          cp downloads/dar-alirtiqaa.apk "downloads/dar-alirtiqaa-$APP_VERSION-debug.apk" "downloads/dar-alirtiqaa-$APP_VERSION-debug.apk.sha256" site/downloads/
+          cp "downloads/dar-alirtiqaa.apk" "downloads/dar-alirtiqaa-$APP_VERSION-debug.apk" "downloads/dar-alirtiqaa-$APP_VERSION-debug.apk.sha256" site/downloads/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
