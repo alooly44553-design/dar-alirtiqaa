@@ -11,7 +11,8 @@ const requiredFiles = [
   "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
   "supabase/migrations/20261021_guardian_portal_read_only_access.sql",
   ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md",
-  "docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md"
+  "docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md",
+  "supabase/migrations/20261021_guardian_portal_read_only_access.sql"
 ];
 for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "Missing required platform file: " + file);
 
@@ -57,6 +58,16 @@ for (const canonicalUrl of [
   "https://btaqat-alirtiqaa-alfikri-alnamothaj.vercel.app/?utm_source=chatgpt.com",
   "https://dar-alirtiqaa-management.vercel.app/"
 ]) assert(projectHub.includes(canonicalUrl), "Project hub must use the canonical public URL: " + canonicalUrl);
+const aiPortalApi = read("api/education/portal.js");
+const schoolPortal = read("portal.html");
+assert.match(aiPortalApi, /"ai-draft":\s*\["POST"\]/u, "AI lesson drafting must be a POST-only role API");
+assert.match(aiPortalApi, /identity\.staff\.is_active !== true/u, "AI lesson drafting must require an active staff account");
+assert.match(aiPortalApi, /AI_DRAFT_RATE_LIMITED/u, "AI lesson drafting must enforce a rate limit");
+assert.match(aiPortalApi, /requires_teacher_review:\s*true/u, "AI lesson output must require teacher review");
+assert.match(aiPortalApi, /auto_published:\s*false/u, "AI lesson output must never auto-publish");
+assert.match(schoolPortal, /resource=ai-draft/u, "Teacher portal must be wired to the AI draft API");
+assert.match(schoolPortal, /لم تُحفظ ولم تُنشر تلقائيًا/u, "AI lesson page must clearly disclose that drafts aren't saved or published automatically");
+assert.match(schoolPortal, /إدراج المسودة في شرح الدرس للتحرير/u, "Teacher must explicitly choose to insert the draft for editing");
 const admin = read("admin.html");
 const portalApi = read("api/education/portal.js");
 const portalAuth = read("lib/education-portal-auth.js");
@@ -71,6 +82,16 @@ assert.match(portalAuth, /guardianLearners/u, "Auth identity must resolve explic
 assert.match(parentPage, /signInWithPassword/u, "Parent portal must require interactive authenticated sign-in");
 for (const [page, source] of [["teacher.html", teacherPage], ["student.html", studentPage], ["parent.html", parentPage]]) {
   assert.match(source, /getSession\(\)/u, page + " must check the authenticated session before protected reads");
+}
+for (const [page, source] of [["teacher.html", teacherPage], ["student.html", studentPage], ["parent.html", parentPage]]) {
+  assert.match(source, /Authorization:\s*"Bearer "\s*\+\s*token/u, page + " must forward a signed-in bearer token for protected API requests");
+}
+assert.match(guardianRls, /guardian_read_linked_learners/u, "Guardian RLS migration must restrict learners to explicit guardian links");
+assert.match(guardianRls, /guardian_read_linked_school_submissions/u, "Guardian RLS migration must restrict results to linked children");
+assert.match(guardianRls, /teacher_read_own_schedule_assignments/u, "Teacher RLS migration must restrict schedule reads to assigned teachers");
+assert.doesNotMatch(guardianRls, /FOR\s+(INSERT|UPDATE|DELETE|ALL)\s+TO\s+authenticated/iu, "Guardian/teacher migration must not grant write access");
+for (const [page, source] of [["teacher.html", teacherPage], ["student.html", studentPage], ["parent.html", parentPage]]) {
+  assert(!source.includes('order("scheduled_start"'), page + " must use the actual starts_at field for sessions");
 }
 assert.match(teacherPage, /Authorization:\s*"Bearer "\s*\+\s*token/u, "Teacher API reads must forward the signed-in bearer token");
 assert.match(studentPage, /Authorization:\s*"Bearer "\s*\+\s*token/u, "Student API reads must forward the signed-in bearer token");

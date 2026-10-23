@@ -12,6 +12,22 @@ body{margin:0;font-family:system-ui,Tahoma,Arial;background:#f4f7fb;color:#17203
 <div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div><strong id="who"></strong> <span id="role" class="badge"></span></div><button id="logout" class="secondary">تسجيل الخروج</button></div></div>
 <div id="teacherPanel" class="hide">
 <div class="card"><h2>👨‍🏫 مساحة المعلم</h2><div class="grid"><div><h3>إعداد درس</h3><input id="lessonTitle" placeholder="عنوان الدرس"><textarea id="lessonExplanation" placeholder="شرح الدرس / المحتوى"></textarea><input id="lessonObjectives" placeholder="الأهداف"><select id="lessonProgram"></select><select id="lessonSubject"></select><select id="lessonClassroom"></select><button id="saveLesson">حفظ الدرس كمسودة</button><button id="publishLesson" style="margin-right:6px">نشر الدرس</button></div><div><h3>إنشاء واجب</h3><select id="assignmentLesson"></select><input id="assignmentTitle" placeholder="عنوان الواجب"><textarea id="assignmentInstructions" placeholder="تعليمات الواجب"></textarea><input id="assignmentDue" type="datetime-local"><input id="assignmentMax" type="number" value="100" min="1"><button id="saveAssignment">نشر الواجب</button></div></div><div id="teacherMsg" class="muted"></div></div>
+<div class="card" id="aiLessonDraftCard">
+ <h2>🤖 مساعدة المعلم/المعلمة بالذكاء الاصطناعي</h2>
+ <p class="muted">تنشئ الأداة مسودة قابلة للتحرير فقط. لا تحفظ الدرس ولا تنشره أو تعتمد نتائجه تلقائيًا؛ يراجع المعلم المحتوى والمواءمة مع المنهج والخطة المعتمدة.</p>
+ <div class="grid">
+  <div><label for="draftTopic">موضوع الدرس</label><input id="draftTopic" maxlength="200" placeholder="مثال: الكسور المتكافئة"></div>
+  <div><label for="draftSubject">المادة</label><input id="draftSubject" maxlength="120" placeholder="المادة الدراسية"></div>
+  <div><label for="draftGrade">المرحلة/الصف أو المستوى الجامعي</label><input id="draftGrade" maxlength="120" placeholder="المرحلة والصف"></div>
+  <div><label for="draftDuration">المدة بالدقائق</label><input id="draftDuration" type="number" min="15" max="120" step="5" value="30"></div>
+ </div>
+ <label for="draftObjectives">أهداف مبدئية (اختياري)</label>
+ <textarea id="draftObjectives" maxlength="1000" placeholder="أهداف التعلم التي تريد تغطيتها، من دون أسماء أو بيانات طلاب"></textarea>
+ <button id="requestAiDraft" type="button">إنشاء مسودة الدرس</button>
+ <div id="aiDraftStatus" class="muted" role="status" aria-live="polite"></div>
+ <div id="aiDraftPreview" class="item" style="white-space:pre-wrap;max-height:360px;overflow:auto">ستظهر المسودة هنا بعد إنشاء الطلب.</div>
+ <button id="useAiDraft" class="secondary hide" type="button">إدراج المسودة في شرح الدرس للتحرير</button>
+</div>
 <div class="card"><h2>📥 تسليمات الطلاب</h2><div id="teacherSubmissions">جارٍ التحميل...</div></div>
 </div>
 <div id="studentPanel" class="hide">
@@ -47,7 +63,13 @@ async function api(path,method="GET",body){
   INVALID_SUBMISSION_FIELDS:"اكتب إجابة الواجب قبل الإرسال.",
   ASSIGNMENT_NOT_ASSIGNED_TO_LEARNER:"هذا الواجب غير مخصص لبرنامجك أو فصلك.",
   SUBMISSION_NOT_FOUND:"التسليم غير موجود أو لا يتبع هذا المعلم.",
-  SCORE_EXCEEDS_MAXIMUM:"الدرجة أعلى من الدرجة القصوى للواجب."
+  SCORE_EXCEEDS_MAXIMUM:"الدرجة أعلى من الدرجة القصوى للواجب.",
+  INVALID_AI_DRAFT_FIELDS:"أدخل موضوع الدرس والمادة والمرحلة ومدة صحيحة.",
+  PERSONAL_CONTACT_DETAILS_NOT_ALLOWED:"احذف بيانات التواصل الشخصية أو معلومات تعريف المتعلمين من الطلب.",
+  AI_ASSISTANT_NOT_CONFIGURED:"خدمة إنشاء مسودات الذكاء الاصطناعي غير مهيأة في بيئة الإنتاج بعد.",
+  AI_DRAFT_RATE_LIMITED:"وصلت إلى الحد المؤقت لطلبات المسودات؛ حاول بعد دقيقة.",
+  AI_ASSISTANT_TEMPORARILY_UNAVAILABLE:"تعذر حفظ حد الاستخدام أو الوصول إلى المساعد مؤقتًا.",
+  AI_ASSISTANT_UPSTREAM_FAILED:"تعذر الاتصال بخدمة الذكاء الاصطناعي؛ لم تُنشأ مسودة."
  })[result.error]||result.error||"تعذر تنفيذ العملية المدرسية.");
  return result;
 }
@@ -97,6 +119,36 @@ async function saveLesson(status){
   await loadTeacher();
  }catch(error){msg("teacherMsg",error.message)}
 }
+const aiDraftState={text:"",title:""};
+$("requestAiDraft").addEventListener("click",async()=>{
+ const topic=$("draftTopic").value.trim(),subject=$("draftSubject").value.trim(),grade=$("draftGrade").value.trim();
+ const duration=Number($("draftDuration").value||30),objectives=$("draftObjectives").value.trim();
+ if(topic.length<4||!subject||!grade)return msg("aiDraftStatus","أدخل الموضوع والمادة والمرحلة/المستوى أولًا.");
+ if(!Number.isInteger(duration)||duration<15||duration>120)return msg("aiDraftStatus","اختر مدة بين 15 و120 دقيقة.");
+ $("requestAiDraft").disabled=true;
+ $("useAiDraft").classList.add("hide");
+ $("aiDraftPreview").textContent="جارٍ إنشاء المسودة…";
+ msg("aiDraftStatus","تُرسل بيانات موضوع الدرس فقط إلى مساعد الذكاء الاصطناعي؛ لا ترسل أسماء أو بيانات شخصية للمتعلمين.");
+ try{
+  const result=await api("/api/education/portal?resource=ai-draft","POST",{topic,subject,grade,duration,objectives});
+  if(!result.ok||typeof result.draft!=="string"||!result.draft.trim())throw new Error("لم تُنتج الخدمة مسودة قابلة للعرض.");
+  aiDraftState.text=result.draft.trim();
+  aiDraftState.title=topic;
+  $("aiDraftPreview").textContent=aiDraftState.text;
+  $("useAiDraft").classList.remove("hide");
+  msg("aiDraftStatus","مسودة منشأة بنجاح. راجعها وصحّحها قبل الحفظ أو النشر. لم تُحفظ ولم تُنشر تلقائيًا.",true);
+ }catch(error){
+  $("aiDraftPreview").textContent="لم يتم إنشاء مسودة.";
+  msg("aiDraftStatus",error.message||"المساعد غير متاح مؤقتًا.");
+ }finally{$("requestAiDraft").disabled=false;}
+});
+$("useAiDraft").addEventListener("click",()=>{
+ if(!aiDraftState.text)return;
+ $("lessonExplanation").value=aiDraftState.text;
+ if(!$("lessonTitle").value.trim())$("lessonTitle").value=aiDraftState.title;
+ $("lessonExplanation").scrollIntoView({behavior:"smooth",block:"center"});
+ msg("teacherMsg","أُدرجت المسودة في حقل شرح الدرس للتحرير فقط؛ لم تُحفظ ولم تُنشر.",true);
+});
 $("saveLesson").onclick=()=>saveLesson("draft");
 $("publishLesson").onclick=()=>saveLesson("published");
 

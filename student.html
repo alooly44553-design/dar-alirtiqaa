@@ -75,11 +75,19 @@ async function load(){
  finally{$("refresh").disabled=false;}
 }
 $("refresh").addEventListener("click",load);
+sb.auth.onAuthStateChange(event=>{
+ if(event==="SIGNED_OUT"){
+  $("today").innerHTML='<a href="./portal.html">تسجيل الدخول إلى بوابة الطالب</a>';
+  $("activities").textContent="سجّل الدخول لعرض واجباتك.";
+  $("sessions").textContent="سجّل الدخول لعرض الفصول المصرح بها.";
+ }
+});
 load();
 </script><script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 const financeClient=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
 const escFinance=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+financeClient.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT")document.getElementById("studentFinance").textContent="سجّل الدخول لعرض الرسوم."});
 (async()=>{
   const box=document.getElementById("studentFinance");
   try {
