@@ -84,7 +84,16 @@ jobs:
         run: npm install
 
       - name: Prepare web bundle
-        run: mkdir -p www && cp *.html app.webmanifest logo.svg icon.svg sw.js www/ && mkdir -p www/ads && cp ads/*.svg www/ads/
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p www
+          cp *.html app.webmanifest logo.svg icon.svg sw.js www/
+          for dir in ads assets lib projects; do
+            if [[ -d "$dir" ]]; then cp -R "$dir" www/; fi
+          done
+          test -s www/projects/education-marketing/index.html
+          test -s www/projects/education-marketing/OPERATING_MODEL.md
 
       - name: Create Android project
         run: npx cap add android

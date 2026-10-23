@@ -35,12 +35,12 @@
     '<div class="ih-promo-head"><div><span class="ih-promo-kicker">إعلان تعريفي ثابت • للقراءة فقط</span>',
     '<h2 class="ih-promo-title">مراكز الإرتقاء الفكري الصحية</h2></div>',
     '<button class="ih-promo-close" type="button" aria-label="طي الإعلان">×</button></div>',
-    '<p class="ih-promo-copy">صحتك تستحق الاهتمام. تعرّف على مجالات التوعية والرعاية والاستفسارات الصحية، وتحقق مباشرة من الخدمة المتاحة ومن وجود المختص المرخّص قبل أي موعد أو دفع.</p>',
-    '<div class="ih-promo-tags"><span>🩺 التوعية الصحية</span><span>💚 صحة الأسرة</span><span>🧠 الوعي النفسي</span><span>🌿 الوقاية والعادات السليمة</span></div>',
+    '<p class="ih-promo-copy">صحتك تستحق الاهتمام. تعرّف على دليل التخصصات ومسارات التوعية والرعاية وتنظيم الطواقم والجلسات والتجهيزات. تُعرض المجالات الموسعة للتخطيط ولا تعني توفر عيادة أو مختبر أو مقدم خدمة بالفعل؛ تحقق من المختص المرخّص قبل أي موعد أو دفع.</p>',
+    '<div class="ih-promo-tags"><span>🩺 دليل التخصصات</span><span>💚 صحة الأسرة</span><span>🧠 الوعي النفسي</span><span>🌿 الوقاية والتثقيف</span><span>♙ تخطيط الطواقم</span><span>◉ جلسات قيد التجهيز</span></div>',
     '<div class="ih-promo-actions"><a class="ih-promo-link gold" href="./health-announcement.html">قراءة الإعلان كاملًا</a>',
     '<a class="ih-promo-link" href="https://al-irtiqaa-health-smart-global.vercel.app/?utm_source=chatgpt.com#home">فتح تطبيق المركز</a></div>',
     '<div class="ih-promo-phone-row"><a class="ih-promo-phone" href="tel:+966538216050">☎ 0538216050</a><a class="ih-promo-phone" href="tel:+966538838891">☎ 0538838891</a></div>',
-    '<p class="ih-promo-note">تنويه: واجهة التطبيق الحالية أولية ولا تستقبل الطلبات مركزيًا. تحقّق من توفر الخدمة والسعر والترخيص مباشرةً، ولا ترسل معلومات صحية حساسة عبر الإعلان.</p>',
+    '<p class="ih-promo-note">تنويه: الواجهة تنظيمية وسجلاتها محلية فقط ولا تستقبل الطلبات مركزيًا. الأدوار الافتراضية ليست أطباء فعليين، والجلسات لا تنشأ تلقائيًا. تحقّق من توفر الخدمة والسعر والترخيص مباشرةً، ولا ترسل معلومات صحية حساسة عبر الإعلان.</p>',
     '</aside>'
   ].join("");
   document.body.appendChild(root);

@@ -25,12 +25,13 @@ jobs:
           node-version: 22
       - run: npm install
       - name: Prepare web bundle
-        run: mkdir -p www && cp *.html app.webmanifest logo.svg icon.svg sw.js www/ && mkdir -p www/ads && cp ads/*.svg www/ads/
+        run: mkdir -p www && cp *.html app.webmanifest logo.svg icon.svg sw.js www/ && for dir in ads assets lib projects; do if [ -d "$dir" ]; then cp -R "$dir" www/; fi; done
       - name: Create Android project
         run: npx cap add android
       - name: Apply app identity and version
         shell: bash
         run: |
+          set -e
           set -euo pipefail
           APP_VERSION="$(node -p "require('./package.json').version")"
           if [[ ! "$APP_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
