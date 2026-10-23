@@ -14,6 +14,9 @@ function walk(directory) {
   }
 }
 for (const directory of ["api","lib","tests"]) walk(path.join(root, directory));
+for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+  if (entry.isFile() && entry.name.endsWith(".js")) jsFiles.push(path.join(root, entry.name));
+}
 const failures = [];
 for (const file of jsFiles) {
   const result = spawnSync(process.execPath, ["--check", file], { encoding: "utf8" });
