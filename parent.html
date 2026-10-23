@@ -116,19 +116,6 @@ function clearParentPrivateData(){
 }
 $("logoutParent").addEventListener("click",async()=>{await sb.auth.signOut();clearParentPrivateData();status("تم تسجيل الخروج.");});
 sb.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){clearParentPrivateData();status("تم تسجيل الخروج.");}});
-}
-$("parentLogin").addEventListener("submit",async event=>{
- event.preventDefault();$("loginBtn").disabled=true;status("جارٍ التحقق من بيانات الدخول...");
- try{
-  const result=await sb.auth.signInWithPassword({email:$("parentEmail").value.trim(),password:$("parentPassword").value});
-  if(result.error)throw new Error("تعذر تسجيل الدخول؛ تحقق من البيانات وحاول مجددًا.");
-  await loadParent();
- }catch(error){await sb.auth.signOut();status(error.message||"تعذر تسجيل الدخول.", "error");}
- finally{$("loginBtn").disabled=false;}
-});
-$("refreshParent").addEventListener("click",loadParent);
-$("logoutParent").addEventListener("click",async()=>{await sb.auth.signOut();$("parentDashboard").classList.add("hidden");$("loginCard").classList.remove("hidden");status("تم تسجيل الخروج.");});
-sb.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){$("parentDashboard").classList.add("hidden");$("loginCard").classList.remove("hidden");}else if(event==="SIGNED_IN"&&session){loadParent();}});
 const existing=await sb.auth.getSession();
 if(existing.data?.session)await loadParent();
 </script>
