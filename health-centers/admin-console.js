@@ -31,4 +31,5 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-acti
 else if(b.dataset.action==='staff-link'){const r=await api('PATCH',{action:'staff_link',id:b.dataset.id});msg(r.message||'تم ربط الهوية.','success');await refresh();}
 else if(b.dataset.action==='staff'){await api('PATCH',{action:'staff_update',id:b.dataset.id,role:b.dataset.role,active:b.dataset.active==='true'});msg('تم تحديث حالة الموظف.','success');await refresh();}
 else if(b.dataset.action==='req'){const s=document.querySelector('[data-req="'+b.dataset.kind+'"][data-id="'+b.dataset.id+'"]');await api('PATCH',{action:'request_update',id:b.dataset.id,kind:b.dataset.kind,status:s.value});msg('تم حفظ حالة الطلب.','success');await refresh();}}catch(x){msg(x.message,'error');}});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 if(!window.isSecureContext)msg('افتح لوحة الإدارة عبر HTTPS آمن.','error');else refresh();
