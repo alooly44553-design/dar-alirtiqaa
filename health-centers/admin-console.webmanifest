@@ -1,0 +1,14 @@
+{
+  "id": "./admin-console.html",
+  "name": "لوحة تشغيل مراكز الإرتقاء الفكري الصحية",
+  "short_name": "إدارة المراكز",
+  "description": "لوحة الإدارة المحمية لمراكز الإرتقاء الفكري الصحية",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./admin-console.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f7f7",
+  "theme_color": "#0a4550",
+  "icons": [{"src":"./icon.svg?v=20261023-3","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}

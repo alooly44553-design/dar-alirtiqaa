@@ -1,0 +1,173 @@
+name: Official signed Android release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing release tag to build, for example v1.1.6"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  signed-release:
+    name: Build, sign, and publish Android APK and AAB
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      GH_TOKEN: ${{ github.token }}
+      INPUT_RELEASE_TAG: ${{ inputs.release_tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Validate tag, app version, and signing secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            TAG="${INPUT_RELEASE_TAG}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+          fi
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Use a release tag in the form vMAJOR.MINOR.PATCH."
+            exit 1
+          fi
+          VERSION="${TAG#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          MANIFEST_VERSION="$(node -p "require('./app.webmanifest').version")"
+          if [[ "$PACKAGE_VERSION" != "$VERSION" || "$MANIFEST_VERSION" != "$VERSION" ]]; then
+            echo "::error::Release tag, package.json, and PWA manifest versions must match."
+            exit 1
+          fi
+          missing=0
+          for secret_name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [[ -z "${!secret_name:-}" ]]; then
+              echo "::error::Required GitHub Actions secret is missing: $secret_name"
+              missing=1
+            fi
+          done
+          if [[ "$missing" -ne 0 ]]; then
+            echo "Add the four Android signing secrets in repository Settings > Secrets and variables > Actions before publishing."
+            exit 1
+          fi
+          IFS=. read -r MAJOR MINOR PATCH <<< "$VERSION"
+          VERSION_CODE=$((10#$MAJOR * 1000000 + 10#$MINOR * 1000 + 10#$PATCH))
+          if (( VERSION_CODE <= 0 || VERSION_CODE > 2100000000 )); then
+            echo "::error::Calculated Android versionCode is out of range."
+            exit 1
+          fi
+          echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
+          echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "ANDROID_VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prepare web bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p www
+          cp *.html app.webmanifest logo.svg icon.svg sw.js www/
+          for dir in ads assets lib projects; do
+            if [[ -d "$dir" ]]; then cp -R "$dir" www/; fi
+          done
+          test -s www/projects/education-marketing/index.html
+          test -s www/projects/education-marketing/OPERATING_MODEL.md
+
+      - name: Create Android project
+        run: npx cap add android
+
+      - name: Apply release identity and version
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed -i "s/versionCode [0-9]*/versionCode $ANDROID_VERSION_CODE/" android/app/build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"$APP_VERSION\"/" android/app/build.gradle
+
+      - name: Install official launcher logo
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin
+          mkdir -p android/app/src/main/res/mipmap-mdpi android/app/src/main/res/mipmap-hdpi android/app/src/main/res/mipmap-xhdpi android/app/src/main/res/mipmap-xxhdpi android/app/src/main/res/mipmap-xxxhdpi
+          rsvg-convert -w 48 -h 48 icon.svg -o android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          rsvg-convert -w 72 -h 72 icon.svg -o android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          rsvg-convert -w 96 -h 96 icon.svg -o android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          rsvg-convert -w 144 -h 144 icon.svg -o android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          rsvg-convert -w 192 -h 192 icon.svg -o android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          for density in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            cp "android/app/src/main/res/mipmap-$density/ic_launcher.png" "android/app/src/main/res/mipmap-$density/ic_launcher_round.png"
+          done
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build unsigned release APK and Android App Bundle
+        run: cd android && chmod +x gradlew && ./gradlew assembleRelease bundleRelease
+
+      - name: Sign and verify APK and AAB
+        shell: bash
+        run: |
+          set -euo pipefail
+          KEYSTORE="$RUNNER_TEMP/dar-alirtiqaa-release.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE"
+          test -s "$KEYSTORE"
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          cd android
+          "$BUILD_TOOLS/zipalign" -p 4 app/build/outputs/apk/release/app-release-unsigned.apk "$RUNNER_TEMP/app-release-aligned.apk"
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks "$KEYSTORE" \
+            --ks-pass "pass:$ANDROID_KEYSTORE_PASSWORD" \
+            --key-pass "pass:$ANDROID_KEY_PASSWORD" \
+            --ks-key-alias "$ANDROID_KEY_ALIAS" \
+            --out "$RUNNER_TEMP/app-release-signed.apk" \
+            "$RUNNER_TEMP/app-release-aligned.apk"
+          "$BUILD_TOOLS/apksigner" verify --verbose "$RUNNER_TEMP/app-release-signed.apk"
+          jarsigner -keystore "$KEYSTORE" \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+            -keypass "$ANDROID_KEY_PASSWORD" \
+            -sigalg SHA256withRSA -digestalg SHA-256 \
+            -signedjar "$RUNNER_TEMP/app-release-signed.aab" \
+            app/build/outputs/bundle/release/app-release.aab "$ANDROID_KEY_ALIAS"
+          jarsigner -verify "$RUNNER_TEMP/app-release-signed.aab"
+          mkdir -p "$GITHUB_WORKSPACE/release-assets"
+          cp "$RUNNER_TEMP/app-release-signed.apk" "$GITHUB_WORKSPACE/release-assets/dar-alirtiqaa-$APP_VERSION-signed.apk"
+          cp "$RUNNER_TEMP/app-release-signed.aab" "$GITHUB_WORKSPACE/release-assets/dar-alirtiqaa-$APP_VERSION-signed.aab"
+          cd "$GITHUB_WORKSPACE"
+          sha256sum release-assets/* > release-assets/SHA256SUMS.txt
+          rm -f "$KEYSTORE" "$RUNNER_TEMP/app-release-aligned.apk" "$RUNNER_TEMP/app-release-signed.apk" "$RUNNER_TEMP/app-release-signed.aab"
+
+      - name: Create release and upload signed install packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --verify-tag \
+              --title "منظومة دار الإرتقاء الفكري التعليمية $APP_VERSION" \
+              --notes "الإصدار الرسمي الموقّع $APP_VERSION. يتضمن APK للتثبيت المباشر وحزمة AAB للنشر عبر المتجر. تحقق من SHA256SUMS.txt قبل التوزيع."
+          fi
+          gh release upload "$RELEASE_TAG" release-assets/* --repo "$GITHUB_REPOSITORY" --clobber

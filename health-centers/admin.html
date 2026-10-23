@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a4550">
+  <meta name="robots" content="noindex,nofollow">
+  <title>دخول إدارة المراكز الصحية | الإرتقاء الفكري</title>
+  <link rel="stylesheet" href="./styles.css?v=20261023-2">
+  <style>
+    .admin-auth-wrap{max-width:620px;margin:32px auto;padding:20px}
+    .admin-auth-card{background:var(--surface,#fff);border:1px solid var(--border,#d8e2e3);border-radius:18px;padding:clamp(20px,4vw,32px);box-shadow:0 12px 36px #0a45500d}
+    .admin-auth-card h1{margin:0 0 8px;font-size:1.55rem}
+    .admin-auth-card p{line-height:1.8}
+    .admin-auth-form{display:grid;gap:14px;margin-top:20px}
+    .admin-auth-form label{display:grid;gap:7px;font-weight:700}
+    .admin-auth-form input{width:100%;min-height:46px;padding:11px 12px;border:1px solid #b7c9ca;border-radius:10px;font:inherit;background:#fff;color:#18363a}
+    .admin-auth-form button,.admin-auth-actions button{min-height:46px;border:0;border-radius:10px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}
+    .admin-primary{background:#0a4550;color:#fff}
+    .admin-secondary{background:#edf4f4;color:#0a4550}
+    .admin-message{padding:12px 14px;border-radius:10px;margin-top:16px;line-height:1.7;background:#edf4f4;color:#173b40}
+    .admin-message[data-kind="error"]{background:#fff0ef;color:#8b1d16}
+    .admin-message[data-kind="success"]{background:#eaf7ef;color:#165b35}
+    .admin-status{border:1px solid #d8e2e3;border-radius:12px;padding:16px;margin-top:18px}
+    .admin-status dl{display:grid;grid-template-columns:130px 1fr;gap:10px;margin:12px 0}
+    .admin-status dt{color:#557074}.admin-status dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+    .admin-auth-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .admin-foot{font-size:.92rem;color:#557074;margin-top:18px}
+    @media(max-width:520px){.admin-auth-wrap{padding:12px;margin:16px auto}.admin-status dl{grid-template-columns:1fr;gap:4px}.admin-status dd{margin-bottom:8px}}
+  </style>
+</head>
+<body>
+  <main class="admin-auth-wrap">
+    <section class="admin-auth-card" aria-labelledby="admin-title">
+      <a href="./index.html#home" style="display:inline-block;margin-bottom:18px;color:#0a4550;text-decoration:none;font-weight:700">← العودة إلى مراكز الإرتقاء الفكري الصحية</a>
+      <p style="margin:0 0 6px;color:#b08a3b;font-weight:700">بوابة الموظفين المخوّلين فقط</p>
+      <h1 id="admin-title">دخول إدارة المراكز الصحية</h1>
+      <p>تسجيل الدخول لا يمنح صلاحية تلقائيًا؛ لا تظهر بيانات الإدارة إلا للحساب الذي اعتمده المسؤول وربطه بدور وصلاحيات محددة.</p>
+      <form id="admin-login-form" class="admin-auth-form" autocomplete="on">
+        <label for="admin-email">البريد الإلكتروني
+          <input id="admin-email" name="email" type="email" autocomplete="username" required maxlength="254" inputmode="email">
+        </label>
+        <label for="admin-password">كلمة المرور
+          <input id="admin-password" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128">
+        </label>
+        <button id="admin-login-button" class="admin-primary" type="submit">تسجيل الدخول والتحقق من الصلاحية</button>
+      </form>
+      <section id="admin-email-verification" class="admin-status" hidden>
+        <h2 style="margin-top:0;font-size:1.1rem">تأكيد ملكية البريد الإلكتروني</h2>
+        <p>أرسل رمز تحقق إلى البريد المسجل في حساب الدخول، ثم أدخل الرمز لإثبات ملكية البريد. التحقق لا يمنح صلاحيات إدارية تلقائيًا.</p>
+        <div class="admin-auth-form">
+          <label for="admin-email-otp">رمز التحقق
+            <input id="admin-email-otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="12" pattern="[0-9]{6,12}">
+          </label>
+          <div class="admin-auth-actions">
+            <button id="admin-send-otp-button" class="admin-secondary" type="button">إرسال رمز التحقق</button>
+            <button id="admin-verify-otp-button" class="admin-primary" type="button">تأكيد الرمز</button>
+            <button id="admin-cancel-otp-button" class="admin-secondary" type="button">رجوع</button>
+          </div>
+        </div>
+      </section>
+      <div class="admin-auth-actions" id="admin-auth-options">
+        <button id="admin-forgot-button" class="admin-secondary" type="button">نسيت كلمة المرور؟</button>
+        <button id="admin-register-button" class="admin-secondary" type="button">إنشاء حساب بالبريد وكلمة المرور</button>
+      </div>
+      <p class="admin-foot">إنشاء الحساب يفتح حساب دخول فقط ولا يمنح صلاحية إدارة. يلزم اعتماد الحساب وربطه بدور من الإدارة الرسمية.</p>
+      <div id="admin-message" class="admin-message" role="status" aria-live="polite" hidden></div>
+      <section id="admin-account" class="admin-status" aria-live="polite" hidden>
+        <h2 style="margin-top:0;font-size:1.2rem">حالة الحساب</h2>
+        <dl>
+          <dt>الاسم</dt><dd id="admin-display-name">—</dd>
+          <dt>نوع الحساب</dt><dd id="admin-role">—</dd>
+          <dt>النطاق</dt><dd id="admin-scope">—</dd>
+          <dt>الصلاحيات الممنوحة</dt><dd id="admin-permissions">—</dd>
+        </dl>
+        <div class="admin-auth-actions">
+          <button id="admin-open-console" class="admin-primary" type="button">فتح لوحة التشغيل والإدارة</button>
+          <button id="admin-signout-button" class="admin-secondary" type="button">تسجيل الخروج</button>
+        </div>
+      </section>
+      <p class="admin-foot">لا تشارك كلمة المرور أو رموز التحقق. لا تُدخل بيانات مرضى في هذه البوابة. إذا لم يُعتمد حسابك، تواصل مع الإدارة الرسمية.</p>
+    </section>
+  </main>
+  <script type="module" src="./admin.js?v=20261023-2"></script>
+</body>
+</html>
