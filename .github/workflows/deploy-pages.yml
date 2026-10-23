@@ -42,11 +42,17 @@ jobs:
         shell: bash
         run: |
           set -e
+          APP_VERSION="$(node -p "require('./package.json').version")"
+          IFS=. read -r MAJOR MINOR PATCH <<< "$APP_VERSION"
+          VERSION_CODE=$((10#$MAJOR * 1000000 + 10#$MINOR * 1000 + 10#$PATCH))
           mkdir -p www
-          cp index.html admin.html portal.html student.html parent.html teacher.html reports.html app.webmanifest logo.svg icon.svg www/
+          cp *.html app.webmanifest logo.svg icon.svg sw.js www/
+          for dir in ads assets lib projects; do
+            if [ -d "$dir" ]; then cp -R "$dir" www/; fi
+          done
           npx cap add android
-          sed -i 's/versionCode [0-9]*/versionCode 2/' android/app/build.gradle
-          sed -i 's/versionName "[^"]*"/versionName "1.0.1"/' android/app/build.gradle
+          sed -i "s/versionCode [0-9]*/versionCode $VERSION_CODE/" android/app/build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"$APP_VERSION\"/" android/app/build.gradle
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin
           mkdir -p android/app/src/main/res/mipmap-mdpi android/app/src/main/res/mipmap-hdpi android/app/src/main/res/mipmap-xhdpi android/app/src/main/res/mipmap-xxhdpi android/app/src/main/res/mipmap-xxxhdpi
@@ -62,20 +68,20 @@ jobs:
           ./gradlew assembleDebug
           cd ..
           mkdir -p downloads
+          cp android/app/build/outputs/apk/debug/app-debug.apk "downloads/dar-alirtiqaa-$APP_VERSION-debug.apk"
           cp android/app/build/outputs/apk/debug/app-debug.apk downloads/dar-alirtiqaa.apk
-          cp android/app/build/outputs/apk/debug/app-debug.apk downloads/dar-alirtiqaa-v1.0.1.apk
-          sha256sum downloads/dar-alirtiqaa.apk > downloads/dar-alirtiqaa.apk.sha256
+          sha256sum "downloads/dar-alirtiqaa-$APP_VERSION-debug.apk" > "downloads/dar-alirtiqaa-$APP_VERSION-debug.apk.sha256"
 
       - name: Prepare minimal public Pages directory
         shell: bash
         run: |
           set -e
           mkdir -p site/downloads
-          cp index.html admin.html portal.html student.html parent.html teacher.html reports.html brochure.html marketing.html app.webmanifest logo.svg icon.svg sw.js site/
-          for dir in lib assets; do
+          cp *.html app.webmanifest logo.svg icon.svg sw.js site/
+          for dir in ads assets lib projects; do
             if [ -d "$dir" ]; then cp -R "$dir" site/; fi
           done
-          cp downloads/dar-alirtiqaa.apk downloads/dar-alirtiqaa-v1.0.1.apk downloads/dar-alirtiqaa.apk.sha256 site/downloads/
+          cp downloads/dar-alirtiqaa.apk "downloads/dar-alirtiqaa-$APP_VERSION-debug.apk" "downloads/dar-alirtiqaa-$APP_VERSION-debug.apk.sha256" site/downloads/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
