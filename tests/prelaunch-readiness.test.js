@@ -10,7 +10,6 @@ const requiredFiles = [
   "brochure.html", "privacy.html", "terms.html", "operations-templates.html",
   "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
   "supabase/migrations/20261021_guardian_portal_read_only_access.sql",
-  ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md"
   ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md",
   "docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md"
 ];
