@@ -29,7 +29,7 @@ const android = read(".github/workflows/android-apk.yml");
 assert.match(android, /versionCode 11/u, "Android versionCode mismatch");
 assert.match(android, /versionName "1\.1\.7"/u, "Android versionName mismatch");
 assert(android.includes("Upload Debug APK (testing only)"), "Debug builds must be labeled as test-only");
-assert(android.includes("name: dar-alirtiqaa-android-debug-v1.1.7"), "Debug builds must be clearly labeled as test artifacts");
+assert.match(android, /name: dar-alirtiqaa-android-debug-v\\$\\{\\{ env\\.APP_VERSION \\}\\}/u, "Debug builds must be clearly labeled and versioned as test artifacts");
 assert.match(android, /VERSION_CODE=\$\(\(10#\$MAJOR \* 1000000 \+ 10#\$MINOR \* 1000 \+ 10#\$PATCH\)\)/u, "Android versionCode must use the shared monotonic semantic-version formula");
 assert.match(android, /versionName/u, "Android versionName must follow package.json");
 assert(android.includes("Upload Debug APK (testing only)"), "Debug builds must be labeled as test-only");
