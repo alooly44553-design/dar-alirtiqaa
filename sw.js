@@ -45,11 +45,11 @@ self.addEventListener("fetch", event => {
       try {
         const response = await fetch(request);
         const contentType = response.headers.get("content-type") || "";
-        if (!response.ok || !/text\\/html/i.test(contentType)) return response;
+        if (!response.ok || !/text\/html/i.test(contentType)) return response;
         const html = await response.clone().text();
-        if (html.includes("education-announcement.js") || !/<\\/body\\s*>/i.test(html)) return response;
-        const injected = '<script src="' + ANNOUNCEMENT_SCRIPT + '" defer></script>\\n</body>';
-        const transformedHtml = html.replace(/<\\/body\\s*>/i, injected);
+        if (html.includes("education-announcement.js") || !/<\/body\s*>/i.test(html)) return response;
+        const injected = '<script src="' + ANNOUNCEMENT_SCRIPT + '" defer></script>\n</body>';
+        const transformedHtml = html.replace(/<\/body\s*>/i, injected);
         const headers = new Headers(response.headers);
         headers.delete("content-length");
         headers.delete("content-encoding");
