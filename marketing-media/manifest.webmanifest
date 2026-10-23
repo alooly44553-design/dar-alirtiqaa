@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "مكتب الإعلام والتسويق الرقمي | دار الإرتقاء الفكري",
+  "short_name": "مكتب الإعلام",
+  "description": "إدارة محلية لمسودات المحتوى الإعلامي والتسويقي",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6f4",
+  "theme_color": "#123b35",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
