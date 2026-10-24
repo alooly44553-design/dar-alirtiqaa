@@ -106,4 +106,18 @@ assert.equal(telegram.ok, true, "Telegram diagnostic must report ok=true");
 assert.equal(telegram.configured, true, "Telegram bot must be configured");
 assert(telegram.botUsername, "Telegram diagnostic must identify the validated bot without revealing its token");
 assert.equal(telegram.aiGatewayAuthAvailable, true, "AI Gateway authentication must be available in the runtime");
-console.log("Production smoke test passed: v" + expectedVersion + " manifest, aligned PWA caches, Arabic RTL homepage, public pages, unique sitemap without draft policies, service catalog, and Telegram/AI Gateway readiness signal.");
+
+const invalidWebhook = await fetch(baseUrl + "/api/telegram", {
+  method: "POST",
+  cache: "no-store",
+  signal: AbortSignal.timeout(10000),
+  headers: {
+    "content-type": "application/json",
+    "x-telegram-bot-api-secret-token": "invalid-production-smoke-token"
+  },
+  body: JSON.stringify({ update_id: 0 })
+});
+assert.equal(invalidWebhook.status, 401, "Production webhook must reject an invalid Telegram secret");
+const invalidWebhookBody = await invalidWebhook.json().catch(() => ({}));
+assert.equal(invalidWebhookBody.error, "Unauthorized webhook", "Webhook must return a stable, non-sensitive rejection");
+console.log("Production smoke test passed: v" + expectedVersion + " manifest, aligned PWA caches, Arabic RTL homepage, public pages, unique sitemap without draft policies, service catalog, Telegram/AI Gateway readiness, and live invalid-webhook-secret rejection.");
