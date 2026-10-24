@@ -165,6 +165,23 @@ await check("Telegram bot and AI runtime diagnostics", async () => {
   return "bot valid; channel posting enabled; AI Gateway auth available";
 });
 
+await check("Telegram webhook rejects an invalid secret", async () => {
+  const response = await fetch(base + "/api/telegram", {
+    method: "POST",
+    cache: "no-store",
+    signal: AbortSignal.timeout(10000),
+    headers: {
+      "content-type": "application/json",
+      "x-telegram-bot-api-secret-token": "invalid-production-smoke-token"
+    },
+    body: JSON.stringify({ update_id: 0 })
+  });
+  assert.equal(response.status, 401, "webhook must reject an invalid Telegram secret");
+  const body = await response.json().catch(() => ({}));
+  assert.equal(body.error, "Unauthorized webhook", "webhook must return a stable non-sensitive rejection");
+  return "HTTP 401; invalid secret rejected before update processing";
+});
+
 const failed = results.filter(result => !result.ok);
 console.log(JSON.stringify({
   base,

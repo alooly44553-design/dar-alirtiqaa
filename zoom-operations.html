@@ -128,7 +128,7 @@ async function refreshStatus(){
  $("createMeeting").disabled=true;
  $("missingKeys").textContent="";
  showStatus("authStatus","جارٍ التحقق من جلسة الإدارة…");
- showStatus("zoomStatus","جارٍ فحص الربط…");
+ showStatus("zoomStatus","جارٍ اختبار مصادقة Zoom والصلاحيات…");
  try{
   const token=await tokenOrNull();
   if(!token){
@@ -137,7 +137,16 @@ async function refreshStatus(){
    return;
   }
   showStatus("authStatus","جلسة الدخول موجودة؛ يتحقق الخادم الآن من صلاحية الإدارة.","ok");
-  const response=await fetch("/api/zoom/meetings",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+  const headers={Authorization:"Bearer "+token};
+  const checkResponse=await fetch("/api/zoom/meetings?check_connection=1",{headers,cache:"no-store"});
+  const check=await checkResponse.json().catch(()=>({}));
+  if(!checkResponse.ok){
+   showStatus("zoomStatus",jsonError(check),checkResponse.status===503?"warn":"err");
+   if(Array.isArray(check.missing))$("missingKeys").textContent="متغيرات الربط الناقصة: "+check.missing.join("، ");
+   renderMeetings([]);
+   return;
+  }
+  const response=await fetch("/api/zoom/meetings",{headers,cache:"no-store"});
   const result=await response.json().catch(()=>({}));
   if(!response.ok){
    showStatus("zoomStatus",jsonError(result),"err");
@@ -145,13 +154,21 @@ async function refreshStatus(){
    return;
   }
   renderMeetings(result.meetings||[]);
-  if(result.configured){
-   showStatus("zoomStatus","إعدادات الربط موجودة. لم يُنشأ أي اجتماع حتى الآن.","ok");
-   $("createMeeting").disabled=false;
-  }else{
-   showStatus("zoomStatus","ربط Zoom غير مهيأ بعد على الخادم. لم يتم إنشاء أي اجتماع.","warn");
+  if(!result.configured){
+   showStatus("zoomStatus","إعدادات ربط Zoom غير مكتملة على الخادم. لم يتم إنشاء أي اجتماع.","warn");
    $("missingKeys").textContent="متغيرات الربط الناقصة: "+(result.missing||[]).join("، ");
+   return;
   }
+  if(check.connection?.scope_verified!==true){
+   showStatus("zoomStatus",check.connection?.scope_verified===false
+    ?"نجحت مصادقة OAuth، لكن نطاق إنشاء الاجتماعات المطلوب غير ممنوح."
+    :"نجحت مصادقة OAuth، لكن تعذّر التحقق من نطاق إنشاء الاجتماعات. أُوقف الإنشاء احترازيًا حتى يتأكد النطاق.",
+    "err");
+   $("missingKeys").textContent="النطاق المطلوب: "+String(check.connection.required_scope||"meeting:write:meeting:admin");
+   return;
+  }
+  $("createMeeting").disabled=false;
+  showStatus("zoomStatus","نجح اختبار OAuth وتأكد وجود صلاحية إنشاء الاجتماعات. لن يُنشأ اجتماع إلا عند إرسال النموذج.","ok");
  }catch(error){
   showStatus("authStatus","تعذر فحص جلسة الدخول. افتح لوحة الإدارة وسجّل الدخول مجددًا.","err");
   showStatus("zoomStatus","تعذر الاتصال بخادم المنظومة.","err");
