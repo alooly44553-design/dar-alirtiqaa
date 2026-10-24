@@ -30,6 +30,8 @@ jobs:
           node-version: 22
       - name: Syntax check Zoom server API
         run: node --check lib/zoom-meetings.js
+      - name: Install dependencies for OAuth unit tests
+        run: npm install --no-audit --no-fund
       - name: Unit-test non-mutating OAuth connection verification
         run: node tests/zoom-meetings.test.js
       - name: Syntax check the Zoom admin browser module
