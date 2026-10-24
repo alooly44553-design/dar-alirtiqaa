@@ -159,17 +159,16 @@ async function refreshStatus(){
    $("missingKeys").textContent="متغيرات الربط الناقصة: "+(result.missing||[]).join("، ");
    return;
   }
-  if(check.connection?.scope_verified===false){
-   showStatus("zoomStatus","نجحت مصادقة OAuth، لكن نطاق إنشاء الاجتماعات المطلوب غير ممنوح. لن يُفعّل إنشاء الاجتماعات حتى تصحيح النطاق في تطبيق Zoom.","err");
+  if(check.connection?.scope_verified!==true){
+   showStatus("zoomStatus",check.connection?.scope_verified===false
+    ?"نجحت مصادقة OAuth، لكن نطاق إنشاء الاجتماعات المطلوب غير ممنوح."
+    :"نجحت مصادقة OAuth، لكن تعذّر التحقق من نطاق إنشاء الاجتماعات. أُوقف الإنشاء احترازيًا حتى يتأكد النطاق.",
+    "err");
    $("missingKeys").textContent="النطاق المطلوب: "+String(check.connection.required_scope||"meeting:write:meeting:admin");
    return;
   }
   $("createMeeting").disabled=false;
-  if(check.connection?.scope_verified===true){
-   showStatus("zoomStatus","نجح اختبار OAuth وتأكد وجود صلاحية إنشاء الاجتماعات. لن يُنشأ اجتماع إلا عند إرسال النموذج.","ok");
-  }else{
-   showStatus("zoomStatus","نجح اختبار OAuth. لم يُرجع Zoom قائمة النطاقات، لذا لم يتأكد الخادم منها آليًا؛ سيظل إنشاء الاجتماع متاحًا مع فحص Zoom الفعلي عند الإرسال.","warn");
-  }
+  showStatus("zoomStatus","نجح اختبار OAuth وتأكد وجود صلاحية إنشاء الاجتماعات. لن يُنشأ اجتماع إلا عند إرسال النموذج.","ok");
  }catch(error){
   showStatus("authStatus","تعذر فحص جلسة الدخول. افتح لوحة الإدارة وسجّل الدخول مجددًا.","err");
   showStatus("zoomStatus","تعذر الاتصال بخادم المنظومة.","err");
