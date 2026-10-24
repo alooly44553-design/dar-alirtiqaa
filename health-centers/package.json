@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "node --test tests/*.test.cjs",
-    "check:syntax": "node --check api/health/status.js && node --check api/health/appointments.js && node --check api/health/admin/me.js && node --check api/health/admin/data.js && node --check api/health/admin/link-verified-identity.js && node --check app.js && node --check admin.js && node --check admin-console.js && node --check operations-center.js && node --check reset-password.js && node --check health-announcement.js && node --check sw.js",
+    "check:syntax": "node --check api/health/status.js && node --check api/health/appointments.js && node --check api/health/admin/me.js && node --check api/health/admin/data.js && node --check api/health/admin/link-verified-identity.js && node --check app.js && node --input-type=module --check < admin.js && node --input-type=module --check < admin-console.js && node --input-type=module --check < reset-password.js && node --check operations-center.js && node --check health-announcement.js && node --check sw.js",
     "verify": "npm run check:syntax && npm test"
   },
   "dependencies": {
