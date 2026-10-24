@@ -1,4 +1,6 @@
-import { neon } from "@neondatabase/serverless";
+'use strict';
+
+const { neon } = require('@neondatabase/serverless');
 
 function sendJson(res, status, payload) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -13,7 +15,7 @@ function sendJson(res, status, payload) {
  * dedicated database. It does not authenticate staff or make workflows
  * production-ready.
  */
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return sendJson(res, 405, { ok: false, code: "METHOD_NOT_ALLOWED" });
@@ -59,4 +61,4 @@ export default async function handler(req, res) {
       code: "HEALTH_DATABASE_UNAVAILABLE"
     });
   }
-}
+};
