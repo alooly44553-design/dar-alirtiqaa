@@ -15,6 +15,11 @@ CREATE TABLE IF NOT EXISTS health.appointment_requests (
  source text NOT NULL DEFAULT 'website' CHECK (source IN ('website','admin')),
  created_at timestamptz NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS health.appointment_request_rate_limits (
+ ip_hash text PRIMARY KEY CHECK (ip_hash ~ '^[0-9a-f]{64}$'),
+ window_started_at timestamptz NOT NULL DEFAULT now(),
+ request_count integer NOT NULL CHECK (request_count BETWEEN 1 AND 5)
+);
 CREATE TABLE IF NOT EXISTS health.service_requests (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  request_number text NOT NULL UNIQUE,
