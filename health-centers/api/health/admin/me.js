@@ -1,6 +1,7 @@
 'use strict';
 
 const { neon } = require('@neondatabase/serverless');
+const { platformPermissions, centerPermissions } = require('./permissions');
 
 const AUTH_BASE_URL = 'https://ep-dark-frost-b3sqm6rz.neonauth.c-4.ap-southeast-1.aws.neon.tech/neondb/auth';
 const JWKS_URL = new URL(AUTH_BASE_URL + '/.well-known/jwks.json');
@@ -55,11 +56,7 @@ module.exports = async function handler(req, res) {
           type: 'platform_admin',
           displayName: platformAdmins[0].display_name,
           role: platformAdmins[0].role,
-          permissions: platformAdmins[0].role === 'owner'
-            ? ['centers:read', 'centers:manage', 'staff:manage', 'requests:read', 'requests:manage', 'audit:read', 'settings:manage']
-            : platformAdmins[0].role === 'admin'
-              ? ['centers:read', 'centers:manage', 'staff:manage', 'requests:read', 'requests:manage', 'audit:read']
-              : ['centers:read', 'requests:read', 'audit:read']
+          permissions: platformPermissions(platformAdmins[0].role)
         }
       });
     }
@@ -75,13 +72,7 @@ module.exports = async function handler(req, res) {
     }
 
     const role = staff[0].role;
-    const permissions = role === 'owner' || role === 'admin'
-      ? ['center:read', 'center:manage', 'staff:manage', 'requests:read', 'requests:manage', 'audit:read']
-      : role === 'manager'
-        ? ['center:read', 'center:manage', 'staff:read', 'requests:read', 'requests:manage']
-        : role === 'staff'
-          ? ['center:read', 'requests:read', 'requests:update']
-          : ['center:read', 'requests:read'];
+    const permissions = centerPermissions(role);
 
     return send(res, 200, {
       ok: true,
