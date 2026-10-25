@@ -1,17 +1,16 @@
 {
-  "name": "irtiqaa-health-centers",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@neondatabase/serverless": "^1.0.2"
-  }
-}
   "name": "al-irtiqaa-health-centers",
   "private": true,
   "version": "1.0.0",
-  "description": "Server-side API for the independent Irtiqaa Health Centers application",
+  "description": "Server-side API and web application for the independent Irtiqaa Health Centers workspace",
+  "type": "commonjs",
   "engines": {
     "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "check:syntax": "node --check api/health/status.js && node --check api/health/appointments.js && node --check api/health/admin/me.js && node --check api/health/admin/data.js && node --check api/health/admin/link-verified-identity.js && node --check app.js && node --input-type=module --check < admin.js && node --input-type=module --check < admin-console.js && node --input-type=module --check < reset-password.js && node --check operations-center.js && node --check health-announcement.js && node --check sw.js",
+    "verify": "npm run check:syntax && npm test"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

@@ -1,0 +1,38 @@
+name: Health centers quality gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "health-centers/**"
+      - "database/neon/health.sql"
+      - ".github/workflows/health-centers-quality.yml"
+  push:
+    branches: [main]
+    paths:
+      - "health-centers/**"
+      - "database/neon/health.sql"
+      - ".github/workflows/health-centers-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health-centers-quality:
+    name: Health API syntax and isolated unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: health-centers/package.json
+      - name: Install health-center API dependencies
+        working-directory: health-centers
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run syntax and unit checks
+        working-directory: health-centers
+        run: npm run verify
