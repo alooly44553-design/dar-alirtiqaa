@@ -23,4 +23,16 @@ function centerPermissions(role) {
   return roles[role] ? [...roles[role]] : [];
 }
 
-module.exports = { platformPermissions, centerPermissions };
+const CENTER_STATUSES = ['draft', 'active', 'suspended'];
+
+// Center staff may edit profile fields but may not change center approval state.
+// State transitions are reserved for an authenticated platform administrator.
+function canChangeCenterStatus(accountType, currentStatus, nextStatus) {
+  if (!CENTER_STATUSES.includes(nextStatus)) return false;
+  if (accountType === 'platform_admin') return true;
+  return accountType === 'center_staff' &&
+    CENTER_STATUSES.includes(currentStatus) &&
+    currentStatus === nextStatus;
+}
+
+module.exports = { platformPermissions, centerPermissions, canChangeCenterStatus };
