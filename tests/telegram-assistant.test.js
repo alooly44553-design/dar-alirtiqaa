@@ -93,6 +93,32 @@ function installFetchMock() {
 }
 
 {
+  const calls = [];
+  globalThis.fetch = async (input, init = {}) => {
+    const url = String(input);
+    calls.push({ url, init });
+    if (url.includes("/v1/chat/completions")) {
+      if (calls.filter(call => call.url.includes("/v1/chat/completions")).length === 1) {
+        return json({ error: { message: "credential rejected" } }, 403);
+      }
+      return json({ choices: [{ message: { content: "نجح الرد باستخدام بيانات الاعتماد البديلة." } }] });
+    }
+    if (url.endsWith("/sendMessage")) return json({ ok: true, result: { message_id: calls.length } });
+    throw new Error("Unexpected request in auth fallback test: " + url);
+  };
+  process.env.AI_GATEWAY_API_KEY = "invalid-test-key";
+  const res = responseSink();
+  await handler(requestFor(message("مرحبًا")), res);
+  delete process.env.AI_GATEWAY_API_KEY;
+  assert.equal(res.code, 200);
+  const gatewayCalls = calls.filter(call => call.url.includes("/v1/chat/completions"));
+  assert.equal(gatewayCalls.length, 2);
+  assert.equal(gatewayCalls[0].init.headers.Authorization, "Bearer invalid-test-key");
+  assert.equal(gatewayCalls[1].init.headers.Authorization, "Bearer test-oidc-token");
+  assert(calls.some(call => call.url.endsWith("/sendMessage")));
+}
+
+{
   const calls = installFetchMock();
   const res = responseSink();
   await handler(requestFor(message("طلب | أوافق | أحمد محمد | 777123456 | 2 | أحتاج إلى دروس تقوية في الرياضيات")), res);
