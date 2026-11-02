@@ -24,6 +24,7 @@ export default async function handler(req, res) {
     const dateOfBirth = cleanText(body.date_of_birth, 10);
     const educationStage = cleanText(body.education_stage, 20);
     const educationGrade = cleanText(body.education_grade, 40);
+    const hasExistingFile = body.has_existing_file === "yes" ? true : body.has_existing_file === "no" ? false : null;
     const gradesByStage = {
       early_childhood: ["الحضانة", "تمهيدي 1 KG1", "تمهيدي 2 KG2", "تمهيدي 3 KG3"],
       primary: ["الأول الابتدائي", "الثاني الابتدائي", "الثالث الابتدائي", "الرابع الابتدائي", "الخامس الابتدائي", "السادس الابتدائي"],
@@ -52,6 +53,9 @@ export default async function handler(req, res) {
     if (body.consent_text !== consentText) {
       return sendJson(res, 400, { error: "CONSENT_TEXT_MISMATCH" });
     }
+    if (hasExistingFile === null) {
+      return sendJson(res, 400, { error: "EXISTING_FILE_STATUS_REQUIRED" });
+    }
     if (!requestedProgram) {
       return sendJson(res, 400, { error: "INVALID_EDUCATION_GRADE" });
     }
@@ -65,13 +69,14 @@ export default async function handler(req, res) {
     const sql = getDatabase("education");
     const rows = await sql`
       INSERT INTO education.student_registrations
-        (registration_number, student_name, full_name, gender, date_of_birth, nationality,
+        (registration_number, student_name, full_name, gender, date_of_birth, nationality, has_existing_file,
          identity_type, identity_number, phone, email, guardian_name, guardian_relationship,
          guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status, consent_given, consent_recorded_at, consent_text)
       VALUES
         (${registrationNumber}, ${studentName}, ${studentName}, ${gender},
          NULLIF(${dateOfBirth}, '')::date,
          NULLIF(${cleanText(body.nationality, 80)}, ''),
+         ${hasExistingFile},
          NULLIF(${identityType}, ''),
          NULLIF(${identityNumber}, ''),
          NULLIF(${phone}, ''), NULLIF(${email}, ''),
