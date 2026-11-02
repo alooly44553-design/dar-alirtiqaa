@@ -4,6 +4,10 @@
 
 BEGIN;
 
+-- Persist the prior-file declaration for audit and first-registration fee handling.
+ALTER TABLE education.student_registrations
+  ADD COLUMN IF NOT EXISTS has_existing_file boolean;
+
 -- The registration fee is charged only when the learner has no prior file.
 UPDATE education.service_fee_items
 SET fee_name = 'رسوم فتح الملف والتسجيل',
