@@ -5,14 +5,15 @@ import path from "node:path";
 const root = process.cwd();
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
 const requiredFiles = [
-  "index.html", "businesses.html", "education-packages.html", "admin.html",
+  "index.html", "businesses.html", "education-packages.html", "early-learning.html", "higher-education.html", "admin.html",
   "portal.html", "student.html", "teacher.html", "parent.html", "reports.html",
   "brochure.html", "privacy.html", "terms.html", "operations-templates.html",
   "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
   "supabase/migrations/20261021_guardian_portal_read_only_access.sql",
   ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md",
   "docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md",
-  "supabase/migrations/20261021_guardian_portal_read_only_access.sql"
+  "supabase/migrations/20261021_guardian_portal_read_only_access.sql",
+  "database/neon/migrations/20261102_early_childhood_fees_higher_education.sql"
 ];
 for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "Missing required platform file: " + file);
 
@@ -121,9 +122,33 @@ assert(manifestCacheVersion, "Manifest must have a cache-busting version");
 assert(serviceWorkerCacheVersion, "Service worker must have a cache-busting version");
 assert.equal(manifestCacheVersion, serviceWorkerCacheVersion, "Manifest and service-worker cache-busters must stay aligned");
 
-for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والعالي","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
+for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والدراسات العليا","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
   assert(index.includes(label), "Missing educational scope: " + label);
 }
+
+const earlyLearning = read("early-learning.html");
+for (const amount of ["100 ريال سعودي","2,100 ريال","1,800 ريال"]) {
+  assert(earlyLearning.includes(amount), "Early-childhood fee page is missing an approved amount: " + amount);
+}
+for (const grade of ["الحضانة","التمهيدي 1","التمهيدي 2","التمهيدي 3"]) {
+  assert(earlyLearning.includes(grade), "Early-childhood fee page is missing grade: " + grade);
+}
+const higherEducation = read("higher-education.html");
+assert.match(higherEducation, /التعليم الجامعي والدراسات العليا/u, "Higher education page must use the approved field name");
+assert.doesNotMatch(higherEducation, /توجيه|التوجيه/u, "Higher education page must not describe the field as guidance");
+const registrationApi = read("api/education/registrations.js");
+assert.match(registrationApi, /EXISTING_FILE_STATUS_REQUIRED/u, "Registration API must require prior-file status for first-registration fee handling");
+assert.match(registrationApi, /has_existing_file/u, "Registration API must persist the prior-file declaration");
+assert.match(index, /has_existing_file/u, "Registration form must ask whether the learner already has a file");
+assert.match(index, /rule\.applies_when==="no_existing_file"/u, "One-time registration fees must be conditional on no prior file");
+const educationFeeMigration = read("database/neon/migrations/20261102_early_childhood_fees_higher_education.sql");
+for (const fee of ["EARLY_NURSERY","EARLY_KG1","EARLY_KG2","EARLY_KG3","EARLY_UNIFORM_BOOKS"]) {
+  assert(educationFeeMigration.includes(fee), "Education fee migration is missing: " + fee);
+}
+assert.match(educationFeeMigration, /service_name = 'التعليم الجامعي والدراسات العليا'/u, "Migration must update the university service label");
+assert.match(read("api/education/admin-registrations.js"), /has_existing_file/u, "Admin registration API must expose prior-file status");
+assert.match(admin, /x\.has_existing_file===true/u, "Admin registration view must show prior-file status");
+
 const templates = read("operations-templates.html");
 const ids = [...templates.matchAll(/\{id:"([^"]+)",g:/gu)].map(match => match[1]);
 assert.equal(ids.length, 39, "Expected 39 operational templates");

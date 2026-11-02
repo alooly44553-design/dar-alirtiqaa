@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const registrations = await sql`
         SELECT id, registration_number, student_name, gender, date_of_birth, nationality,
-               requested_program, phone, guardian_name, guardian_phone, approval_status, approved_at,
+               requested_program, has_existing_file, phone, guardian_name, guardian_phone, approval_status, approved_at,
                approval_note, documented, documented_at, document_reference, created_at,
                followup.status AS follow_up_status,
                followup.due_at AS follow_up_due_at,
