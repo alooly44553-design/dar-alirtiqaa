@@ -47,7 +47,7 @@ footer{background:#061f3a;color:#b9c9db;padding:35px 0}.footer-grid{display:grid
 <img class="brand-mark" src="icon.svg?v=20261020-2" alt="الشعار الموحد لمنظومة دار الارتقاء الفكري التعليمية">
 <div class="brand-title">منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية<small>لتعليم الجاليات</small><span class="brand-services">الطفولة والتأسيس • التعليم الأساسي والعام • التعليم الجامعي والعالي • التدريب المهني والتقني • القرآن والإسلامية • التقوية والعربية والتأهيل • الإرشاد الأكاديمي</span></div>
 </a>
-<div class="navlinks"><a href="higher-education.html">القبول الجامعي والعالي</a><a href="education-packages.html">الحزم التعليمية</a><a href="#smart-manager">المدير الذكي</a><a href="#about">عن المنظومة</a><a href="#pathways">المسارات</a><a href="#services">الخدمات</a><a href="brochure.html">المطوية التعريفية</a><a href="marketing.html">الحملات والإعلانات</a><a href="#leadership">الإدارة</a><a href="#contact">التواصل</a><a href="portal.html">بوابة الطالب والمعلم</a><a href="admin.html">لوحة الإدارة</a></div>
+<div class="navlinks"><a href="higher-education.html">التعليم الجامعي والدراسات العليا</a><a href="education-packages.html">الحزم التعليمية</a><a href="#smart-manager">المدير الذكي</a><a href="#about">عن المنظومة</a><a href="#pathways">المسارات</a><a href="#services">الخدمات</a><a href="brochure.html">المطوية التعريفية</a><a href="marketing.html">الحملات والإعلانات</a><a href="#leadership">الإدارة</a><a href="#contact">التواصل</a><a href="portal.html">بوابة الطالب والمعلم</a><a href="admin.html">لوحة الإدارة</a></div>
 </nav>
 <section class="hero">
 <div>
@@ -96,7 +96,7 @@ footer{background:#061f3a;color:#b9c9db;padding:35px 0}.footer-grid{display:grid
 <div class="pathways">
 <div class="path"><strong>👶 الطفولة والتأسيس</strong><p>مهارات الاستعداد للتعلم واللغة والأعداد والأنشطة المناسبة للمرحلة المبكرة.</p><p><a class="btn dark" href="early-learning.html">فتح حزمة الطفولة والتأسيس</a></p></div>
 <div class="path"><strong>📚 التعليم الأساسي والعام</strong><p>المواد الأساسية، والمتابعة الدراسية، والمهارات، والواجبات والتقييم.</p><p><a class="btn dark" href="general-education.html">فتح حزمة التعليم الأساسي والعام</a></p></div>
-<div class="path"><strong>🎓 التعليم الجامعي والعالي</strong><p>إرشاد وقبول ومتابعة للمسارات التحضيرية والدبلوم والبكالوريوس والماجستير والدكتوراه بحسب البرامج المتاحة. منح الدرجات والاعتراف الأكاديمي الرسمي من اختصاص المؤسسات التعليمية المخوّلة والمعتمدة.</p><p><a class="btn dark" href="higher-education.html">فتح حزمة التعليم العالي</a></p></div>
+<div class="path"><strong>🎓 التعليم الجامعي والعالي</strong><p>تعليم وتدريس مباشر ومحدّث لمقررات الدبلوم والبكالوريوس والماجستير والدكتوراه في التخصصات التي يتم اعتماد برامجها وتجهيزها. منح الدرجات والاعتراف الأكاديمي الرسمي من اختصاص المؤسسات التعليمية المخوّلة والمعتمدة.</p><p><a class="btn dark" href="higher-education.html">فتح حزمة التعليم العالي</a></p></div>
 <div class="path"><strong>🛠️ التدريب المهني والتقني</strong><p>مهارات تطبيقية ومهنية ومسارات تخصصية وفق البرامج والمتطلبات المتاحة.</p><p><a class="btn dark" href="vocational-training.html">فتح حزمة التدريب التقني والمهني</a></p></div>
 <div class="path"><strong>📖 القرآن والإسلامية</strong><p>التلاوة والحفظ والمراجعة والتجويد واللغة العربية والدراسات الإسلامية.</p><p><a class="btn dark" href="quran-islamic-studies.html">فتح حزمة القرآن والدراسات الإسلامية</a></p></div>
 
@@ -206,6 +206,9 @@ function renderForm(service){
   if(!f||typeof f.key!=="string")return;
   mergedFields.set(f.key,{...(mergedFields.get(f.key)||{}),...f});
  });
+ if(service.service_code==="student_registration"){
+  mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للطالب في المنظومة؟",required:true,options:[{label:"لا، تسجيل أول مرة",value:"no"},{label:"نعم، يوجد ملف سابق",value:"yes"}]});
+ }
  const unique=Array.from(mergedFields.values());
  const attachmentField='<div class="field full"><small>المرفقات غير مفعّلة مؤقتًا حتى اكتمال ربط تخزين خاص ومستقل وآمن.</small></div>';
  $("service-fields").innerHTML=unique.map(inputField).join("")+attachmentField+
@@ -257,6 +260,10 @@ async function loadFees(serviceId, serviceCode){
   const isApplicableFee=f=>{
    const rule=f.condition_rule||{};
    if(serviceCode==="student_registration"){
+    if(rule.applies_when==="no_existing_file"){
+     const existingFile=$("service-fields").querySelector('[data-key="has_existing_file"]')?.value||"";
+     if(existingFile!=="no")return false;
+    }
     if(rule.education_stage&&rule.education_stage!==stage)return false;
     if(rule.grade&&rule.grade!==grade)return false;
     if(rule.exclude_grade&&rule.exclude_grade===grade)return false;
@@ -285,7 +292,7 @@ async function loadFees(serviceId, serviceCode){
   const baseFees=fees.filter(f=>!isConditionalFee(f));
   const currencies=[...new Set(baseFees.map(f=>f.currency||"SAR"))];
   const totals=currencies.map(currency=>{const amount=baseFees.filter(f=>(f.currency||"SAR")===currency).reduce((sum,f)=>sum+(Number(f.amount)||0),0);return amount.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+" "+currency}).join(" + ");
-  const policyNotice="<div style='color:var(--muted);font-size:12px;margin-top:8px'>المجموع الأساسي يعرض الرسوم ذات المبالغ المحددة فقط، ويستثني رسوم فتح الملف والرسوم المشروطة أو التي تحتاج عرض سعر. تظهر رسوم فتح الملف عند اختيار عدم وجود ملف سابق؛ وتتحقق الإدارة من ذلك قبل اعتمادها. لا تُحصّل رسوم غير محددة المبلغ قبل توضيحها للمستفيد واعتمادها.</div>";
+  const policyNotice="<div style='color:var(--muted);font-size:12px;margin-top:8px'>المجموع الأساسي يعرض الرسوم السنوية المنطبقة فقط. رسوم فتح الملف والتسجيل والزي والكتب تُدفع مرة واحدة عند التسجيل الأول، وتظهر فقط عند اختيار عدم وجود ملف سابق. لا تتكرر هذه الرسوم في السنوات التالية.</div>";
   if(!displayFees.length){box.innerHTML="<strong>الرسوم المعتمدة</strong>"+stageNotice+degreeNotice+"<div style='color:var(--muted);margin-top:5px'>لا توجد رسوم معتمدة منطبقة على الاختيارات الحالية.</div>"+policyNotice;return}
   const feeAmountLabel=f=>{
    if(f.amount!=null)return esc(f.amount)+" "+esc(f.currency||"");
