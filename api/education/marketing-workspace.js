@@ -34,13 +34,6 @@ async function adminUser(req) {
   }
 }
 
-async function recordAudit(sql, actorId, action, entityType, entityId, details = {}) {
-  await sql`
-    INSERT INTO education_marketing.audit_log (actor_id, action, entity_type, entity_id, details)
-    VALUES (${actorId}::uuid, ${action}, ${entityType}, ${entityId}, ${JSON.stringify(details)}::jsonb)
-  `;
-}
-
 export default async function handler(req, res) {
   if (!["GET", "POST", "PATCH"].includes(req.method)) {
     res.setHeader("Allow", "GET, POST, PATCH");
@@ -204,13 +197,14 @@ export default async function handler(req, res) {
       } else if (action === "create_asset") {
         const title = text(body.title, 180), assetType = text(body.asset_type, 30);
         const allowedTypes = ["copy","image","video","brochure","poster","document","other"];
-        if (title.length < 2 || !allowedTypes.includes(assetType)) return sendJson(res, 400, { error: "INVALID_ASSET_FIELDS" });
+        const campaignId = body.campaign_id ? uuidOrNull(body.campaign_id) : null;
+        if (title.length < 2 || !allowedTypes.includes(assetType) || (body.campaign_id && !campaignId)) return sendJson(res, 400, { error: "INVALID_ASSET_FIELDS" });
         created = await sql`
           WITH created AS (
             INSERT INTO education_marketing.assets
               (campaign_id, asset_type, title, description, text_content, storage_status, created_by)
             VALUES
-              (${body.campaign_id ? uuidOrNull(body.campaign_id) : null}::uuid, ${assetType}, ${title},
+              (${campaignId}::uuid, ${assetType}, ${title},
                NULLIF(${text(body.description, 1500)}, ''), NULLIF(${text(body.text_content, 12000)}, ''),
                'not_configured', ${user.id}::uuid)
             RETURNING id, campaign_id, asset_type, title, description, text_content, storage_status, created_at
@@ -257,6 +251,8 @@ export default async function handler(req, res) {
 
     const id = uuidOrNull(body.id);
     if (!id) return sendJson(res, 400, { error: "INVALID_ENTITY_ID" });
+    const finalApprovers = (process.env.EDUCATION_FINAL_APPROVER_IDS || "").split(",").map(value => value.trim()).filter(Boolean);
+    const canFinalApprove = finalApprovers.includes(user.id);
 
     if (action === "update_task_status") {
       const status = text(body.status, 30);
@@ -282,6 +278,9 @@ export default async function handler(req, res) {
       if (!["draft","review","approved","blocked","archived"].includes(status)) {
         return sendJson(res, 400, { error: "INVALID_POST_STATUS", message: "النشر والجدولة الخارجية غير متاحين في هذه المرحلة." });
       }
+      if (status === "approved" && !canFinalApprove) {
+        return sendJson(res, 403, { error: "DIRECTOR_APPROVAL_REQUIRED", message: "اعتماد المحتوى النهائي يتطلب هوية المدير الإداري أو مفوضًا مسجلًا." });
+      }
       const changed = await sql`
         WITH changed AS (
           UPDATE education_marketing.posts
@@ -304,6 +303,9 @@ export default async function handler(req, res) {
     if (action === "update_campaign_status") {
       const status = text(body.status, 30);
       if (!["draft","review","approved","active","completed","blocked","archived"].includes(status)) return sendJson(res, 400, { error: "INVALID_CAMPAIGN_STATUS" });
+      if ((status === "approved" || status === "active") && !canFinalApprove) {
+        return sendJson(res, 403, { error: "DIRECTOR_APPROVAL_REQUIRED", message: "اعتماد أو تفعيل الحملة يتطلب هوية المدير الإداري أو مفوضًا مسجلًا." });
+      }
       const changed = await sql`
         WITH changed AS (
           UPDATE education_marketing.campaigns
