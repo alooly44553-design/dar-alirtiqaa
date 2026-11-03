@@ -188,7 +188,7 @@ assert.match(marketingMigration, /CREATE SCHEMA IF NOT EXISTS education_marketin
 assert.match(marketingMigration, /REVOKE ALL ON ALL TABLES IN SCHEMA education_marketing FROM PUBLIC/u, "Marketing data must not be publicly accessible");
 assert.doesNotMatch(marketingMigration, /client_secret|access_token|api_key/iu, "Marketing schema must not store channel credentials");
 const marketingWorkspacePage = read("projects/education-marketing/index.html");
-assert.match(marketingWorkspacePage, /api\\/education\\/marketing-workspace/u, "Marketing dashboard must use the persistent education workspace API");
+assert.match(marketingWorkspacePage, /api\/education\/marketing-workspace/u, "Marketing dashboard must use the persistent education workspace API");
 assert.match(marketingWorkspacePage, /signInWithPassword/u, "Marketing dashboard must require an authenticated admin session");
 assert.match(marketingWorkspacePage, /noindex,nofollow/u, "Marketing dashboard must not be indexed publicly");
 assert.match(marketingApi, /publishing_enabled, false/u, "New channels must remain disabled for external publishing");
