@@ -84,6 +84,16 @@ export default async function handler(req, res) {
       payload[key] = v;
     }
 
+    const curriculumTrack = payload.curriculum_track;
+    const curriculumCountry = cleanText(payload.curriculum_country, 100);
+    if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
+        (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2)) {
+      return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
+    }
+    payload.curriculum_country = curriculumTrack === "saudi_curriculum"
+      ? "المملكة العربية السعودية"
+      : curriculumCountry;
+
     for (const field of configuredFields) {
       if (!field?.required || typeof field.key !== "string") continue;
       const value = payload[field.key];
