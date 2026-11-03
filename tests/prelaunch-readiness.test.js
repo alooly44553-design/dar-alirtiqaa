@@ -191,7 +191,7 @@ const marketingWorkspacePage = read("projects/education-marketing/index.html");
 assert.match(marketingWorkspacePage, /api\/education\/marketing-workspace/u, "Marketing dashboard must use the persistent education workspace API");
 assert.match(marketingWorkspacePage, /signInWithPassword/u, "Marketing dashboard must require an authenticated admin session");
 assert.match(marketingWorkspacePage, /noindex,nofollow/u, "Marketing dashboard must not be indexed publicly");
-assert.match(marketingApi, /publishing_enabled, false/u, "New channels must remain disabled for external publishing");
+assert.match(marketingApi, /\x27planned\x27, false, true/u, "New channels must remain disabled for external publishing");
 assert.match(internationalEducation, /id="early-childhood"/u, "Multi-country curriculum page must include early-childhood pathway");
 assert.match(internationalEducation, /id="general"/u, "Multi-country curriculum page must include general-education pathway");
 assert.match(internationalEducation, /id="higher"/u, "Multi-country curriculum page must include higher-education pathway");
