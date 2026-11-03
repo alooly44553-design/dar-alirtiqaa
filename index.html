@@ -302,7 +302,7 @@ async function loadFees(serviceId, serviceCode){
   const stageNotice=serviceCode==="student_registration"&&(!stage||!grade)?"<div style='color:var(--muted);margin-top:6px'>اختر المرحلة والصف لإظهار الرسوم الدراسية المنطبقة فقط.</div>":"";
   const degreeSelected=$("service-fields").querySelector('[data-key="degree_level"]')?.value||"";
   const degreeNotice=serviceCode==="university_guidance"&&!degreeSelected?"<div style='color:var(--muted);margin-top:6px'>اختر الدرجة المطلوبة لإظهار الرسوم الدراسية المناسبة فقط.</div>":"";
-  const isConditionalFee=f=>{const rule=f.condition_rule||{};return Boolean(rule.applies_when)||["FILE_OPENING","LEVEL_ASSESSMENT","CERTIFICATE_EQUIVALENCY"].includes(f.fee_code)||String(f.fee_name||"").includes("عند الحاجة")};
+  const isConditionalFee=f=>{const rule=f.condition_rule||{};return Boolean(rule.applies_when)||["FILE_OPENING","ADMISSION","LEVEL_ASSESSMENT","CERTIFICATE_EQUIVALENCY"].includes(f.fee_code)||String(f.fee_name||"").includes("عند الحاجة")};
   const baseFees=fees.filter(f=>!isConditionalFee(f));
   const currencies=[...new Set(baseFees.map(f=>f.currency||"SAR"))];
   const totals=currencies.map(currency=>{const amount=baseFees.filter(f=>(f.currency||"SAR")===currency).reduce((sum,f)=>sum+(Number(f.amount)||0),0);return amount.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+" "+currency}).join(" + ");
