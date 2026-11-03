@@ -24,6 +24,15 @@ export default async function handler(req, res) {
     const dateOfBirth = cleanText(body.date_of_birth, 10);
     const educationStage = cleanText(body.education_stage, 20);
     const educationGrade = cleanText(body.education_grade, 40);
+    const curriculumTrack = cleanText(body.curriculum_track, 40);
+    const curriculumCountry = cleanText(body.curriculum_country, 100);
+    const storedCurriculumCountry = curriculumTrack === "saudi_curriculum" ? "المملكة العربية السعودية" : curriculumCountry;
+    const paymentPlan = cleanText(body.payment_plan, 40);
+    if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
+        (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2) ||
+        (educationStage === "early_childhood" && !["annual", "monthly_installments"].includes(paymentPlan))) {
+      return sendJson(res, 400, { error: "INVALID_CURRICULUM_TRACK" });
+    }
     const gradesByStage = {
       early_childhood: ["الحضانة", "تمهيدي 1 KG1", "تمهيدي 2 KG2", "تمهيدي 3 KG3"],
       primary: ["الأول الابتدائي", "الثاني الابتدائي", "الثالث الابتدائي", "الرابع الابتدائي", "الخامس الابتدائي", "السادس الابتدائي"],
@@ -61,13 +70,14 @@ export default async function handler(req, res) {
         (!phone && !guardianPhone && !email)) {
       return sendJson(res, 400, { error: "INVALID_REGISTRATION_FIELDS" });
     }
+    const submittedNotes = cleanText(body.notes, 1000);
     const registrationNumber = "EDU-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomUUID().slice(0, 6).toUpperCase();
     const sql = getDatabase("education");
     const rows = await sql`
       INSERT INTO education.student_registrations
         (registration_number, student_name, full_name, gender, date_of_birth, nationality,
          identity_type, identity_number, phone, email, guardian_name, guardian_relationship,
-         guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status, consent_given, consent_recorded_at, consent_text)
+         guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status, consent_given, consent_recorded_at, consent_text, curriculum_track, curriculum_country, payment_plan)
       VALUES
         (${registrationNumber}, ${studentName}, ${studentName}, ${gender},
          NULLIF(${dateOfBirth}, '')::date,
@@ -81,8 +91,8 @@ export default async function handler(req, res) {
          NULLIF(${cleanText(body.address, 250)}, ''),
          NULLIF(${cleanText(body.previous_education, 200)}, ''),
          NULLIF(${requestedProgram}, ''),
-         NULLIF(${cleanText(body.notes, 1000)}, ''),
-         ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending', true, now(), ${consentText})
+         NULLIF(${submittedNotes}, ''),
+         ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending', true, now(), ${consentText}, ${curriculumTrack}, ${storedCurriculumCountry}, NULLIF(${paymentPlan}, ''))
       RETURNING id, registration_number, approval_status, created_at
     `;
     let followUpQueued = false;

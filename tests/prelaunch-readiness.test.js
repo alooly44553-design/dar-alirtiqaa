@@ -5,13 +5,14 @@ import path from "node:path";
 const root = process.cwd();
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
 const requiredFiles = [
-  "index.html", "businesses.html", "education-packages.html", "admin.html",
+  "index.html", "businesses.html", "education-packages.html", "admin.html", "international-education.html",
   "portal.html", "student.html", "teacher.html", "parent.html", "reports.html",
   "brochure.html", "privacy.html", "terms.html", "operations-templates.html",
   "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
   "supabase/migrations/20261021_guardian_portal_read_only_access.sql",
   ".github/workflows/android-official-release.yml", "docs/OFFICIAL_RELEASE_CHECKLIST.md",
   "docs/DAILY_ROLLOUT_AND_TEACHING_OPERATIONS_2026_2027.md",
+  "database/migrations/20261103_curriculum_and_payment_tracks.sql",
   "supabase/migrations/20261021_guardian_portal_read_only_access.sql"
 ];
 for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "Missing required platform file: " + file);
@@ -147,4 +148,39 @@ assert.match(zoom, /ADMIN_AUTH_REQUIRED/u, "Zoom route must fail closed without 
 assert(!zoom.includes("start_url"), "Meeting handler must not expose host start_url");
 assert.match(read("vercel.json"), /\/api\/zoom\/meetings/u, "Zoom route rewrite missing");
 for (const file of ["student.html","teacher.html","parent.html","admin.html"]) assert(read(file).includes("noindex"), "Role page should stay excluded from indexing: " + file);
+const earlyLearning = read("early-learning.html");
+const generalEducation = read("general-education.html");
+const higherEducation = read("higher-education.html");
+const internationalEducation = read("international-education.html");
+const registrationApi = read("api/education/registrations.js");
+const adminRegistrationApi = read("api/education/admin-registrations.js");
+const serviceRequestsApi = read("api/education/service-requests.js");
+const curriculumMigration = read("database/migrations/20261103_curriculum_and_payment_tracks.sql");
+assert.match(index, /id="curriculum-model"/u, "Homepage must separate Saudi and multi-country curricula");
+assert.match(index, /المسار السعودي/u, "Homepage must identify the Saudi curriculum track");
+assert.match(index, /المناهج المختلفة متعددة الدول/u, "Homepage must identify the separate multi-country curriculum track");
+for (const [label, source] of [["early learning", earlyLearning], ["general education", generalEducation], ["higher education", higherEducation]]) {
+  assert.match(source, /خيارات التعليم الإلكتروني/u, label + " must include the e-learning modes");
+  assert.match(source, /شهادات/u, label + " must include semester certificate/assessment information");
+}
+for (const fee of ["100 ريال", "2100 ريال", "1800 ريال"]) assert(earlyLearning.includes(fee), "Early learning fee is missing: " + fee);
+assert.match(earlyLearning, /مرة واحدة سنويًا/u, "Clothing and books fee must be annual once");
+assert.match(earlyLearning, /أقساط شهرية/u, "Early learning must offer monthly installments");
+assert.match(generalEducation, /المنهج السعودي/u, "General education must reference Saudi curriculum plans and records");
+assert.doesNotMatch(higherEducation, /التوجيه/u, "Higher education page must not use the guidance wording");
+assert.match(higherEducation, /مباشر/u, "Higher education must describe direct teaching");
+assert.match(higherEducation, /مسجل/u, "Higher education must describe recorded teaching");
+assert.match(higherEducation, /تفاعلي/u, "Higher education must describe interactive teaching");
+assert.match(higherEducation, /عملي/u, "Higher education must describe practical teaching");
+assert.match(registrationApi, /curriculum_track, curriculum_country, payment_plan/u, "Student registration must persist curriculum and payment selections");
+assert.match(serviceRequestsApi, /payload\.curriculum_country = curriculumTrack === "saudi_curriculum"/u, "University requests must persist a normalized curriculum country");
+assert.match(index, /requestedCurriculum=new URLSearchParams/u, "Registration links must preselect the requested curriculum track");
+assert.match(adminRegistrationApi, /curriculum_track, curriculum_country, payment_plan/u, "Admin registration must expose curriculum and payment selections");
+assert.match(curriculumMigration, /education_student_registrations_curriculum_idx/u, "Curriculum migration must index the separate curriculum records");
+assert.match(index, /data-key="payment_plan"/u, "Student registration form must capture annual or monthly payment selection");
+assert.match(internationalEducation, /id="early-childhood"/u, "Multi-country curriculum page must include early-childhood pathway");
+assert.match(internationalEducation, /id="general"/u, "Multi-country curriculum page must include general-education pathway");
+assert.match(internationalEducation, /id="higher"/u, "Multi-country curriculum page must include higher-education pathway");
+assert.match(internationalEducation, /خيارات التعليم الإلكتروني/u, "Multi-country curriculum page must include all online learning modes");
+
 console.log("Readiness source checks passed: required pages, Arabic RTL, seven scopes, 39 templates, branches, fixed weekly load, sitemap, draft-policy indexing, Zoom authorization, and coordinated versions.");
