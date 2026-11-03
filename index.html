@@ -215,6 +215,9 @@ function renderForm(service){
   if(!f||typeof f.key!=="string")return;
   mergedFields.set(f.key,{...(mergedFields.get(f.key)||{}),...f});
  });
+ if(service.service_code==="student_registration"){
+  mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للطالب في المنظومة؟",required:true,options:[{label:"لا، تسجيل أول مرة",value:"no"},{label:"نعم، يوجد ملف سابق",value:"yes"}]});
+ }
  const unique=Array.from(mergedFields.values());
  const paymentPlanField=service.service_code==="student_registration"?'<div class="field full" id="payment-plan-wrap" style="display:none"><label>طريقة سداد رسوم الطفولة المبكرة والتأسيس</label><select data-key="payment_plan"><option value="">اختر طريقة السداد…</option><option value="annual">دفعة سنوية واحدة</option><option value="monthly_installments">أقساط شهرية</option></select><small style="color:var(--muted)">تظهر خيارات الأقساط الشهرية وفق جدول وقيمة تعتمدها الإدارة قبل تأكيد التسجيل.</small></div>':"";
  const attachmentField='<div class="field full"><small>المرفقات غير مفعّلة مؤقتًا حتى اكتمال ربط تخزين خاص ومستقل وآمن.</small></div>';
@@ -235,6 +238,8 @@ function renderForm(service){
   const stageField=$("service-fields").querySelector('[data-key="education_stage"]');
   const gradeField=$("service-fields").querySelector('[data-key="education_grade"]');
   const refreshFees=()=>loadFees(service.id, service.service_code);
+  const existingFileField=$("service-fields").querySelector('[data-key="has_existing_file"]');
+  if(existingFileField)existingFileField.addEventListener("change",refreshFees);
   const gradeOptions=gradeField?Array.from(gradeField.options).slice(1).map(o=>({label:o.textContent,value:o.value})):[];
   const gradesByStage={
    early_childhood:["الحضانة","تمهيدي 1 KG1","تمهيدي 2 KG2","تمهيدي 3 KG3"],
@@ -269,6 +274,10 @@ async function loadFees(serviceId, serviceCode){
   const isApplicableFee=f=>{
    const rule=f.condition_rule||{};
    if(serviceCode==="student_registration"){
+    if(rule.applies_when==="no_existing_file"){
+     const existingFile=$("service-fields").querySelector('[data-key="has_existing_file"]')?.value||"";
+     if(existingFile!=="no")return false;
+    }
     if(rule.education_stage&&rule.education_stage!==stage)return false;
     if(rule.grade&&rule.grade!==grade)return false;
     if(rule.exclude_grade&&rule.exclude_grade===grade)return false;
@@ -293,7 +302,7 @@ async function loadFees(serviceId, serviceCode){
   const stageNotice=serviceCode==="student_registration"&&(!stage||!grade)?"<div style='color:var(--muted);margin-top:6px'>اختر المرحلة والصف لإظهار الرسوم الدراسية المنطبقة فقط.</div>":"";
   const degreeSelected=$("service-fields").querySelector('[data-key="degree_level"]')?.value||"";
   const degreeNotice=serviceCode==="university_guidance"&&!degreeSelected?"<div style='color:var(--muted);margin-top:6px'>اختر الدرجة المطلوبة لإظهار الرسوم الدراسية المناسبة فقط.</div>":"";
-  const isConditionalFee=f=>{const rule=f.condition_rule||{};return Boolean(rule.applies_when)||["FILE_OPENING","LEVEL_ASSESSMENT","CERTIFICATE_EQUIVALENCY"].includes(f.fee_code)||String(f.fee_name||"").includes("عند الحاجة")};
+  const isConditionalFee=f=>{const rule=f.condition_rule||{};return Boolean(rule.applies_when)||["FILE_OPENING","ADMISSION","LEVEL_ASSESSMENT","CERTIFICATE_EQUIVALENCY"].includes(f.fee_code)||String(f.fee_name||"").includes("عند الحاجة")};
   const baseFees=fees.filter(f=>!isConditionalFee(f));
   const currencies=[...new Set(baseFees.map(f=>f.currency||"SAR"))];
   const totals=currencies.map(currency=>{const amount=baseFees.filter(f=>(f.currency||"SAR")===currency).reduce((sum,f)=>sum+(Number(f.amount)||0),0);return amount.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+" "+currency}).join(" + ");

@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const registrations = await sql`
         SELECT id, registration_number, student_name, gender, date_of_birth, nationality,
-               requested_program, phone, guardian_name, guardian_phone, curriculum_track, curriculum_country, payment_plan, approval_status, approved_at,
+               requested_program, has_existing_file, phone, guardian_name, guardian_phone, curriculum_track, curriculum_country, payment_plan, approval_status, approved_at,
                approval_note, documented, documented_at, document_reference, created_at,
                followup.status AS follow_up_status,
                followup.due_at AS follow_up_due_at,
@@ -70,6 +70,7 @@ export default async function handler(req, res) {
       const dateOfBirth = cleanText(body.date_of_birth, 10);
       const educationStage = cleanText(body.education_stage, 20);
       const educationGrade = cleanText(body.education_grade, 40);
+      const hasExistingFile = body.has_existing_file === true || body.has_existing_file === "yes" ? true : body.has_existing_file === false || body.has_existing_file === "no" ? false : null;
       const curriculumTrack = cleanText(body.curriculum_track, 40);
       const curriculumCountry = cleanText(body.curriculum_country, 100);
       const paymentPlan = cleanText(body.payment_plan, 40);
@@ -109,12 +110,13 @@ export default async function handler(req, res) {
       const number = "EDU-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomUUID().slice(0, 6).toUpperCase();
       const saved = await sql`
         INSERT INTO education.student_registrations
-          (registration_number, student_name, full_name, gender, date_of_birth, nationality,
+          (registration_number, student_name, full_name, gender, date_of_birth, nationality, has_existing_file,
            requested_program, phone, email, guardian_name, guardian_phone, notes, status, approval_status, curriculum_track, curriculum_country, payment_plan)
         VALUES
           (${number}, ${name}, ${name}, ${gender},
            NULLIF(${dateOfBirth}, '')::date,
            NULLIF(${cleanText(body.nationality, 80)}, ''),
+           ${hasExistingFile},
            NULLIF(${requestedProgram}, ''),
            NULLIF(${phone}, ''), NULLIF(${email}, ''),
            NULLIF(${cleanText(body.guardian_name, 120)}, ''),

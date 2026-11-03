@@ -178,6 +178,20 @@ assert.match(index, /requestedCurriculum=new URLSearchParams/u, "Registration li
 assert.match(adminRegistrationApi, /curriculum_track, curriculum_country, payment_plan/u, "Admin registration must expose curriculum and payment selections");
 assert.match(curriculumMigration, /education_student_registrations_curriculum_idx/u, "Curriculum migration must index the separate curriculum records");
 assert.match(index, /data-key="payment_plan"/u, "Student registration form must capture annual or monthly payment selection");
+const earlyFeesMigration = read("database/migrations/20261103_early_childhood_fee_items.sql");
+assert.match(index, /has_existing_file/u, "Student registration must declare whether a prior file exists");
+assert.match(index, /rule\.applies_when==="no_existing_file"/u, "File-opening fee must be hidden when a prior file exists");
+assert.match(registrationApi, /has_existing_file/u, "Registration API must persist prior-file status");
+assert.match(adminRegistrationApi, /has_existing_file/u, "Admin registration API must expose prior-file status");
+assert.match(admin, /x\.has_existing_file===true/u, "Admin registration list must display prior-file status");
+for (const feeCode of ["EARLY_UNIFORM_BOOKS","EARLY_NURSERY","EARLY_KG1","EARLY_KG2","EARLY_KG3"]) {
+  assert(earlyFeesMigration.includes(feeCode), "Missing early-childhood fee migration entry: " + feeCode);
+}
+assert.match(earlyFeesMigration, /2100\.00/u, "Nursery and KG1 annual tuition must be 2100 SAR");
+assert.match(earlyFeesMigration, /1800\.00/u, "KG2 and KG3 annual tuition must be 1800 SAR");
+assert.match(earlyFeesMigration, /مرة واحدة سنويًا/u, "Uniform/books must be charged once per academic year");
+assert.match(earlyFeesMigration, /management_approved_admission_fee/u, "Optional admission fee must require management approval");
+assert.match(earlyFeesMigration, /التعليم الجامعي والدراسات العليا/u, "University service must be renamed away from guidance wording");
 assert.match(internationalEducation, /id="early-childhood"/u, "Multi-country curriculum page must include early-childhood pathway");
 assert.match(internationalEducation, /id="general"/u, "Multi-country curriculum page must include general-education pathway");
 assert.match(internationalEducation, /id="higher"/u, "Multi-country curriculum page must include higher-education pathway");
