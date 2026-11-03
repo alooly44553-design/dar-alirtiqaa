@@ -154,6 +154,7 @@ const higherEducation = read("higher-education.html");
 const internationalEducation = read("international-education.html");
 const registrationApi = read("api/education/registrations.js");
 const adminRegistrationApi = read("api/education/admin-registrations.js");
+const serviceRequestsApi = read("api/education/service-requests.js");
 const curriculumMigration = read("database/migrations/20261103_curriculum_and_payment_tracks.sql");
 assert.match(index, /id="curriculum-model"/u, "Homepage must separate Saudi and multi-country curricula");
 assert.match(index, /المسار السعودي/u, "Homepage must identify the Saudi curriculum track");
@@ -172,6 +173,8 @@ assert.match(higherEducation, /مسجل/u, "Higher education must describe recor
 assert.match(higherEducation, /تفاعلي/u, "Higher education must describe interactive teaching");
 assert.match(higherEducation, /عملي/u, "Higher education must describe practical teaching");
 assert.match(registrationApi, /curriculum_track, curriculum_country, payment_plan/u, "Student registration must persist curriculum and payment selections");
+assert.match(serviceRequestsApi, /payload\.curriculum_country = curriculumTrack === "saudi_curriculum"/u, "University requests must persist a normalized curriculum country");
+assert.match(index, /requestedCurriculum=new URLSearchParams/u, "Registration links must preselect the requested curriculum track");
 assert.match(adminRegistrationApi, /curriculum_track, curriculum_country, payment_plan/u, "Admin registration must expose curriculum and payment selections");
 assert.match(curriculumMigration, /education_student_registrations_curriculum_idx/u, "Curriculum migration must index the separate curriculum records");
 assert.match(index, /data-key="payment_plan"/u, "Student registration form must capture annual or monthly payment selection");
