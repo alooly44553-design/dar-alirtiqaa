@@ -17,6 +17,14 @@ SET fee_name = 'رسوم فتح الملف والتسجيل',
 WHERE service_id = (SELECT id FROM education.service_catalog WHERE service_code = 'student_registration')
   AND fee_code = 'FILE_OPENING';
 
+-- Admission fees are optional and must never inflate the default registration total.
+UPDATE education.service_fee_items
+SET calculation_method = 'conditional',
+    condition_rule = '{"applies_when":"management_approved_admission_fee"}'::jsonb,
+    updated_at = now()
+WHERE service_id = (SELECT id FROM education.service_catalog WHERE service_code = 'student_registration')
+  AND fee_code = 'ADMISSION';
+
 INSERT INTO education.service_fee_items
 (service_id, fee_code, fee_type, fee_name, description, amount, currency,
  calculation_method, is_required, condition_rule, payment_stage, display_order, is_active)
