@@ -5,7 +5,7 @@ import path from "node:path";
 const root = process.cwd();
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
 const requiredFiles = [
-  "index.html", "businesses.html", "education-packages.html", "admin.html",
+  "index.html", "businesses.html", "education-packages.html", "admin.html", "international-education.html",
   "portal.html", "student.html", "teacher.html", "parent.html", "reports.html",
   "brochure.html", "privacy.html", "terms.html", "operations-templates.html",
   "zoom-operations.html", "app.webmanifest", "sw.js", "capacitor.config.ts",
