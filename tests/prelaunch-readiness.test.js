@@ -151,6 +151,7 @@ for (const file of ["student.html","teacher.html","parent.html","admin.html"]) a
 const earlyLearning = read("early-learning.html");
 const generalEducation = read("general-education.html");
 const higherEducation = read("higher-education.html");
+const internationalEducation = read("international-education.html");
 const registrationApi = read("api/education/registrations.js");
 const adminRegistrationApi = read("api/education/admin-registrations.js");
 const curriculumMigration = read("database/migrations/20261103_curriculum_and_payment_tracks.sql");
@@ -174,4 +175,9 @@ assert.match(registrationApi, /curriculum_track, curriculum_country, payment_pla
 assert.match(adminRegistrationApi, /curriculum_track, curriculum_country, payment_plan/u, "Admin registration must expose curriculum and payment selections");
 assert.match(curriculumMigration, /education_student_registrations_curriculum_idx/u, "Curriculum migration must index the separate curriculum records");
 assert.match(index, /data-key="payment_plan"/u, "Student registration form must capture annual or monthly payment selection");
+assert.match(internationalEducation, /id="early-childhood"/u, "Multi-country curriculum page must include early-childhood pathway");
+assert.match(internationalEducation, /id="general"/u, "Multi-country curriculum page must include general-education pathway");
+assert.match(internationalEducation, /id="higher"/u, "Multi-country curriculum page must include higher-education pathway");
+assert.match(internationalEducation, /خيارات التعليم الإلكتروني/u, "Multi-country curriculum page must include all online learning modes");
+
 console.log("Readiness source checks passed: required pages, Arabic RTL, seven scopes, 39 templates, branches, fixed weekly load, sitemap, draft-policy indexing, Zoom authorization, and coordinated versions.");
