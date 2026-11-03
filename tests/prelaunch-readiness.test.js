@@ -190,6 +190,7 @@ for (const feeCode of ["EARLY_UNIFORM_BOOKS","EARLY_NURSERY","EARLY_KG1","EARLY_
 assert.match(earlyFeesMigration, /2100\.00/u, "Nursery and KG1 annual tuition must be 2100 SAR");
 assert.match(earlyFeesMigration, /1800\.00/u, "KG2 and KG3 annual tuition must be 1800 SAR");
 assert.match(earlyFeesMigration, /مرة واحدة سنويًا/u, "Uniform/books must be charged once per academic year");
+assert.match(earlyFeesMigration, /management_approved_admission_fee/u, "Optional admission fee must require management approval");
 assert.match(earlyFeesMigration, /التعليم الجامعي والدراسات العليا/u, "University service must be renamed away from guidance wording");
 assert.match(internationalEducation, /id="early-childhood"/u, "Multi-country curriculum page must include early-childhood pathway");
 assert.match(internationalEducation, /id="general"/u, "Multi-country curriculum page must include general-education pathway");
