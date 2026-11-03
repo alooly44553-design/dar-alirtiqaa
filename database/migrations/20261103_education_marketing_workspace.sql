@@ -37,6 +37,35 @@ CREATE TABLE IF NOT EXISTS education_marketing.team_roles (
   UNIQUE (department, role_name)
 );
 
+INSERT INTO education_marketing.team_roles
+  (role_name, department, role_kind, responsibilities, permission_scope)
+VALUES
+  ('مدير التسويق والإعلام التعليمي', 'marketing', 'virtual',
+   'تنسيق خطة التسويق التعليمي ومتابعة الحملات والمهام والجودة وإعداد التقارير ورفع الاعتمادات. لا ينشر ولا يرسل رسائل خارجية.',
+   '{"can_draft":true,"can_approve":false,"can_publish":false,"can_message":false}'::jsonb),
+  ('مخطط الحملات التعليمية', 'planning', 'virtual',
+   'إعداد مقترحات الحملات والجمهور والأهداف والجدول ومؤشرات القياس ورفعها للمراجعة.',
+   '{"can_draft":true,"can_approve":false,"can_publish":false,"can_message":false}'::jsonb),
+  ('كاتب المحتوى التعليمي', 'content', 'virtual',
+   'صياغة المنشورات والإعلانات والنصوص التعليمية ومراجعة وضوحها وملاءمتها للفئات المستهدفة.',
+   '{"can_draft":true,"can_approve":false,"can_publish":false,"can_message":false}'::jsonb),
+  ('مصمم المحتوى المرئي', 'design', 'virtual',
+   'إعداد موجزات الصور والملصقات والبرشورات والتصاميم المقترحة وفق الهوية المعتمدة.',
+   '{"can_draft":true,"can_approve":false,"can_publish":false,"can_message":false}'::jsonb),
+  ('منتج الفيديو والصوت', 'media', 'virtual',
+   'إعداد سيناريوهات وموجزات المقاطع والفيديو والصوت ومراجعة جاهزية المواد قبل اعتمادها.',
+   '{"can_draft":true,"can_approve":false,"can_publish":false,"can_message":false}'::jsonb),
+  ('منسق القنوات والجدولة', 'publishing', 'virtual',
+   'تنظيم القنوات والتقويم ومواعيد النشر المقترحة وتجهيز قوائم التحقق. لا يربط حسابات ولا ينشر.',
+   '{"can_draft":true,"can_approve":false,"can_publish":false,"can_message":false}'::jsonb),
+  ('مسؤول المجتمعات والاستفسارات', 'community', 'virtual',
+   'تصنيف الاستفسارات وإعداد مسودات الردود ورفع الحالات التي تحتاج تدخلًا بشريًا.',
+   '{"can_draft":true,"can_approve":false,"can_publish":false,"can_message":false}'::jsonb),
+  ('محلل الأداء والتقارير', 'analytics', 'virtual',
+   'إعداد مؤشرات وتقارير الحملات والقنوات وتحليل النتائج بعد توفر بيانات موثوقة.',
+   '{"can_draft":true,"can_approve":false,"can_publish":false,"can_message":false}'::jsonb)
+ON CONFLICT (department, role_name) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS education_marketing.channels (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   platform text NOT NULL CHECK (platform IN ('website','whatsapp','telegram','instagram','facebook','youtube','tiktok','x','linkedin','other')),
