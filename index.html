@@ -249,6 +249,16 @@ function renderForm(service){
   }
  };
  curriculumTrackField?.addEventListener("change",syncCurriculum);syncCurriculum();
+ if(service.service_code==="university_guidance"){
+  const period=$("service-fields").querySelector('[data-key="tuition_period"]');
+  const count=$("service-fields").querySelector('[data-key="installment_count"]');
+  const syncUniversityInstallments=()=>{
+   if(period){period.required=true;period.disabled=false;}
+   if(count){count.required=period?.value==="term";count.disabled=period?.value!=="term";if(count.disabled)count.value="";}
+  };
+  period?.addEventListener("change",syncUniversityInstallments);
+  syncUniversityInstallments();
+ }
  if(service.service_code==="student_registration"){
   const period=$("service-fields").querySelector('[data-key="tuition_period"]');
   const count=$("service-fields").querySelector('[data-key="installment_count"]');
