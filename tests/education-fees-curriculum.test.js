@@ -34,7 +34,7 @@ assert(registrations.includes("curriculum_reference, tuition_period, installment
 assert(registrations.includes("curriculumReference") && registrations.includes("installmentCount"), "Student registration API must validate the new fields.");
 assert(serviceFees.includes('serviceCode === "student_registration"') && serviceFees.includes('serviceCode === "university_guidance"'), "Public fee API must return the approved schedule for school, university, program, and course subscriptions.");
 assert(!serviceFees.includes("FROM education.service_fee_items"), "Public fee API must not expose unapproved legacy rows.");
-assert(migration.includes("SET is_active = false"), "Migration must deactivate all legacy unapproved fee rows before restoring the approved list.");
+assert(migration.includes("DELETE FROM education.service_fee_items"), "Migration must delete all legacy unapproved fee rows before restoring the approved list.");
 assert(migration.includes("'program_application','REGISTRATION','subscription','الاشتراك في البرنامج التعليمي'"), "Program subscriptions must be 150 SAR monthly.");
 assert(migration.includes("'course_registration','REGISTRATION','subscription','الاشتراك في الدورة التعليمية'"), "Course subscriptions must be 150 SAR monthly.");
 assert(packages.includes("ضمن المنظومة الموحدة"), "Package page must describe one unified education system.");
