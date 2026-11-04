@@ -47,12 +47,13 @@ assert(migration.includes("'course_registration','REGISTRATION','subscription','
 assert(packages.includes("ضمن المنظومة الموحدة"), "Package page must describe one unified education system.");
 assert(!/مسارات مستقلة|خيارات مستقلة|حزم مستقلة|صفحة مستقلة لكل مجال/u.test(packages), "Package page must not imply separate curriculum branches.");
 assert(higher.includes("فتح حزمة التعليم الجامعي والدراسات العليا"), "Higher education CTA must use the approved package wording.");
-assert(!/التوجيه والقبول الجامعي|القبول الجامعي والعالي|فتح مجال التعليم الجامعي/u.test(home + packages + higher), "Obsolete higher education wording must be removed from all visible education pages.");
+assert(!/التوجيه والقبول الجامعي|القبول الجامعي والعالي|فتح مجال التعليم الجامعي|الدراسات العليا والدراسات العليا/u.test(home + packages + higher), "Obsolete higher education wording must be removed from all visible education pages.");
 for (const page of packagePages) {
   const source = read(page);
   assert.match(source, /الرسوم المعتمدة|الرسوم الدراسية المعتمدة/u, "Every education package must display its approved fee schedule: " + page);
   assert.doesNotMatch(source, /رسوم إضافية|رسوم إدارية إضافية|رسوم قبول إضافية/u, "Unapproved extra-fee labels must not appear: " + page);
 }
+assert.doesNotMatch(read("early-learning.html"), /مسار مستقل|مسارات مستقلة/u, "Curriculum paths must remain within one platform.");
 assert.doesNotMatch(read("early-learning.html"), /أقساط شهرية/u, "Early-childhood fees must use semester installment selection, not monthly installments.");
 assert.doesNotMatch(registrations, /educationStage === "early_childhood".*monthly_installments/u, "Early-childhood registration must validate the selected term/annual period, not a monthly payment option.");
 assert.match(registrations, /const paymentPlan = tuitionPeriod === "annual" \? "annual" : "monthly_installments"/u, "Legacy payment storage must be derived from the selected tuition period.");
