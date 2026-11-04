@@ -3,6 +3,7 @@
 -- This migration does not create curriculum-specific databases or separate domain branches.
 
 ALTER TABLE education.student_registrations
+  ADD COLUMN IF NOT EXISTS has_existing_file boolean,
   ADD COLUMN IF NOT EXISTS curriculum_reference text,
   ADD COLUMN IF NOT EXISTS tuition_period text,
   ADD COLUMN IF NOT EXISTS installment_count smallint;
@@ -44,6 +45,8 @@ WITH approved AS (
     ('university_guidance','TUITION_STANDARD','tuition','الدبلوم والدبلوم العالي والبكالوريوس — سنوي','رسوم السنة وفق الخطة التعليمية.',2700.00,'SAR','annual',true,'{"fee_scope":"tuition_only","applies_to":["diploma","bachelor","higher_diploma"],"period":"annual"}'::jsonb,11),
     ('university_guidance','TUITION_GRADUATE_TERM','tuition','الدراسات العليا والماجستير — فصل دراسي','رسوم الفصل الدراسي.',1000.00,'SAR','term',true,'{"fee_scope":"tuition_only","applies_to":["masters","doctorate","postgraduate_studies"],"period":"term"}'::jsonb,12),
     ('university_guidance','TUITION_GRADUATE','tuition','الدراسات العليا والماجستير — سنوي','رسوم السنة وفق الخطة التعليمية.',3000.00,'SAR','annual',true,'{"fee_scope":"tuition_only","applies_to":["masters","doctorate","postgraduate_studies"],"period":"annual"}'::jsonb,13),
+    ('activity_join','FILE_OPENING','registration','فتح الملف','مرة واحدة للمستفيد الجديد فقط.',50.00,'SAR','once',true,'{"applies_when":"no_existing_file"}'::jsonb,1),
+    ('activity_join','REGISTRATION','subscription','الاشتراك في المركز التعليمي','اشتراك شهري.',150.00,'SAR','monthly',true,'{"period":"monthly"}'::jsonb,2),
     ('program_application','FILE_OPENING','registration','فتح الملف','مرة واحدة للمستفيد.',50.00,'SAR','once',true,'{"applies_when":"no_existing_file"}'::jsonb,1),
     ('program_application','REGISTRATION','subscription','الاشتراك في البرنامج التعليمي','اشتراك شهري.',150.00,'SAR','monthly',true,'{"period":"monthly"}'::jsonb,2),
     ('course_registration','FILE_OPENING','registration','فتح الملف','مرة واحدة للمستفيد.',50.00,'SAR','once',true,'{"applies_when":"no_existing_file"}'::jsonb,1),
@@ -69,7 +72,7 @@ ON CONFLICT (service_id,fee_code) DO UPDATE SET
   is_active=true,
   updated_at=now();
 
-DO $
+DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'education_student_tuition_period_check') THEN
     ALTER TABLE education.student_registrations
@@ -81,4 +84,4 @@ BEGIN
       ADD CONSTRAINT education_student_installment_count_check
       CHECK (installment_count IS NULL OR installment_count IN (2,3));
   END IF;
-END $;
+END $$;
