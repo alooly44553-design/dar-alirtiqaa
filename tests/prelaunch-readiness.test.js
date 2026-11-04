@@ -121,7 +121,7 @@ assert(manifestCacheVersion, "Manifest must have a cache-busting version");
 assert(serviceWorkerCacheVersion, "Service worker must have a cache-busting version");
 assert.equal(manifestCacheVersion, serviceWorkerCacheVersion, "Manifest and service-worker cache-busters must stay aligned");
 
-for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والعالي","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
+for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والدراسات العليا","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
   assert(index.includes(label), "Missing educational scope: " + label);
 }
 const templates = read("operations-templates.html");
@@ -200,6 +200,8 @@ assert.doesNotMatch(index + read("education-packages.html") + higherEducation, /
 assert.match(internationalEducation, /id="early-childhood"/u, "Multi-country curriculum page must include early-childhood pathway");
 assert.match(internationalEducation, /id="general"/u, "Multi-country curriculum page must include general-education pathway");
 assert.match(internationalEducation, /id="higher"/u, "Multi-country curriculum page must include higher-education pathway");
+assert.doesNotMatch(earlyLearning, /مسار مستقل|مسارات مستقلة/u, "Curriculum references must remain in one unified education system.");
+assert.doesNotMatch(higherEducation, /الدراسات العليا والدراسات العليا/u, "Higher-education title and metadata must not repeat the package name.");
 assert.match(internationalEducation, /خيارات التعليم الإلكتروني/u, "Multi-country curriculum page must include all online learning modes");
 
 console.log("Readiness source checks passed: required pages, Arabic RTL, seven scopes, 39 templates, branches, fixed weekly load, sitemap, draft-policy indexing, Zoom authorization, and coordinated versions.");
