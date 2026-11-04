@@ -34,7 +34,11 @@ assert(home.includes("tuition_period") && home.includes("installment_count"), "S
 assert(serviceRequests.includes("curriculum_reference") && serviceRequests.includes("curriculumCountry"), "Service requests must validate and store the curriculum reference.");
 assert(registrations.includes("curriculum_reference, tuition_period, installment_count"), "Student registration must persist curriculum and fee period fields.");
 assert(registrations.includes("curriculumReference") && registrations.includes("installmentCount"), "Student registration API must validate the new fields.");
-assert(serviceFees.includes('serviceCode === "student_registration"') && serviceFees.includes('serviceCode === "university_guidance"'), "Public fee API must return the approved schedule for school, university, program, and course subscriptions.");
+assert(serviceFees.includes('serviceCode === "student_registration"') && serviceFees.includes('serviceCode === "university_guidance"') && serviceFees.includes('serviceCode === "activity_join"'), "Public fee API must return the approved schedule for school, university, program, course, and center subscriptions.");
+assert(serviceFees.includes('الاشتراك في المركز التعليمي') && serviceFees.includes('amount: 150'), "Educational center subscription must be 150 SAR monthly.");
+assert(serviceFees.includes('amount: 50') && serviceFees.includes('applies_when: "no_existing_file"'), "Educational center file-opening fee must be 50 SAR once for new beneficiaries.");
+assert(migration.includes("'activity_join','REGISTRATION','subscription','الاشتراك في المركز التعليمي'"), "Migration must preserve the approved monthly center subscription.");
+assert(migration.includes("DO $"), "Migration must use valid PostgreSQL dollar-quoted block syntax.");
 assert(!serviceFees.includes("FROM education.service_fee_items"), "Public fee API must not expose unapproved legacy rows.");
 assert(migration.includes("DELETE FROM education.service_fee_items"), "Migration must delete all legacy unapproved fee rows before restoring the approved list.");
 assert(migration.includes("'program_application','REGISTRATION','subscription','الاشتراك في البرنامج التعليمي'"), "Program subscriptions must be 150 SAR monthly.");
