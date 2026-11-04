@@ -324,7 +324,12 @@ async function loadFees(serviceId, serviceCode){
    if(grade){const nursery=["الحضانة","تمهيدي 1 KG1"].includes(grade);rows.push(["الرسوم الدراسية — "+grade,period==="term"?(nursery?1050:900):(nursery?2100:1800),period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
   }else{
    const fees={primary:{term:750,annual:1500},middle:{term:900,annual:1800},secondary:{term:1050,annual:2100}};
-   if(fees[stage]&&grade){rows.push(["الرسوم الدراسية — "+grade,fees[stage][period]||fees[stage].annual,period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);rows.push(["تحديد المستوى",200,"حسب الحاجة فقط"],["معادلة الشهادة أو الأعمار",200,"حسب الحاجة فقط"]);}
+   if(fees[stage]&&grade){
+    const gradeThree=stage==="secondary"&&grade==="الثالث الثانوي";
+    const amount=gradeThree?(period==="term"?1500:3000):(fees[stage][period]||fees[stage].annual);
+    rows.push(["الرسوم الدراسية — "+grade,amount,period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);
+    rows.push(["تحديد المستوى",200,"حسب الحاجة فقط"],["معادلة الشهادة أو الأعمار",200,"حسب الحاجة فقط"]);
+   }
   }
  }else if(serviceCode==="university_guidance"){
   if(field("has_existing_file")==="no")rows.push(["فتح الملف",100,"مرة واحدة للمستجدين فقط"]);
