@@ -27,9 +27,11 @@ export default async function handler(req, res) {
     const hasExistingFile = body.has_existing_file === "yes" ? true : body.has_existing_file === "no" ? false : null;
     const curriculumTrack = cleanText(body.curriculum_track, 40);
     const curriculumCountry = cleanText(body.curriculum_country, 100);
+    const curriculumReference = cleanText(body.curriculum_reference, 200);
     const storedCurriculumCountry = curriculumTrack === "saudi_curriculum" ? "المملكة العربية السعودية" : curriculumCountry;
     const paymentPlan = cleanText(body.payment_plan, 40);
     if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
+        !curriculumReference ||
         (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2) ||
         (educationStage === "early_childhood" && !["annual", "monthly_installments"].includes(paymentPlan))) {
       return sendJson(res, 400, { error: "INVALID_CURRICULUM_TRACK" });
@@ -74,7 +76,7 @@ export default async function handler(req, res) {
         (!phone && !guardianPhone && !email)) {
       return sendJson(res, 400, { error: "INVALID_REGISTRATION_FIELDS" });
     }
-    const submittedNotes = cleanText(body.notes, 1000);
+    const submittedNotes = cleanText([body.notes, "مرجع المنهج: " + curriculumReference, "الدولة: " + storedCurriculumCountry].filter(Boolean).join(" — "), 1000);
     const registrationNumber = "EDU-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomUUID().slice(0, 6).toUpperCase();
     const sql = getDatabase("education");
     const rows = await sql`
