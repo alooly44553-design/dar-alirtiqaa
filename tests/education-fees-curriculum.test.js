@@ -38,7 +38,8 @@ assert(serviceFees.includes('serviceCode === "student_registration"') && service
 assert(serviceFees.includes('الاشتراك في المركز التعليمي') && serviceFees.includes('amount: 150'), "Educational center subscription must be 150 SAR monthly.");
 assert(serviceFees.includes('amount: 50') && serviceFees.includes('applies_when: "no_existing_file"'), "Educational center file-opening fee must be 50 SAR once for new beneficiaries.");
 assert(migration.includes("'activity_join','REGISTRATION','subscription','الاشتراك في المركز التعليمي'"), "Migration must preserve the approved monthly center subscription.");
-assert(migration.includes("DO $") && migration.includes("END $;"), "Migration must use valid PostgreSQL dollar-quoted block syntax.");
+assert(migration.includes("DO $$") && migration.includes("END $$;"), "Migration must use valid PostgreSQL dollar-quoted block syntax.");
+assert(migration.includes("ADD COLUMN IF NOT EXISTS has_existing_file boolean"), "Migration must add the existing-file flag used by registration APIs.");
 assert(!serviceFees.includes("FROM education.service_fee_items"), "Public fee API must not expose unapproved legacy rows.");
 assert(migration.includes("DELETE FROM education.service_fee_items"), "Migration must delete all legacy unapproved fee rows before restoring the approved list.");
 assert(migration.includes("'program_application','REGISTRATION','subscription','الاشتراك في البرنامج التعليمي'"), "Program subscriptions must be 150 SAR monthly.");
