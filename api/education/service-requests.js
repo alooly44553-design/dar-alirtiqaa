@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", "notes", ...fieldsByKey.keys()]);
+    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", "notes", "curriculum_track", "curriculum_country", "curriculum_reference", "has_existing_file", "tuition_period", "installment_count", ...fieldsByKey.keys()]);
     const payload = {};
     for (const key of allowedKeys) {
       if (!(key in body)) continue;
@@ -86,13 +86,31 @@ export default async function handler(req, res) {
 
     const curriculumTrack = payload.curriculum_track;
     const curriculumCountry = cleanText(payload.curriculum_country, 100);
+    const curriculumReference = cleanText(payload.curriculum_reference, 200);
     if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
+        !curriculumReference ||
         (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2)) {
       return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
     }
     payload.curriculum_country = curriculumTrack === "saudi_curriculum"
       ? "المملكة العربية السعودية"
       : curriculumCountry;
+    payload.curriculum_reference = curriculumReference;
+    if (serviceCode === "university_guidance") {
+      const tuitionPeriod = cleanText(payload.tuition_period, 10);
+      const installmentCount = cleanText(payload.installment_count, 1);
+      if (!["term", "annual"].includes(tuitionPeriod) ||
+          (tuitionPeriod === "term" && !["2", "3"].includes(installmentCount))) {
+        return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
+      }
+      payload.tuition_period = tuitionPeriod;
+      payload.installment_count = installmentCount;
+    }
+    if (["program_application", "course_registration"].includes(serviceCode)) {
+      if (!["yes", "no"].includes(payload.has_existing_file)) {
+        return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
+      }
+    }
 
     for (const field of configuredFields) {
       if (!field?.required || typeof field.key !== "string") continue;
