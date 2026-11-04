@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", "notes", "curriculum_track", "curriculum_country", "curriculum_reference", ...fieldsByKey.keys()]);
+    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", "notes", "curriculum_track", "curriculum_country", "curriculum_reference", "has_existing_file", ...fieldsByKey.keys()]);
     const payload = {};
     for (const key of allowedKeys) {
       if (!(key in body)) continue;
@@ -96,6 +96,11 @@ export default async function handler(req, res) {
       ? "المملكة العربية السعودية"
       : curriculumCountry;
     payload.curriculum_reference = curriculumReference;
+    if (["program_application", "course_registration"].includes(serviceCode)) {
+      if (!["yes", "no"].includes(payload.has_existing_file)) {
+        return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
+      }
+    }
 
     for (const field of configuredFields) {
       if (!field?.required || typeof field.key !== "string") continue;
