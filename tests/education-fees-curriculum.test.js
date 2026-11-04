@@ -54,6 +54,8 @@ for (const page of packagePages) {
   assert.doesNotMatch(source, /رسوم إضافية|رسوم إدارية إضافية|رسوم قبول إضافية/u, "Unapproved extra-fee labels must not appear: " + page);
 }
 assert.doesNotMatch(read("early-learning.html"), /أقساط شهرية/u, "Early-childhood fees must use semester installment selection, not monthly installments.");
+assert.doesNotMatch(registrations, /educationStage === "early_childhood".*monthly_installments/u, "Early-childhood registration must validate the selected term/annual period, not a monthly payment option.");
+assert.match(registrations, /const paymentPlan = tuitionPeriod === "annual" \? "annual" : "monthly_installments"/u, "Legacy payment storage must be derived from the selected tuition period.");
 assert.match(admin, /curriculum_reference/u, "Admin registration records must expose the curriculum reference.");
 assert.match(admin, /installment_count/u, "Admin registration records must expose the installment count.");
 
