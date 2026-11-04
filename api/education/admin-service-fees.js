@@ -1,4 +1,4 @@
-import { getDatabase, sendJson, cleanText } from "../../lib/neon-db.js";
+import { getDatabase, sendJson } from "../../lib/neon-db.js";
 
 async function adminUser(req) {
   const auth = req.headers.authorization || "";
@@ -29,8 +29,8 @@ async function adminUser(req) {
 }
 
 export default async function handler(req, res) {
-  if (!["GET", "PATCH"].includes(req.method)) {
-    res.setHeader("Allow", "GET, PATCH");
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
     return sendJson(res, 405, { error: "METHOD_NOT_ALLOWED" });
   }
   try {
@@ -38,53 +38,25 @@ export default async function handler(req, res) {
     if (!user) return sendJson(res, 401, { error: "ADMIN_AUTH_REQUIRED" });
 
     const sql = getDatabase("education");
-    if (req.method === "GET") {
-      const [services, fees] = await Promise.all([
-        sql`
-          SELECT id, service_code, service_name, registration_method_label, display_order
-          FROM education.service_catalog
-          WHERE is_active = true
-          ORDER BY display_order ASC, service_name ASC
-        `,
-        sql`
-          SELECT id, service_id, fee_code, fee_name, description, amount, currency,
-                 calculation_method, is_required, payment_stage, is_active, display_order, condition_rule
-          FROM education.service_fee_items
-          WHERE is_active = true
-            AND service_id IN (
-              SELECT id FROM education.service_catalog WHERE is_active = true
-            )
-          ORDER BY display_order ASC, fee_code ASC
-        `
-      ]);
-      return sendJson(res, 200, { ok: true, services, fees });
-    }
-
-    const body = req.body && typeof req.body === "object" ? req.body : {};
-    const id = cleanText(body.id, 64);
-    if (!/^[0-9a-f-]{36}$/i.test(id)) {
-      return sendJson(res, 400, { error: "INVALID_FEE_ID" });
-    }
-    const amount = body.amount === null || body.amount === "" ? null : Number(body.amount);
-    if (amount !== null && (!Number.isFinite(amount) || amount < 0 || amount > 1000000000)) {
-      return sendJson(res, 400, { error: "INVALID_FEE_AMOUNT" });
-    }
-    const currency = cleanText(typeof body.currency === "string" ? body.currency : "", 10).toUpperCase() || "SAR";
-    if (!/^[A-Z]{3,10}$/.test(currency)) {
-      return sendJson(res, 400, { error: "INVALID_FEE_CURRENCY" });
-    }
-    if (typeof body.is_required !== "boolean") {
-      return sendJson(res, 400, { error: "INVALID_FEE_REQUIREMENT" });
-    }
-    const changed = await sql`
-      UPDATE education.service_fee_items
-      SET amount = ${amount}, currency = ${currency},
-          is_required = ${body.is_required}, updated_at = now()
-      WHERE id = ${id}::uuid
-      RETURNING id, amount, currency, is_required, updated_at
-    `;
-    if (!changed.length) return sendJson(res, 404, { error: "FEE_NOT_FOUND" });
-    return sendJson(res, 200, { ok: true, fee: changed[0] });
+    const [services, fees] = await Promise.all([
+      sql`
+        SELECT id, service_code, service_name, registration_method_label, display_order
+        FROM education.service_catalog
+        WHERE is_active = true
+        ORDER BY display_order ASC, service_name ASC
+      `,
+      sql`
+        SELECT id, service_id, fee_code, fee_name, description, amount, currency,
+               calculation_method, is_required, payment_stage, is_active, display_order, condition_rule
+        FROM education.service_fee_items
+        WHERE is_active = true
+          AND service_id IN (
+            SELECT id FROM education.service_catalog WHERE is_active = true
+          )
+        ORDER BY display_order ASC, fee_code ASC
+      `
+    ]);
+    return sendJson(res, 200, { ok: true, services, fees });
   } catch (error) {
     const status = error.statusCode || 500;
     return sendJson(res, status, {
