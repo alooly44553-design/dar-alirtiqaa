@@ -106,7 +106,7 @@ export default async function handler(req, res) {
       payload.tuition_period = tuitionPeriod;
       payload.installment_count = installmentCount;
     }
-    if (["program_application", "course_registration"].includes(serviceCode)) {
+    if (["program_application", "course_registration", "activity_join"].includes(serviceCode)) {
       if (!["yes", "no"].includes(payload.has_existing_file)) {
         return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
       }
