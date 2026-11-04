@@ -50,9 +50,10 @@ export default async function handler(req, res) {
           SELECT id, service_id, fee_code, fee_name, description, amount, currency,
                  calculation_method, is_required, payment_stage, is_active, display_order, condition_rule
           FROM education.service_fee_items
-          WHERE service_id IN (
-            SELECT id FROM education.service_catalog WHERE is_active = true
-          )
+          WHERE is_active = true
+            AND service_id IN (
+              SELECT id FROM education.service_catalog WHERE is_active = true
+            )
           ORDER BY display_order ASC, fee_code ASC
         `
       ]);
