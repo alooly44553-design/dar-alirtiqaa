@@ -29,6 +29,10 @@ export default async function handler(req, res) {
     const curriculumCountry = cleanText(body.curriculum_country, 100);
     const curriculumReference = cleanText(body.curriculum_reference, 200);
     const storedCurriculumCountry = curriculumTrack === "saudi_curriculum" ? "المملكة العربية السعودية" : curriculumCountry;
+    const consentText = "أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.";
+    if (body.consent_text !== consentText) {
+      return sendJson(res, 400, { error: "CONSENT_TEXT_MISMATCH" });
+    }
     const tuitionPeriod = cleanText(body.tuition_period, 10);
     const installmentCount = cleanText(body.installment_count, 1);
     // Store the selected annual/term period using the existing database enum for backward compatibility.
@@ -64,10 +68,6 @@ export default async function handler(req, res) {
     // Student attachments are disabled in the UI until private, authenticated storage is implemented.
     // Never trust client-supplied attachment paths or metadata.
     const attachments = [];
-    const consentText = "أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.";
-    if (body.consent_text !== consentText) {
-      return sendJson(res, 400, { error: "CONSENT_TEXT_MISMATCH" });
-    }
     if (hasExistingFile === null) {
       return sendJson(res, 400, { error: "EXISTING_FILE_STATUS_REQUIRED" });
     }
