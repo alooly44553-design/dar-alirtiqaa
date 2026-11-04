@@ -48,7 +48,9 @@ WITH approved AS (
     ('program_application','FILE_OPENING','registration','فتح الملف','مرة واحدة للمستفيد.',50.00,'SAR','once',true,'{"applies_when":"no_existing_file"}'::jsonb,1),
     ('program_application','REGISTRATION','subscription','الاشتراك في البرنامج التعليمي','اشتراك شهري.',150.00,'SAR','monthly',true,'{"period":"monthly"}'::jsonb,2),
     ('course_registration','FILE_OPENING','registration','فتح الملف','مرة واحدة للمستفيد.',50.00,'SAR','once',true,'{"applies_when":"no_existing_file"}'::jsonb,1),
-    ('course_registration','REGISTRATION','subscription','الاشتراك في الدورة التعليمية','اشتراك شهري.',150.00,'SAR','monthly',true,'{"period":"monthly"}'::jsonb,2)
+    ('course_registration','REGISTRATION','subscription','الاشتراك في الدورة التعليمية','اشتراك شهري.',150.00,'SAR','monthly',true,'{"period":"monthly"}'::jsonb,2),
+    ('activity_join','FILE_OPENING','registration','فتح الملف','مرة واحدة للمستفيد الجديد فقط.',50.00,'SAR','once',true,'{"applies_when":"no_existing_file"}'::jsonb,1),
+    ('activity_join','REGISTRATION','subscription','الاشتراك في المركز التعليمي','اشتراك شهري.',150.00,'SAR','monthly',true,'{"period":"monthly"}'::jsonb,2)
   ) AS v(service_code,fee_code,fee_type,fee_name,description,amount,currency,calculation_method,is_required,condition_rule,display_order)
 )
 INSERT INTO education.service_fee_items
