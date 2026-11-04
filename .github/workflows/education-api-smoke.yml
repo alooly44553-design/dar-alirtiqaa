@@ -114,6 +114,9 @@ jobs:
             education_stage: 'secondary',
             education_grade: 'الثالث الثانوي',
             curriculum_track: 'saudi_curriculum',
+            curriculum_reference: 'المنهج السعودي',
+            tuition_period: 'term',
+            installment_count: '3',
             has_existing_file: 'no',
           };
 
