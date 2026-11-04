@@ -28,7 +28,7 @@ const approvedFees = (serviceCode) => {
     { fee_code: "TUITION_GRADUATE_TERM", fee_name: "الدراسات العليا والماجستير — فصل دراسي", amount: 1000, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { fee_scope: "tuition_only", applies_to: ["masters", "doctorate", "postgraduate_studies"], period: "term" } },
     { fee_code: "TUITION_GRADUATE", fee_name: "الدراسات العليا والماجستير — سنوي", amount: 3000, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { fee_scope: "tuition_only", applies_to: ["masters", "doctorate", "postgraduate_studies"], period: "annual" } }
   ];
-  if (["program_application", "course_registration"].includes(serviceCode)) return [
+  if (["program_application", "course_registration", "activity_join"].includes(serviceCode)) return [
     { fee_code: "FILE_OPENING", fee_name: "فتح الملف", amount: 50, currency: "SAR", calculation_method: "once", is_required: true, condition_rule: { applies_when: "no_existing_file" } },
     { fee_code: "REGISTRATION", fee_name: "الاشتراك التعليمي أو التدريبي", amount: 150, currency: "SAR", calculation_method: "monthly", is_required: true, condition_rule: { period: "monthly" } }
   ];
