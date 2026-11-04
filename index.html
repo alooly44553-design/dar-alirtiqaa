@@ -219,8 +219,9 @@ function renderForm(service){
   if(service.service_code==="university_guidance"){
    mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
    mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية",required:true,options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
+   mergedFields.set("installment_count",{key:"installment_count",type:"select",label:"عدد دفعات الفصل الدراسي",options:[{label:"دفعتان",value:"2"},{label:"ثلاث دفعات",value:"3"}]});
   }
-  if(["program_application","course_registration"].includes(service.service_code)){
+  if(["program_application","course_registration","activity_join"].includes(service.service_code)){
    mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
   }
 
@@ -253,8 +254,12 @@ function renderForm(service){
   const count=$("service-fields").querySelector('[data-key="installment_count"]');
   const syncPeriod=()=>{
    const stage=$("service-fields").querySelector('[data-key="education_stage"]')?.value||"";
-   if(period?.closest(".field"))period.closest(".field").style.display=stage?"":"none";
-   if(count?.closest(".field"))count.closest(".field").style.display=stage&&period?.value==="term"?"":"none";
+   const periodVisible=Boolean(stage);
+   const countVisible=periodVisible&&period?.value==="term";
+   if(period?.closest(".field"))period.closest(".field").style.display=periodVisible?"":"none";
+   if(count?.closest(".field"))count.closest(".field").style.display=countVisible?"":"none";
+   if(period){period.required=periodVisible;period.disabled=!periodVisible;}
+   if(count){count.required=countVisible;count.disabled=!countVisible;}
   };
   period?.addEventListener("change",()=>{syncPeriod();loadFees(service.id,service.service_code);});
   count?.addEventListener("change",()=>loadFees(service.id,service.service_code));
@@ -267,7 +272,9 @@ function renderForm(service){
   if(degreeField)degreeField.addEventListener("change",()=>loadFees(service.id,service.service_code));
   if(existingFileField)existingFileField.addEventListener("change",()=>loadFees(service.id,service.service_code));
   const tuitionPeriodField=$("service-fields").querySelector('[data-key="tuition_period"]');
+  const installmentCountField=$("service-fields").querySelector('[data-key="installment_count"]');
   if(tuitionPeriodField)tuitionPeriodField.addEventListener("change",()=>loadFees(service.id,service.service_code));
+  if(installmentCountField)installmentCountField.addEventListener("change",()=>loadFees(service.id,service.service_code));
  }
  if(service.service_code==="student_registration"){
   const stageField=$("service-fields").querySelector('[data-key="education_stage"]');
@@ -314,7 +321,7 @@ async function loadFees(serviceId, serviceCode){
   rows.push(["تحديد المستوى",200,"حسب الحاجة فقط"],["معادلة الشهادة أو الأعمار",200,"حسب الحاجة فقط"]);
   const degree=field("degree_level"),period=field("tuition_period")||"annual";
   if(degree){const graduate=["masters","doctorate","postgraduate_studies","other_graduate"].includes(degree);rows.push([graduate?"الدراسات العليا والماجستير":"الدبلوم والدبلوم العالي والبكالوريوس",graduate?(period==="term"?1000:3000):(period==="term"?900:2700),period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
- }else if(["program_application","course_registration"].includes(serviceCode)){
+ }else if(["program_application","course_registration","activity_join"].includes(serviceCode)){
   if(field("has_existing_file")==="no")rows.push(["فتح الملف",50,"مرة واحدة للمستفيد"],["الاشتراك التعليمي أو التدريبي",150,"شهريًا"]);
   else if(field("has_existing_file")==="yes")rows.push(["الاشتراك التعليمي أو التدريبي",150,"شهريًا"]);
  }
