@@ -58,5 +58,10 @@ assert.doesNotMatch(registrations, /educationStage === "early_childhood".*monthl
 assert.match(registrations, /const paymentPlan = tuitionPeriod === "annual" \? "annual" : "monthly_installments"/u, "Legacy payment storage must be derived from the selected tuition period.");
 assert.match(admin, /curriculum_reference/u, "Admin registration records must expose the curriculum reference.");
 assert.match(admin, /installment_count/u, "Admin registration records must expose the installment count.");
+assert.match(admin, /يعرض هذا القسم جدول الرسوم المعتمد فقط/u, "Admin fee section must state that only approved fees are displayed.");
+assert.doesNotMatch(admin, /data-fee-save|data-fee-amount|data-fee-required/u, "Admin fee schedule must be read-only; unapproved amount editing is disabled.");
+const adminFeesApi = read("api/education/admin-service-fees.js");
+assert.match(adminFeesApi, /if \(req\.method !== "GET"\)/u, "Admin fee API must be read-only until a separately approved fee revision.");
+assert.doesNotMatch(adminFeesApi, /UPDATE education\.service_fee_items/u, "Admin fee API must not modify approved fee amounts.");
 
 console.log("Unified education curriculum, approved fee display, and registration validation checks passed.");
