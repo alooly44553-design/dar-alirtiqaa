@@ -16,7 +16,7 @@ SET service_name = 'التعليم الجامعي والدراسات العلي�
     updated_at = now()
 WHERE service_code = 'university_guidance';
 
--- Remove every legacy fee item; only the explicitly approved catalog below is recreated.
+-- Remove every legacy fee item. Only the explicitly approved catalog below is recreated.
 -- No foreign-key references to service_fee_items exist in the current education schema.
 DELETE FROM education.service_fee_items;
 
@@ -43,8 +43,8 @@ WITH approved AS (
     ('university_guidance','CERTIFICATE_EQUIVALENCY','conditional','معادلة الشهادة أو الأعمار','حسب الحاجة فقط.',200.00,'SAR','conditional',false,'{"applies_when":"certificate_or_age_equivalency_required"}'::jsonb,3),
     ('university_guidance','TUITION_STANDARD_TERM','tuition','الدبلوم والدبلوم العالي والبكالوريوس — فصل دراسي','رسوم الفصل الدراسي.',900.00,'SAR','term',true,'{"fee_scope":"tuition_only","applies_to":["diploma","bachelor","higher_diploma"],"period":"term"}'::jsonb,10),
     ('university_guidance','TUITION_STANDARD','tuition','الدبلوم والدبلوم العالي والبكالوريوس — سنوي','رسوم السنة وفق الخطة التعليمية.',2700.00,'SAR','annual',true,'{"fee_scope":"tuition_only","applies_to":["diploma","bachelor","higher_diploma"],"period":"annual"}'::jsonb,11),
-    ('university_guidance','TUITION_GRADUATE_TERM','tuition','الدراسات العليا والماجستير — فصل دراسي','رسوم الفصل الدراسي.',1000.00,'SAR','term',true,'{"fee_scope":"tuition_only","applies_to":["masters","doctorate","postgraduate_studies"],"period":"term"}'::jsonb,12),
-    ('university_guidance','TUITION_GRADUATE','tuition','الدراسات العليا والماجستير — سنوي','رسوم السنة وفق الخطة التعليمية.',3000.00,'SAR','annual',true,'{"fee_scope":"tuition_only","applies_to":["masters","doctorate","postgraduate_studies"],"period":"annual"}'::jsonb,13),
+    ('university_guidance','TUITION_GRADUATE_TERM','tuition','الدراسات العليا والماجستير — فصل دراسي','رسوم الفصل الدراسي.',1000.00,'SAR','term',true,'{"fee_scope":"tuition_only","applies_to":["masters","postgraduate_studies"],"period":"term"}'::jsonb,12),
+    ('university_guidance','TUITION_GRADUATE','tuition','الدراسات العليا والماجستير — سنوي','رسوم السنة وفق الخطة التعليمية.',3000.00,'SAR','annual',true,'{"fee_scope":"tuition_only","applies_to":["masters","postgraduate_studies"],"period":"annual"}'::jsonb,13),
     ('activity_join','FILE_OPENING','registration','فتح الملف','مرة واحدة للمستفيد الجديد فقط.',50.00,'SAR','once',true,'{"applies_when":"no_existing_file"}'::jsonb,1),
     ('activity_join','REGISTRATION','subscription','الاشتراك في المركز التعليمي','اشتراك شهري.',150.00,'SAR','monthly',true,'{"period":"monthly"}'::jsonb,2),
     ('program_application','FILE_OPENING','registration','فتح الملف','مرة واحدة للمستفيد.',50.00,'SAR','once',true,'{"applies_when":"no_existing_file"}'::jsonb,1),
@@ -72,16 +72,10 @@ ON CONFLICT (service_id,fee_code) DO UPDATE SET
   is_active=true,
   updated_at=now();
 
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'education_student_tuition_period_check') THEN
-    ALTER TABLE education.student_registrations
-      ADD CONSTRAINT education_student_tuition_period_check
-      CHECK (tuition_period IS NULL OR tuition_period IN ('term','annual'));
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'education_student_installment_count_check') THEN
-    ALTER TABLE education.student_registrations
-      ADD CONSTRAINT education_student_installment_count_check
-      CHECK (installment_count IS NULL OR installment_count IN (2,3));
-  END IF;
-END $$;
+ALTER TABLE education.student_registrations
+  ADD CONSTRAINT education_student_tuition_period_check
+  CHECK (tuition_period IS NULL OR tuition_period IN ('term','annual'));
+
+ALTER TABLE education.student_registrations
+  ADD CONSTRAINT education_student_installment_count_check
+  CHECK (installment_count IS NULL OR installment_count IN (2,3));
