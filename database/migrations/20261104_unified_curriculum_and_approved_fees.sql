@@ -15,10 +15,9 @@ SET service_name = 'التعليم الجامعي والدراسات العلي�
     updated_at = now()
 WHERE service_code = 'university_guidance';
 
--- Hide every legacy fee row first; only the explicitly approved catalog below is re-enabled.
-UPDATE education.service_fee_items
-SET is_active = false,
-    updated_at = now();
+-- Remove every legacy fee item; only the explicitly approved catalog below is recreated.
+-- No foreign-key references to service_fee_items exist in the current education schema.
+DELETE FROM education.service_fee_items;
 
 WITH approved AS (
   SELECT * FROM (VALUES
