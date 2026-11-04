@@ -200,7 +200,7 @@ function commonFields(isStudent){
  ];
 }
 function renderForm(service){
- $("service-form-title").textContent=service.service_name+" — "+service.registration_method_label;
+ $("service-form-title").textContent=(service.service_code==="university_guidance"?"التعليم الجامعي والدراسات العليا":service.service_name)+" — "+service.registration_method_label;
  $("service-form-description").textContent=service.description||"أدخل البيانات بدقة؛ الطلبات تُراجع من الإدارة.";
  const consentText=service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.";
  const mergedFields=new Map(commonFields(service.service_code==="student_registration").map(f=>[f.key,f]));
@@ -216,6 +216,10 @@ function renderForm(service){
    {key:"curriculum_country",type:"text",label:"الدولة أو النظام التعليمي",required:false},
    {key:"curriculum_reference",type:"text",label:"اسم المنهج أو مرجعه التعليمي",required:true}
   ].forEach(f=>mergedFields.set(f.key,{...(mergedFields.get(f.key)||{}),...f}));
+  if(service.service_code==="university_guidance"){
+   mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
+   mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية",required:true,options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
+  }
   if(service.service_code==="student_registration"){
    mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية المحتسبة",options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
    mergedFields.set("installment_count",{key:"installment_count",type:"select",label:"عدد دفعات الفصل الدراسي",options:[{label:"دفعتان",value:"2"},{label:"ثلاث دفعات",value:"3"}]});
@@ -258,6 +262,8 @@ function renderForm(service){
   const existingFileField=$("service-fields").querySelector('[data-key="has_existing_file"]');
   if(degreeField)degreeField.addEventListener("change",()=>loadFees(service.id,service.service_code));
   if(existingFileField)existingFileField.addEventListener("change",()=>loadFees(service.id,service.service_code));
+  const tuitionPeriodField=$("service-fields").querySelector('[data-key="tuition_period"]');
+  if(tuitionPeriodField)tuitionPeriodField.addEventListener("change",()=>loadFees(service.id,service.service_code));
  }
  if(service.service_code==="student_registration"){
   const stageField=$("service-fields").querySelector('[data-key="education_stage"]');
@@ -315,7 +321,7 @@ async function loadServices(){
   const result=await response.json().catch(()=>({}));
   if(!response.ok||!result.ok)throw new Error("تعذر تحميل الخدمات.");
   services=result.services||[];
-  $("services-list").innerHTML=services.map((s,i)=>'<article class="service"><div class="sicon">'+(icons[s.service_code]||"📋")+'</div><h3>'+esc(s.service_name)+'</h3><p>'+esc(s.description||"خدمة إلكترونية من منظومة دار الارتقاء الفكري.")+'</p><button class="btn dark" type="button" data-service="'+i+'">فتح الاستمارة</button></article>').join("");
+  $("services-list").innerHTML=services.map((s,i)=>'<article class="service"><div class="sicon">'+(icons[s.service_code]||"📋")+'</div><h3>'+esc(s.service_code==="university_guidance"?"التعليم الجامعي والدراسات العليا":s.service_name)+'</h3><p>'+esc(s.description||"خدمة إلكترونية من منظومة دار الارتقاء الفكري.")+'</p><button class="btn dark" type="button" data-service="'+i+'">فتح الاستمارة</button></article>').join("");
   $("services-list").querySelectorAll("[data-service]").forEach(b=>b.addEventListener("click",()=>renderForm(services[Number(b.dataset.service)])));
   const requestedService=new URLSearchParams(window.location.search).get("service");
   if(requestedService){
