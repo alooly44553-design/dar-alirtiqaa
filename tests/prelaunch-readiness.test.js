@@ -176,10 +176,10 @@ assert.match(higherEducation, /عملي/u, "Higher education must describe pract
 assert.match(registrationApi, /curriculum_track, curriculum_country, curriculum_reference, tuition_period, installment_count, payment_plan/u, "Student registration must persist curriculum reference and approved fee period selections");
 assert.match(serviceRequestsApi, /payload\.curriculum_country = curriculumTrack === "saudi_curriculum"/u, "University requests must persist a normalized curriculum country");
 assert.match(index, /requestedCurriculum=new URLSearchParams/u, "Registration links must preselect the requested curriculum track");
-assert.match(adminRegistrationApi, /curriculum_track, curriculum_country, payment_plan/u, "Admin registration must expose curriculum and payment selections");
+assert.match(adminRegistrationApi, /curriculum_track, curriculum_country, curriculum_reference, tuition_period, installment_count, payment_plan/u, "Admin registration must expose curriculum reference and approved fee period selections");
 assert.match(curriculumMigration, /education_student_registrations_curriculum_idx/u, "Curriculum migration must index the selected curriculum reference");
-assert.match(index, /data-key="tuition_period"/u, "Student registration form must capture term or annual tuition period");
-assert.match(index, /data-key="installment_count"/u, "Student registration form must capture two or three installments");
+assert.match(index, /key:"tuition_period"/u, "Student registration form must capture term or annual tuition period");
+assert.match(index, /key:"installment_count"/u, "Student registration form must capture two or three installments");
 assert.doesNotMatch(index, /data-key="payment_plan"/u, "Legacy early-childhood-only monthly payment field must be removed");
 const earlyFeesMigration = read("database/migrations/20261103_early_childhood_fee_items.sql");
 assert.match(index, /has_existing_file/u, "Student registration must declare whether a prior file exists");
@@ -196,7 +196,7 @@ assert.match(approvedFeeMigration, /2700\.00/u, "Approved annual diploma/bachelo
 assert.match(approvedFeeMigration, /3000\.00/u, "Approved annual graduate fee must be 3000 SAR");
 assert.match(approvedFeeMigration, /التعليم الجامعي والدراسات العليا/u, "University service must use the approved package name");
 assert.match(index, /التعليم الجامعي والدراسات العليا/u, "Homepage must use the approved higher education package name");
-assert.doesNotMatch(index + packages, /التوجيه والقبول الجامعي|القبول الجامعي والعالي|فتح مجال التعليم الجامعي/u, "Old higher education labels must be removed");
+assert.doesNotMatch(index + read("education-packages.html") + higherEducation, /التوجيه والقبول الجامعي|القبول الجامعي والعالي|فتح مجال التعليم الجامعي/u, "Old higher education labels must be removed");
 assert.match(internationalEducation, /id="early-childhood"/u, "Multi-country curriculum page must include early-childhood pathway");
 assert.match(internationalEducation, /id="general"/u, "Multi-country curriculum page must include general-education pathway");
 assert.match(internationalEducation, /id="higher"/u, "Multi-country curriculum page must include higher-education pathway");
