@@ -3,6 +3,7 @@
 -- This migration does not create curriculum-specific databases or separate domain branches.
 
 ALTER TABLE education.student_registrations
+  ADD COLUMN IF NOT EXISTS has_existing_file boolean,
   ADD COLUMN IF NOT EXISTS curriculum_reference text,
   ADD COLUMN IF NOT EXISTS tuition_period text,
   ADD COLUMN IF NOT EXISTS installment_count smallint;
@@ -71,7 +72,7 @@ ON CONFLICT (service_id,fee_code) DO UPDATE SET
   is_active=true,
   updated_at=now();
 
-DO $
+DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'education_student_tuition_period_check') THEN
     ALTER TABLE education.student_registrations
@@ -83,4 +84,4 @@ BEGIN
       ADD CONSTRAINT education_student_installment_count_check
       CHECK (installment_count IS NULL OR installment_count IN (2,3));
   END IF;
-END $;
+END $$;
