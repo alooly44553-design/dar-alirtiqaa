@@ -103,7 +103,7 @@ export default async function handler(req, res) {
          NULLIF(${cleanText(body.previous_education, 200)}, ''),
          NULLIF(${requestedProgram}, ''),
          NULLIF(${submittedNotes}, ''),
-         ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending', true, now(), ${consentText}, ${curriculumTrack}, ${storedCurriculumCountry}, NULLIF(${paymentPlan}, ''))
+         ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending', true, now(), ${consentText}, ${curriculumTrack}, ${storedCurriculumCountry}, ${curriculumReference}, ${tuitionPeriod}, NULLIF(${installmentCount}, '')::smallint, NULLIF(${paymentPlan}, ''))
       RETURNING id, registration_number, approval_status, created_at
     `;
     let followUpQueued = false;
