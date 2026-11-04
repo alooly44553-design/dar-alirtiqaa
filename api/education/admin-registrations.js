@@ -76,13 +76,12 @@ export default async function handler(req, res) {
       const curriculumReference = cleanText(body.curriculum_reference, 200);
       const tuitionPeriod = cleanText(body.tuition_period, 10);
       const installmentCount = cleanText(body.installment_count, 1);
-      const paymentPlan = cleanText(body.payment_plan, 40);
+      const paymentPlan = tuitionPeriod === "annual" ? "annual" : "monthly_installments";
       if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
           !curriculumReference ||
           (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2) ||
           !["term", "annual"].includes(tuitionPeriod) ||
-          (tuitionPeriod === "term" && !["2", "3"].includes(installmentCount)) ||
-          (educationStage === "early_childhood" && !["annual", "monthly_installments"].includes(paymentPlan))) {
+          (tuitionPeriod === "term" && !["2", "3"].includes(installmentCount))) {
         return sendJson(res, 400, { error: "INVALID_CURRICULUM_TRACK" });
       }
       const storedCurriculumCountry = curriculumTrack === "saudi_curriculum" ? "المملكة العربية السعودية" : curriculumCountry;
