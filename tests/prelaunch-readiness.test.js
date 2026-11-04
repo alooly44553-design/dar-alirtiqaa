@@ -183,7 +183,7 @@ assert.match(index, /key:"installment_count"/u, "Student registration form must 
 assert.doesNotMatch(index, /data-key="payment_plan"/u, "Legacy early-childhood-only monthly payment field must be removed");
 const earlyFeesMigration = read("database/migrations/20261103_early_childhood_fee_items.sql");
 assert.match(index, /has_existing_file/u, "Student registration must declare whether a prior file exists");
-assert.match(index, /rule\.applies_when==="no_existing_file"/u, "File-opening fee must be hidden when a prior file exists");
+assert.match(index, /field\("has_existing_file"\)==="no"/u, "File-opening fee must be shown only for a new file");
 assert.match(registrationApi, /has_existing_file/u, "Registration API must persist prior-file status");
 assert.match(adminRegistrationApi, /has_existing_file/u, "Admin registration API must expose prior-file status");
 assert.match(admin, /x\.has_existing_file===true/u, "Admin registration list must display prior-file status");
