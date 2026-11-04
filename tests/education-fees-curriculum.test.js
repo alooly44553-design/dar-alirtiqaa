@@ -11,6 +11,8 @@ const serviceFees = read("api/education/service-fees.js");
 const serviceRequests = read("api/education/service-requests.js");
 const registrations = read("api/education/registrations.js");
 const migration = read("database/migrations/20261104_unified_curriculum_and_approved_fees.sql");
+const admin = read("admin.html");
+const packagePages = ["early-learning.html","general-education.html","higher-education.html","vocational-training.html","quran-islamic-studies.html","academic-support.html","academic-career-guidance.html","international-education.html","languages-communication.html","digital-technology.html","teacher-development.html","lifelong-learning.html","health-medical-sciences.html","engineering-applied-sciences.html","business-management-finance.html","law-governance.html","natural-sciences-mathematics.html","humanities-social-sciences.html","arts-design-media.html","agriculture-environment-sustainability.html","tourism-hospitality-services.html","research-postgraduate.html"];
 
 for (const amount of [
   "1050:1050", "900:900", "2100:2100", "1800:1800",
@@ -41,5 +43,13 @@ assert(packages.includes("ضمن المنظومة الموحدة"), "Package pag
 assert(!/مسارات مستقلة|خيارات مستقلة|حزم مستقلة|صفحة مستقلة لكل مجال/u.test(packages), "Package page must not imply separate curriculum branches.");
 assert(higher.includes("فتح حزمة التعليم الجامعي والدراسات العليا"), "Higher education CTA must use the approved package wording.");
 assert(!/التوجيه والقبول الجامعي|القبول الجامعي والعالي|فتح مجال التعليم الجامعي/u.test(home + packages + higher), "Obsolete higher education wording must be removed from all visible education pages.");
+for (const page of packagePages) {
+  const source = read(page);
+  assert.match(source, /الرسوم المعتمدة|الرسوم الدراسية المعتمدة/u, "Every education package must display its approved fee schedule: " + page);
+  assert.doesNotMatch(source, /رسوم إضافية|رسوم إدارية إضافية|رسوم قبول إضافية/u, "Unapproved extra-fee labels must not appear: " + page);
+}
+assert.doesNotMatch(read("early-learning.html"), /أقساط شهرية/u, "Early-childhood fees must use semester installment selection, not monthly installments.");
+assert.match(admin, /curriculum_reference/u, "Admin registration records must expose the curriculum reference.");
+assert.match(admin, /installment_count/u, "Admin registration records must expose the installment count.");
 
 console.log("Unified education curriculum, approved fee display, and registration validation checks passed.");
