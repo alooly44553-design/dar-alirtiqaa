@@ -63,5 +63,7 @@ assert.doesNotMatch(admin, /data-fee-save|data-fee-amount|data-fee-required/u, "
 const adminFeesApi = read("api/education/admin-service-fees.js");
 assert.match(adminFeesApi, /if \(req\.method !== "GET"\)/u, "Admin fee API must be read-only until a separately approved fee revision.");
 assert.doesNotMatch(adminFeesApi, /UPDATE education\.service_fee_items/u, "Admin fee API must not modify approved fee amounts.");
+assert.match(admin, /إنشاء رسوم يدوية أو وصفية إضافية متوقف/u, "Admin finance panel must disable new manual unapproved student fees.");
+assert.doesNotMatch(admin, /id="addFee"|id="feeAmount"|id="feeDesc"/u, "Manual student fee entry controls must be removed while existing records remain stored.");
 
 console.log("Unified education curriculum, approved fee display, and registration validation checks passed.");
