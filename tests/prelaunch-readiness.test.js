@@ -188,7 +188,7 @@ assert.match(registrationApi, /has_existing_file/u, "Registration API must persi
 assert.match(adminRegistrationApi, /has_existing_file/u, "Admin registration API must expose prior-file status");
 assert.match(admin, /x\.has_existing_file===true/u, "Admin registration list must display prior-file status");
 const approvedFeeMigration = read("database/migrations/20261104_unified_curriculum_and_approved_fees.sql");
-assert.match(approvedFeeMigration, /SET is_active = false/u, "Unapproved legacy fees must be disabled by the approved fee migration");
+assert.match(approvedFeeMigration, /DELETE FROM education\.service_fee_items/u, "Unapproved legacy fees must be deleted by the approved fee migration");
 assert.match(approvedFeeMigration, /150\.00/u, "Approved monthly educational subscription must be 150 SAR");
 assert.match(approvedFeeMigration, /100\.00/u, "Approved new-file opening fee must be 100 SAR");
 assert.match(approvedFeeMigration, /200\.00/u, "Approved conditional assessment/equivalency fee must be 200 SAR");
