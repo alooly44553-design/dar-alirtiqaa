@@ -225,7 +225,7 @@ function renderForm(service){
   }
 
   if(service.service_code==="student_registration"){
-   mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية المحتسبة",options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
+   mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية المحتسبة",required:true,options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
    mergedFields.set("installment_count",{key:"installment_count",type:"select",label:"عدد دفعات الفصل الدراسي",options:[{label:"دفعتان",value:"2"},{label:"ثلاث دفعات",value:"3"}]});
   }
   const unique=Array.from(mergedFields.values());
@@ -252,9 +252,9 @@ function renderForm(service){
   const period=$("service-fields").querySelector('[data-key="tuition_period"]');
   const count=$("service-fields").querySelector('[data-key="installment_count"]');
   const syncPeriod=()=>{
-   const early=$("service-fields").querySelector('[data-key="education_stage"]')?.value==="early_childhood";
-   if(period?.closest(".field"))period.closest(".field").style.display=early?"":"none";
-   if(count?.closest(".field"))count.closest(".field").style.display=early&&period?.value==="term"?"":"none";
+   const stage=$("service-fields").querySelector('[data-key="education_stage"]')?.value||"";
+   if(period?.closest(".field"))period.closest(".field").style.display=stage?"":"none";
+   if(count?.closest(".field"))count.closest(".field").style.display=stage&&period?.value==="term"?"":"none";
   };
   period?.addEventListener("change",()=>{syncPeriod();loadFees(service.id,service.service_code);});
   count?.addEventListener("change",()=>loadFees(service.id,service.service_code));
