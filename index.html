@@ -339,7 +339,7 @@ async function loadFees(serviceId, serviceCode){
  }else if(serviceCode==="activity_join"){
   if(field("has_existing_file")==="no")rows.push(["فتح الملف",50,"مرة واحدة للمستفيد الجديد فقط"],["الاشتراك في المركز التعليمي",150,"شهريًا"]);
   else if(field("has_existing_file")==="yes")rows.push(["الاشتراك في المركز التعليمي",150,"شهريًا"]);
- }else if(["program_application","course_registration","activity_join"].includes(serviceCode)){
+ }else if(["program_application","course_registration"].includes(serviceCode)){
   if(field("has_existing_file")==="no")rows.push(["فتح الملف",50,"مرة واحدة للمستفيد"],["الاشتراك التعليمي أو التدريبي",150,"شهريًا"]);
   else if(field("has_existing_file")==="yes")rows.push(["الاشتراك التعليمي أو التدريبي",150,"شهريًا"]);
  }
