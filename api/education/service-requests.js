@@ -96,7 +96,7 @@ export default async function handler(req, res) {
       ? "المملكة العربية السعودية"
       : curriculumCountry;
     payload.curriculum_reference = curriculumReference;
-    if (["program_application", "course_registration"].includes(serviceCode)) {
+    if (["program_application", "course_registration", "activity_join"].includes(serviceCode)) {
       if (!["yes", "no"].includes(payload.has_existing_file)) {
         return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
       }
