@@ -70,10 +70,16 @@ ON CONFLICT (service_id,fee_code) DO UPDATE SET
   is_active=true,
   updated_at=now();
 
-ALTER TABLE education.student_registrations
-  ADD CONSTRAINT education_student_tuition_period_check
-  CHECK (tuition_period IS NULL OR tuition_period IN ('term','annual'));
-
-ALTER TABLE education.student_registrations
-  ADD CONSTRAINT education_student_installment_count_check
-  CHECK (installment_count IS NULL OR installment_count IN (2,3));
+DO $
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'education_student_tuition_period_check') THEN
+    ALTER TABLE education.student_registrations
+      ADD CONSTRAINT education_student_tuition_period_check
+      CHECK (tuition_period IS NULL OR tuition_period IN ('term','annual'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'education_student_installment_count_check') THEN
+    ALTER TABLE education.student_registrations
+      ADD CONSTRAINT education_student_installment_count_check
+      CHECK (installment_count IS NULL OR installment_count IN (2,3));
+  END IF;
+END $;
