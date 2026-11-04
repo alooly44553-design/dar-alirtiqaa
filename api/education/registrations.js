@@ -29,10 +29,14 @@ export default async function handler(req, res) {
     const curriculumCountry = cleanText(body.curriculum_country, 100);
     const curriculumReference = cleanText(body.curriculum_reference, 200);
     const storedCurriculumCountry = curriculumTrack === "saudi_curriculum" ? "المملكة العربية السعودية" : curriculumCountry;
+    const tuitionPeriod = cleanText(body.tuition_period, 10);
+    const installmentCount = cleanText(body.installment_count, 1);
     const paymentPlan = cleanText(body.payment_plan, 40);
     if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
         !curriculumReference ||
         (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2) ||
+        !["term", "annual"].includes(tuitionPeriod) ||
+        (tuitionPeriod === "term" && !["2", "3"].includes(installmentCount)) ||
         (educationStage === "early_childhood" && !["annual", "monthly_installments"].includes(paymentPlan))) {
       return sendJson(res, 400, { error: "INVALID_CURRICULUM_TRACK" });
     }
@@ -76,14 +80,14 @@ export default async function handler(req, res) {
         (!phone && !guardianPhone && !email)) {
       return sendJson(res, 400, { error: "INVALID_REGISTRATION_FIELDS" });
     }
-    const submittedNotes = cleanText([body.notes, "مرجع المنهج: " + curriculumReference, "الدولة: " + storedCurriculumCountry].filter(Boolean).join(" — "), 1000);
+    const submittedNotes = cleanText(body.notes, 1000);
     const registrationNumber = "EDU-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomUUID().slice(0, 6).toUpperCase();
     const sql = getDatabase("education");
     const rows = await sql`
       INSERT INTO education.student_registrations
         (registration_number, student_name, full_name, gender, date_of_birth, nationality,
          has_existing_file, identity_type, identity_number, phone, email, guardian_name, guardian_relationship,
-         guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status, consent_given, consent_recorded_at, consent_text, curriculum_track, curriculum_country, payment_plan)
+         guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status, consent_given, consent_recorded_at, consent_text, curriculum_track, curriculum_country, curriculum_reference, tuition_period, installment_count, payment_plan)
       VALUES
         (${registrationNumber}, ${studentName}, ${studentName}, ${gender},
          NULLIF(${dateOfBirth}, '')::date,
