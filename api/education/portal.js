@@ -130,31 +130,33 @@ async function handleAssignments(req, res, identity) {
 
 async function handleStudent(req, res, identity) {
   if (!identity.learner || identity.staff) return sendJson(res, 403, { error: "LEARNER_PROFILE_REQUIRED" });
-  const programs = new Set(identity.enrollments.map(x => x.program_id).filter(Boolean));
-  const classrooms = new Set(identity.enrollments.map(x => x.classroom_id).filter(Boolean));
+  const programIds = [...new Set(identity.enrollments.map(x => x.program_id).filter(Boolean))];
+  const classroomIds = [...new Set(identity.enrollments.map(x => x.classroom_id).filter(Boolean))];
   const sql = getDatabase("education");
-  const [allLessons, allAssignments] = await Promise.all([
+  // Apply the learner's enrollment scope inside PostgreSQL rather than
+  // loading the full published school catalogue into the function first.
+  const [visibleLessons, visibleAssignments] = await Promise.all([
     sql`
       SELECT id, title, explanation, objectives, scheduled_for, program_id, classroom_id
       FROM education.school_lessons
       WHERE status = 'published'
+        AND (program_id IS NULL OR program_id = ANY(${programIds}::uuid[]))
+        AND (classroom_id IS NULL OR classroom_id = ANY(${classroomIds}::uuid[]))
       ORDER BY scheduled_for ASC NULLS LAST, created_at DESC
       LIMIT 500
     `,
     sql`
-      SELECT id, lesson_id, title, instructions, due_at, max_score
-      FROM education.school_assignments
-      WHERE status = 'published'
-      ORDER BY due_at ASC NULLS LAST, created_at DESC
+      SELECT a.id, a.lesson_id, a.title, a.instructions, a.due_at, a.max_score
+      FROM education.school_assignments a
+      JOIN education.school_lessons l ON l.id = a.lesson_id
+      WHERE a.status = 'published'
+        AND l.status = 'published'
+        AND (l.program_id IS NULL OR l.program_id = ANY(${programIds}::uuid[]))
+        AND (l.classroom_id IS NULL OR l.classroom_id = ANY(${classroomIds}::uuid[]))
+      ORDER BY a.due_at ASC NULLS LAST, a.created_at DESC
       LIMIT 1000
     `
   ]);
-  const visibleLessons = allLessons.filter(lesson =>
-    (!lesson.program_id || programs.has(lesson.program_id)) &&
-    (!lesson.classroom_id || classrooms.has(lesson.classroom_id))
-  );
-  const visibleLessonIds = new Set(visibleLessons.map(x => x.id));
-  const visibleAssignments = allAssignments.filter(x => visibleLessonIds.has(x.lesson_id));
   return sendJson(res, 200, { ok: true, lessons: visibleLessons, assignments: visibleAssignments });
 }
 
