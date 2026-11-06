@@ -54,7 +54,7 @@ jobs:
           fi
           VERSION="${TAG#v}"
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
-          MANIFEST_VERSION="$(node -p "require('./app.webmanifest').version")"
+          MANIFEST_VERSION="$(node -e "const fs=require('fs'); const manifest=JSON.parse(fs.readFileSync('app.webmanifest', 'utf8')); process.stdout.write(String(manifest.version ?? ''));" )"
           if [[ "$PACKAGE_VERSION" != "$VERSION" || "$MANIFEST_VERSION" != "$VERSION" ]]; then
             echo "::error::Release tag, package.json, and PWA manifest versions must match."
             exit 1
