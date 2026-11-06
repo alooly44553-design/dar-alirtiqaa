@@ -161,9 +161,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RELEASE_API="repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG"
-          if RELEASE_JSON="$(gh api "$RELEASE_API" 2>/dev/null)"; then
-            IS_DRAFT="$(printf '%s' "$RELEASE_JSON" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(String(JSON.parse(s).draft)))")"
+          RELEASE_LIST_API="repos/$GITHUB_REPOSITORY/releases?per_page=100"
+          RELEASE_ROW="$(gh api "$RELEASE_LIST_API" --jq ".[] | select(.tag_name == \"$RELEASE_TAG\") | [.id, (.draft | tostring)] | @tsv" | head -n 1 || true)"
+          if [[ -n "$RELEASE_ROW" ]]; then
+            IFS=\t' read -r RELEASE_ID IS_DRAFT <<< "$RELEASE_ROW"
             if [[ "$IS_DRAFT" != "true" ]]; then
               echo "::error::A published release already exists for $RELEASE_TAG. Immutable published releases are never overwritten."
               exit 1
@@ -175,8 +176,9 @@ jobs:
               --target "$GITHUB_SHA" \
               --title "منظومة دار الإرتقاء الفكري التعليمية $APP_VERSION" \
               --notes "الإصدار الرسمي الموقّع $APP_VERSION. يتضمن APK للتثبيت المباشر وحزمة AAB للنشر عبر المتجر. تحقق من SHA256SUMS.txt قبل التوزيع."
+            RELEASE_ROW="$(gh api "$RELEASE_LIST_API" --jq ".[] | select(.tag_name == \"$RELEASE_TAG\") | [.id, (.draft | tostring)] | @tsv" | head -n 1)"
+            IFS=\t' read -r RELEASE_ID IS_DRAFT <<< "$RELEASE_ROW"
           fi
           gh release upload "$RELEASE_TAG" release-assets/* --repo "$GITHUB_REPOSITORY" --clobber
-          RELEASE_ID="$(gh api "$RELEASE_API" --jq .id)"
           gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -X PATCH -F draft=false >/dev/null
           echo "Published $RELEASE_TAG with verified signed APK, AAB, and SHA256SUMS.txt."
