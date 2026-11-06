@@ -27,8 +27,6 @@ jobs:
       INPUT_RELEASE_TAG: ${{ inputs.release_tag }}
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.release_tag || github.ref }}
 
       - uses: actions/setup-java@v6
         with:
