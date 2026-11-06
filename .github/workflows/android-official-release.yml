@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: "Existing release tag to build, for example v1.1.6"
+        description: "New release tag to create and publish, for example v1.1.8"
         required: true
         type: string
 
@@ -157,15 +157,26 @@ jobs:
           sha256sum release-assets/* > release-assets/SHA256SUMS.txt
           rm -f "$KEYSTORE" "$RUNNER_TEMP/app-release-aligned.apk" "$RUNNER_TEMP/app-release-signed.apk" "$RUNNER_TEMP/app-release-signed.aab"
 
-      - name: Create release and upload signed install packages
+      - name: Create draft release, upload packages, then publish
         shell: bash
         run: |
           set -euo pipefail
-          if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          RELEASE_API="repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG"
+          if RELEASE_JSON="$(gh api "$RELEASE_API" 2>/dev/null)"; then
+            IS_DRAFT="$(printf '%s' "$RELEASE_JSON" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(String(JSON.parse(s).draft)))")"
+            if [[ "$IS_DRAFT" != "true" ]]; then
+              echo "::error::A published release already exists for $RELEASE_TAG. Immutable published releases are never overwritten."
+              exit 1
+            fi
+          else
             gh release create "$RELEASE_TAG" \
               --repo "$GITHUB_REPOSITORY" \
-              --verify-tag \
+              --draft \
+              --target "$GITHUB_SHA" \
               --title "منظومة دار الإرتقاء الفكري التعليمية $APP_VERSION" \
               --notes "الإصدار الرسمي الموقّع $APP_VERSION. يتضمن APK للتثبيت المباشر وحزمة AAB للنشر عبر المتجر. تحقق من SHA256SUMS.txt قبل التوزيع."
           fi
           gh release upload "$RELEASE_TAG" release-assets/* --repo "$GITHUB_REPOSITORY" --clobber
+          RELEASE_ID="$(gh api "$RELEASE_API" --jq .id)"
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -X PATCH -F draft=false >/dev/null
+          echo "Published $RELEASE_TAG with verified signed APK, AAB, and SHA256SUMS.txt."
