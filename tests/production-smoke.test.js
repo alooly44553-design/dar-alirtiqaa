@@ -99,7 +99,7 @@ const feeCatalog = await getJson("/api/education/service-fees?service_id=" + enc
 assert.equal(feeCatalog.ok, true, "Student registration fee catalog must load");
 assert(Array.isArray(feeCatalog.fees), "Fee response must include an array");
 assert(feeCatalog.fees.every(fee => typeof fee.calculation_method === "string"), "Fee API must expose its pricing method");
-assert.match(home, /يُحدد بعرض سعر عند الحاجة/u, "Homepage must explain fees that require a quote");
+assert.doesNotMatch(home, /يُحدد بعرض سعر عند الحاجة|رسوم إضافية|رسوم إدارية إضافية/u, "Homepage must not advertise unapproved or quote-based extra fees");
 
 const telegram = await getJson("/api/telegram?diagnose=1");
 assert.equal(telegram.ok, true, "Telegram diagnostic must report ok=true");

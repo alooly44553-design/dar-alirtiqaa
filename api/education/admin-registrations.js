@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const registrations = await sql`
         SELECT id, registration_number, student_name, gender, date_of_birth, nationality,
-               requested_program, phone, guardian_name, guardian_phone, curriculum_track, curriculum_country, payment_plan, approval_status, approved_at,
+               requested_program, has_existing_file, phone, guardian_name, guardian_phone, curriculum_track, curriculum_country, curriculum_reference, tuition_period, installment_count, payment_plan, approval_status, approved_at,
                approval_note, documented, documented_at, document_reference, created_at,
                followup.status AS follow_up_status,
                followup.due_at AS follow_up_due_at,
@@ -70,12 +70,18 @@ export default async function handler(req, res) {
       const dateOfBirth = cleanText(body.date_of_birth, 10);
       const educationStage = cleanText(body.education_stage, 20);
       const educationGrade = cleanText(body.education_grade, 40);
+      const hasExistingFile = body.has_existing_file === true || body.has_existing_file === "yes" ? true : body.has_existing_file === false || body.has_existing_file === "no" ? false : null;
       const curriculumTrack = cleanText(body.curriculum_track, 40);
       const curriculumCountry = cleanText(body.curriculum_country, 100);
-      const paymentPlan = cleanText(body.payment_plan, 40);
+      const curriculumReference = cleanText(body.curriculum_reference, 200);
+      const tuitionPeriod = cleanText(body.tuition_period, 10);
+      const installmentCount = cleanText(body.installment_count, 1);
+      const paymentPlan = tuitionPeriod === "annual" ? "annual" : "monthly_installments";
       if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
+          !curriculumReference ||
           (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2) ||
-          (educationStage === "early_childhood" && !["annual", "monthly_installments"].includes(paymentPlan))) {
+          !["term", "annual"].includes(tuitionPeriod) ||
+          (tuitionPeriod === "term" && !["2", "3"].includes(installmentCount))) {
         return sendJson(res, 400, { error: "INVALID_CURRICULUM_TRACK" });
       }
       const storedCurriculumCountry = curriculumTrack === "saudi_curriculum" ? "المملكة العربية السعودية" : curriculumCountry;
@@ -109,18 +115,19 @@ export default async function handler(req, res) {
       const number = "EDU-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomUUID().slice(0, 6).toUpperCase();
       const saved = await sql`
         INSERT INTO education.student_registrations
-          (registration_number, student_name, full_name, gender, date_of_birth, nationality,
-           requested_program, phone, email, guardian_name, guardian_phone, notes, status, approval_status, curriculum_track, curriculum_country, payment_plan)
+          (registration_number, student_name, full_name, gender, date_of_birth, nationality, has_existing_file,
+           requested_program, phone, email, guardian_name, guardian_phone, notes, status, approval_status, curriculum_track, curriculum_country, curriculum_reference, tuition_period, installment_count, payment_plan)
         VALUES
           (${number}, ${name}, ${name}, ${gender},
            NULLIF(${dateOfBirth}, '')::date,
            NULLIF(${cleanText(body.nationality, 80)}, ''),
+           ${hasExistingFile},
            NULLIF(${requestedProgram}, ''),
            NULLIF(${phone}, ''), NULLIF(${email}, ''),
            NULLIF(${cleanText(body.guardian_name, 120)}, ''),
            NULLIF(${guardianPhone}, ''),
            NULLIF(${cleanText(body.notes, 1000)}, ''),
-           'pending', 'pending', ${curriculumTrack}, ${storedCurriculumCountry}, NULLIF(${paymentPlan}, ''))
+           'pending', 'pending', ${curriculumTrack}, ${storedCurriculumCountry}, ${curriculumReference}, ${tuitionPeriod}, NULLIF(${installmentCount}, '')::smallint, NULLIF(${paymentPlan}, ''))
         RETURNING id, registration_number, approval_status, created_at
       `;
       return sendJson(res, 201, { ok: true, registration: saved[0] });

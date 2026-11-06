@@ -24,13 +24,24 @@ export default async function handler(req, res) {
     const dateOfBirth = cleanText(body.date_of_birth, 10);
     const educationStage = cleanText(body.education_stage, 20);
     const educationGrade = cleanText(body.education_grade, 40);
+    const hasExistingFile = body.has_existing_file === "yes" ? true : body.has_existing_file === "no" ? false : null;
     const curriculumTrack = cleanText(body.curriculum_track, 40);
     const curriculumCountry = cleanText(body.curriculum_country, 100);
+    const curriculumReference = cleanText(body.curriculum_reference, 200);
     const storedCurriculumCountry = curriculumTrack === "saudi_curriculum" ? "المملكة العربية السعودية" : curriculumCountry;
-    const paymentPlan = cleanText(body.payment_plan, 40);
+    const consentText = "أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.";
+    if (body.consent_text !== consentText) {
+      return sendJson(res, 400, { error: "CONSENT_TEXT_MISMATCH" });
+    }
+    const tuitionPeriod = cleanText(body.tuition_period, 10);
+    const installmentCount = cleanText(body.installment_count, 1);
+    // Store the selected annual/term period using the existing database enum for backward compatibility.
+    const paymentPlan = tuitionPeriod === "annual" ? "annual" : "monthly_installments";
     if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
+        !curriculumReference ||
         (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2) ||
-        (educationStage === "early_childhood" && !["annual", "monthly_installments"].includes(paymentPlan))) {
+        !["term", "annual"].includes(tuitionPeriod) ||
+        (tuitionPeriod === "term" && !["2", "3"].includes(installmentCount))) {
       return sendJson(res, 400, { error: "INVALID_CURRICULUM_TRACK" });
     }
     const gradesByStage = {
@@ -57,9 +68,8 @@ export default async function handler(req, res) {
     // Student attachments are disabled in the UI until private, authenticated storage is implemented.
     // Never trust client-supplied attachment paths or metadata.
     const attachments = [];
-    const consentText = "أوافق على صحة البيانات المدخلة وعلى مراجعتها وتوثيق قبول التسجيل من إدارة المنظومة.";
-    if (body.consent_text !== consentText) {
-      return sendJson(res, 400, { error: "CONSENT_TEXT_MISMATCH" });
+    if (hasExistingFile === null) {
+      return sendJson(res, 400, { error: "EXISTING_FILE_STATUS_REQUIRED" });
     }
     if (!requestedProgram) {
       return sendJson(res, 400, { error: "INVALID_EDUCATION_GRADE" });
@@ -76,12 +86,13 @@ export default async function handler(req, res) {
     const rows = await sql`
       INSERT INTO education.student_registrations
         (registration_number, student_name, full_name, gender, date_of_birth, nationality,
-         identity_type, identity_number, phone, email, guardian_name, guardian_relationship,
-         guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status, consent_given, consent_recorded_at, consent_text, curriculum_track, curriculum_country, payment_plan)
+         has_existing_file, identity_type, identity_number, phone, email, guardian_name, guardian_relationship,
+         guardian_phone, address, previous_education, requested_program, notes, attachments, status, approval_status, consent_given, consent_recorded_at, consent_text, curriculum_track, curriculum_country, curriculum_reference, tuition_period, installment_count, payment_plan)
       VALUES
         (${registrationNumber}, ${studentName}, ${studentName}, ${gender},
          NULLIF(${dateOfBirth}, '')::date,
          NULLIF(${cleanText(body.nationality, 80)}, ''),
+         ${hasExistingFile},
          NULLIF(${identityType}, ''),
          NULLIF(${identityNumber}, ''),
          NULLIF(${phone}, ''), NULLIF(${email}, ''),
@@ -92,7 +103,7 @@ export default async function handler(req, res) {
          NULLIF(${cleanText(body.previous_education, 200)}, ''),
          NULLIF(${requestedProgram}, ''),
          NULLIF(${submittedNotes}, ''),
-         ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending', true, now(), ${consentText}, ${curriculumTrack}, ${storedCurriculumCountry}, NULLIF(${paymentPlan}, ''))
+         ${JSON.stringify(attachments)}::jsonb, 'pending', 'pending', true, now(), ${consentText}, ${curriculumTrack}, ${storedCurriculumCountry}, ${curriculumReference}, ${tuitionPeriod}, NULLIF(${installmentCount}, '')::smallint, NULLIF(${paymentPlan}, ''))
       RETURNING id, registration_number, approval_status, created_at
     `;
     let followUpQueued = false;
