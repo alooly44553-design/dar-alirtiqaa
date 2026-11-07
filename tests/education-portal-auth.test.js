@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { resolvePortalIdentity } from "../lib/education-portal-auth.js";
 import adminRegistrations from "../api/education/admin-registrations.js";
 
@@ -100,6 +101,28 @@ try {
   assert.deepEqual(guardian.identity.guardianLearners.map(row => row.id), [IDS.child]);
   assert.deepEqual(guardian.identity.enrollments.map(row => row.learner_id), [IDS.child]);
   assert.equal(guardian.enrollmentQueries[0], "in.(" + IDS.child + ")");
+
+  // Regression guard: portal queries must preserve each enrollment's
+  // program/classroom pair instead of combining independent UUID arrays.
+  const portalSource = await readFile(new URL("../api/education/portal.js", import.meta.url), "utf8");
+  assert.ok((portalSource.match(/jsonb_to_recordset/g) || []).length >= 3,
+    "Student lesson, assignment and submission checks must use paired enrollment rows.");
+  assert.ok(portalSource.includes("l.classroom_id = enrollment.classroom_id"),
+    "Assignment eligibility must match classroom on the same enrollment row.");
+  assert.ok(!portalSource.includes("program_id = ANY(") && !portalSource.includes("classroom_id = ANY("),
+    "Separate program/classroom arrays must not be used for learner authorization.");
+
+  const pairedEnrollments = [
+    { program_id: "program-a", classroom_id: "class-a" },
+    { program_id: "program-b", classroom_id: "class-b" }
+  ];
+  const matchesPair = (lesson, rows) => rows.some(row =>
+    (!lesson.program_id || row.program_id === lesson.program_id) &&
+    (!lesson.classroom_id || row.classroom_id === lesson.classroom_id)
+  );
+  assert.equal(matchesPair({ program_id: "program-a", classroom_id: "class-a" }, pairedEnrollments), true);
+  assert.equal(matchesPair({ program_id: "program-a", classroom_id: "class-b" }, pairedEnrollments), false,
+    "A cross-paired program/classroom must not be treated as an active enrollment.");
 
   process.env.DAR_ALIRTIQAA_APP = "education";
   process.env.DATABASE_URL = "postgres://synthetic:synthetic@127.0.0.1:5432/synthetic";
