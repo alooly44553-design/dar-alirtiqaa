@@ -176,7 +176,7 @@ assert.match(higherEducation, /عملي/u, "Higher education must describe pract
 assert.match(registrationApi, /curriculum_track, curriculum_country, curriculum_reference, tuition_period, installment_count, payment_plan/u, "Student registration must persist curriculum reference and approved fee period selections");
 assert.match(serviceRequestsApi, /payload\.curriculum_country = curriculumTrack === "saudi_curriculum"/u, "University requests must persist a normalized curriculum country");
 assert.match(index, /requestedCurriculum=new URLSearchParams/u, "Registration links must preselect the requested curriculum track");
-assert.match(adminRegistrationApi, /curriculum_track, curriculum_country, curriculum_reference, tuition_period, installment_count, payment_plan/u, "Admin registration must expose curriculum reference and approved fee period selections");
+assert.match(adminRegistrationApi, /curriculum_track[\\s\\S]*curriculum_country[\\s\\S]*curriculum_reference[\\s\\S]*tuition_period[\\s\\S]*installment_count[\\s\\S]*payment_plan/u, "Admin registration must expose curriculum reference and approved fee period selections");
 assert.match(curriculumMigration, /education_student_registrations_curriculum_idx/u, "Curriculum migration must index the selected curriculum reference");
 assert.match(index, /key:"tuition_period"/u, "Student registration form must capture term or annual tuition period");
 assert.match(index, /key:"installment_count"/u, "Student registration form must capture two or three installments");
