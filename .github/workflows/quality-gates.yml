@@ -2,7 +2,7 @@ name: Platform quality gates
 
 on:
   push:
-    branches: [main]
+    branches: [main, security/education-role-scope-tests-2026-11-05]
     paths:
       - "api/**/*.js"
       - "lib/**/*.js"
