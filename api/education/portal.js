@@ -130,18 +130,25 @@ async function handleAssignments(req, res, identity) {
 
 async function handleStudent(req, res, identity) {
   if (!identity.learner || identity.staff) return sendJson(res, 403, { error: "LEARNER_PROFILE_REQUIRED" });
-  const programIds = [...new Set(identity.enrollments.map(x => x.program_id).filter(Boolean))];
-  const classroomIds = [...new Set(identity.enrollments.map(x => x.classroom_id).filter(Boolean))];
+  const enrollmentScope = JSON.stringify(identity.enrollments.map(row => ({
+    program_id: row.program_id || null,
+    classroom_id: row.classroom_id || null
+  })));
   const sql = getDatabase("education");
-  // Apply the learner's enrollment scope inside PostgreSQL rather than
-  // loading the full published school catalogue into the function first.
+  // Match program and classroom on the SAME enrollment row. Separate UUID
+  // arrays create a cross-product and can expose content from another class.
   const [visibleLessons, visibleAssignments] = await Promise.all([
     sql`
       SELECT id, title, explanation, objectives, scheduled_for, program_id, classroom_id
       FROM education.school_lessons
       WHERE status = 'published'
-        AND (program_id IS NULL OR program_id = ANY(${programIds}::uuid[]))
-        AND (classroom_id IS NULL OR classroom_id = ANY(${classroomIds}::uuid[]))
+        AND EXISTS (
+          SELECT 1
+          FROM jsonb_to_recordset(${enrollmentScope}::jsonb)
+            AS enrollment(program_id uuid, classroom_id uuid)
+          WHERE (education.school_lessons.program_id IS NULL OR education.school_lessons.program_id = enrollment.program_id)
+            AND (education.school_lessons.classroom_id IS NULL OR education.school_lessons.classroom_id = enrollment.classroom_id)
+        )
       ORDER BY scheduled_for ASC NULLS LAST, created_at DESC
       LIMIT 500
     `,
@@ -151,8 +158,13 @@ async function handleStudent(req, res, identity) {
       JOIN education.school_lessons l ON l.id = a.lesson_id
       WHERE a.status = 'published'
         AND l.status = 'published'
-        AND (l.program_id IS NULL OR l.program_id = ANY(${programIds}::uuid[]))
-        AND (l.classroom_id IS NULL OR l.classroom_id = ANY(${classroomIds}::uuid[]))
+        AND EXISTS (
+          SELECT 1
+          FROM jsonb_to_recordset(${enrollmentScope}::jsonb)
+            AS enrollment(program_id uuid, classroom_id uuid)
+          WHERE (l.program_id IS NULL OR l.program_id = enrollment.program_id)
+            AND (l.classroom_id IS NULL OR l.classroom_id = enrollment.classroom_id)
+        )
       ORDER BY a.due_at ASC NULLS LAST, a.created_at DESC
       LIMIT 1000
     `
@@ -354,11 +366,20 @@ async function handleSubmissions(req, res, identity) {
       return sendJson(res, 400, { error: "INVALID_SUBMISSION_FIELDS" });
     }
 
-    const programs = new Set(identity.enrollments.map(x => x.program_id).filter(Boolean));
-    const classrooms = new Set(identity.enrollments.map(x => x.classroom_id).filter(Boolean));
+    const enrollmentScope = JSON.stringify(identity.enrollments.map(row => ({
+      program_id: row.program_id || null,
+      classroom_id: row.classroom_id || null
+    })));
     const records = await sql`
       SELECT a.id, a.status AS assignment_status, l.status AS lesson_status,
-             l.program_id, l.classroom_id
+             l.program_id, l.classroom_id,
+             EXISTS (
+               SELECT 1
+               FROM jsonb_to_recordset(${enrollmentScope}::jsonb)
+                 AS enrollment(program_id uuid, classroom_id uuid)
+               WHERE (l.program_id IS NULL OR l.program_id = enrollment.program_id)
+                 AND (l.classroom_id IS NULL OR l.classroom_id = enrollment.classroom_id)
+             ) AS enrolled
       FROM education.school_assignments a
       JOIN education.school_lessons l ON l.id = a.lesson_id
       WHERE a.id = ${assignmentId}::uuid
@@ -369,8 +390,7 @@ async function handleSubmissions(req, res, identity) {
     if (record.assignment_status !== "published" || record.lesson_status !== "published") {
       return sendJson(res, 400, { error: "ASSIGNMENT_NOT_AVAILABLE" });
     }
-    if ((record.program_id && !programs.has(record.program_id)) ||
-        (record.classroom_id && !classrooms.has(record.classroom_id))) {
+    if (record.enrolled !== true) {
       return sendJson(res, 403, { error: "ASSIGNMENT_NOT_ASSIGNED_TO_LEARNER" });
     }
 
