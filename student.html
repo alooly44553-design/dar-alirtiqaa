@@ -33,7 +33,7 @@ button{border:0;border-radius:11px;padding:10px 14px;background:#13233f;color:#f
 <section class="card" style="margin-top:14px"><h2>💳 الرسوم والفواتير</h2><div id="studentFinance" class="item">جارٍ التحقق...</div></section></main>
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-const sb=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
+const sb=createClient("https://zhdbdtokbsnmsikwvvua.supabase.co","sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm");
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 function item(title,body,meta=""){return '<article class="item"><strong>'+esc(title)+'</strong><div>'+esc(body||"لا يوجد شرح متاح بعد.")+'</div>'+(meta?'<div class="muted">'+esc(meta)+'</div>':"")+'</article>'}
@@ -85,7 +85,7 @@ sb.auth.onAuthStateChange(event=>{
 load();
 </script><script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-const financeClient=createClient("https://oisfclsgcjofxzeraqpb.supabase.co","sb_publishable_DVs3mdQXc4_gUZG8_8nczw_KWK6H4bk");
+const financeClient=createClient("https://zhdbdtokbsnmsikwvvua.supabase.co","sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm");
 const escFinance=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 financeClient.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT")document.getElementById("studentFinance").textContent="سجّل الدخول لعرض الرسوم."});
 (async()=>{
