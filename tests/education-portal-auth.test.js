@@ -110,7 +110,7 @@ try {
   assert.ok(portalSource.includes("l.classroom_id = enrollment.classroom_id"),
     "Assignment eligibility must match classroom on the same enrollment row.");
   const parentStart = portalSource.indexOf("async function handleParent");
-  const parentEnd = portalSource.indexOf("\\nasync function handleSubmissions", parentStart);
+  const parentEnd = portalSource.indexOf("\nasync function handleSubmissions", parentStart);
   const parentSource = portalSource.slice(parentStart, parentEnd);
   assert.ok(parentSource.includes("jsonb_to_recordset"),
     "Guardian lessons and assignments must be filtered by paired enrollment rows.");
