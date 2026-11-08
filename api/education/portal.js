@@ -283,40 +283,63 @@ async function handleParent(req, res, identity) {
   const children = identity.guardianLearners || [];
   const childIds = [...new Set(children.map(child => child.id))].slice(0, 100);
   const childById = new Map(children.map(child => [child.id, child]));
+  // Guardian access is scoped by the linked learner's enrollment. Keep
+  // program/classroom paired on one row to prevent cross-enrollment leakage.
   const enrollments = identity.enrollments.filter(row => childById.has(row.learner_id));
-  const classroomIds = [...new Set(enrollments.map(row => row.classroom_id).filter(Boolean))].slice(0, 100);
-  const classroomChildren = new Map();
-  for (const enrollment of enrollments) {
-    if (!enrollment.classroom_id) continue;
-    if (!classroomChildren.has(enrollment.classroom_id)) classroomChildren.set(enrollment.classroom_id, new Set());
-    const child = childById.get(enrollment.learner_id);
-    if (child?.full_name) classroomChildren.get(enrollment.classroom_id).add(child.full_name);
-  }
+  const enrollmentScope = JSON.stringify(enrollments.map(row => ({
+    learner_id: row.learner_id,
+    program_id: row.program_id || null,
+    classroom_id: row.classroom_id || null
+  })));
+  const matchesEnrollment = (record, enrollment) =>
+    (!record.program_id || record.program_id === enrollment.program_id) &&
+    (!record.classroom_id || record.classroom_id === enrollment.classroom_id);
+  const childNamesForRecord = record => [...new Set(enrollments
+    .filter(enrollment => matchesEnrollment(record, enrollment))
+    .map(enrollment => childById.get(enrollment.learner_id)?.full_name)
+    .filter(Boolean))];
 
   let lessons = [];
   let assignments = [];
   let submissions = [];
-  if (classroomIds.length || childIds.length) {
+  if (enrollments.length || childIds.length) {
     const sql = getDatabase("education");
-    const [lessonGroups, assignmentGroups, submissionGroups] = await Promise.all([
-      Promise.all(classroomIds.map(classroomId => sql`
-        SELECT id, title, explanation, objectives, scheduled_for, program_id, subject_id, classroom_id
-        FROM education.school_lessons
-        WHERE status = 'published' AND classroom_id = ${classroomId}::uuid
-        ORDER BY scheduled_for ASC NULLS LAST, created_at DESC
-        LIMIT 100
-      `)),
-      Promise.all(classroomIds.map(classroomId => sql`
+    const [visibleLessons, visibleAssignments, submissionGroups] = await Promise.all([
+      sql`
+        SELECT l.id, l.title, l.explanation, l.objectives, l.scheduled_for,
+               l.program_id, l.subject_id, l.classroom_id
+        FROM education.school_lessons l
+        WHERE l.status = 'published'
+          AND EXISTS (
+            SELECT 1
+            FROM jsonb_to_recordset(${enrollmentScope}::jsonb)
+              AS enrollment(learner_id uuid, program_id uuid, classroom_id uuid)
+            WHERE (l.program_id IS NULL OR l.program_id = enrollment.program_id)
+              AND (l.classroom_id IS NULL OR l.classroom_id = enrollment.classroom_id)
+          )
+        ORDER BY l.scheduled_for ASC NULLS LAST, l.created_at DESC
+        LIMIT 500
+      `,
+      sql`
         SELECT a.id, a.lesson_id, a.classroom_id, a.subject_id, a.title,
-               a.instructions, a.due_at, a.max_score
+               a.instructions, a.due_at, a.max_score,
+               l.program_id, l.classroom_id AS lesson_classroom_id
         FROM education.school_assignments a
         JOIN education.school_lessons l ON l.id = a.lesson_id
         WHERE a.status = 'published'
           AND l.status = 'published'
-          AND a.classroom_id = ${classroomId}::uuid
+          AND a.classroom_id IS NOT DISTINCT FROM l.classroom_id
+          AND EXISTS (
+            SELECT 1
+            FROM jsonb_to_recordset(${enrollmentScope}::jsonb)
+              AS enrollment(learner_id uuid, program_id uuid, classroom_id uuid)
+            WHERE (l.program_id IS NULL OR l.program_id = enrollment.program_id)
+              AND (l.classroom_id IS NULL OR l.classroom_id = enrollment.classroom_id)
+              AND (a.classroom_id IS NULL OR a.classroom_id = enrollment.classroom_id)
+          )
         ORDER BY a.due_at ASC NULLS LAST, a.created_at DESC
-        LIMIT 200
-      `)),
+        LIMIT 1000
+      `,
       Promise.all(childIds.map(learnerId => sql`
         SELECT s.id, s.learner_id, s.assignment_id, s.status, s.score,
                s.feedback, s.submitted_at, a.title AS assignment_title,
@@ -328,12 +351,11 @@ async function handleParent(req, res, identity) {
         LIMIT 100
       `))
     ]);
-    lessons = lessonGroups.flat();
-    assignments = assignmentGroups.flat();
+    lessons = visibleLessons;
+    assignments = visibleAssignments;
     submissions = submissionGroups.flat();
   }
 
-  const namesForClassroom = classroomId => [...(classroomChildren.get(classroomId) || new Set())];
   return sendJson(res, 200, {
     ok: true,
     parent: { full_name: identity.guardian.full_name },
@@ -343,8 +365,14 @@ async function handleParent(req, res, identity) {
       is_primary: child.is_primary,
       classroom_count: new Set(enrollments.filter(row => row.learner_id === child.id).map(row => row.classroom_id).filter(Boolean)).size
     })),
-    lessons: lessons.map(lesson => ({ ...lesson, child_names: namesForClassroom(lesson.classroom_id) })),
-    assignments: assignments.map(assignment => ({ ...assignment, child_names: namesForClassroom(assignment.classroom_id) })),
+    lessons: lessons.map(lesson => ({ ...lesson, child_names: childNamesForRecord(lesson) })),
+    assignments: assignments.map(assignment => ({
+      ...assignment,
+      child_names: childNamesForRecord({
+        program_id: assignment.program_id,
+        classroom_id: assignment.lesson_classroom_id
+      })
+    })),
     submissions: submissions.map(({ learner_id, ...submission }) => ({
       ...submission,
       learner_name: childById.get(learner_id)?.full_name || "المتعلم المرتبط بالحساب"
