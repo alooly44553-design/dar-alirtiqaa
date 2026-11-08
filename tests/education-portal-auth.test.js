@@ -109,6 +109,19 @@ try {
     "Student lesson, assignment and submission checks must use paired enrollment rows.");
   assert.ok(portalSource.includes("l.classroom_id = enrollment.classroom_id"),
     "Assignment eligibility must match classroom on the same enrollment row.");
+  const parentStart = portalSource.indexOf("async function handleParent");
+  const parentEnd = portalSource.indexOf("\\nasync function handleSubmissions", parentStart);
+  const parentSource = portalSource.slice(parentStart, parentEnd);
+  assert.ok(parentSource.includes("jsonb_to_recordset"),
+    "Guardian lessons and assignments must be filtered by paired enrollment rows.");
+  assert.ok(parentSource.includes("l.program_id = enrollment.program_id") &&
+    parentSource.includes("l.classroom_id = enrollment.classroom_id"),
+    "Guardian lesson visibility must match both program and classroom on one enrollment.");
+  assert.ok(parentSource.includes("a.classroom_id = enrollment.classroom_id") &&
+    parentSource.includes("a.classroom_id IS NOT DISTINCT FROM l.classroom_id"),
+    "Guardian assignment visibility must match the enrollment classroom and its lesson.");
+  assert.ok(parentSource.includes("WHERE s.learner_id = ${learnerId}::uuid"),
+    "Guardian submissions must remain limited to linked children.");
   assert.ok(!portalSource.includes("program_id = ANY(") && !portalSource.includes("classroom_id = ANY("),
     "Separate program/classroom arrays must not be used for learner authorization.");
 
