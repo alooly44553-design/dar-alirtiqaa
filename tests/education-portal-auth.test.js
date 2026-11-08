@@ -122,20 +122,54 @@ try {
     "Guardian assignment visibility must match the enrollment classroom and its lesson.");
   assert.ok(parentSource.includes("WHERE s.learner_id = ${learnerId}::uuid"),
     "Guardian submissions must remain limited to linked children.");
+  assert.ok(parentSource.includes("JOIN education.school_lessons l ON l.id = a.lesson_id") &&
+    parentSource.includes("enrollment.learner_id = s.learner_id") &&
+    parentSource.includes("l.program_id = enrollment.program_id") &&
+    parentSource.includes("l.classroom_id = enrollment.classroom_id") &&
+    parentSource.includes("a.classroom_id IS NOT DISTINCT FROM l.classroom_id"),
+    "Guardian submissions must match the linked child, their enrollment pair, and the assignment's lesson/classroom.");
+  const studentStart = portalSource.indexOf("async function handleStudent");
+  const studentEnd = portalSource.indexOf("\nasync function handleAiDraft", studentStart);
+  const studentSource = portalSource.slice(studentStart, studentEnd);
+  assert.ok(studentSource.includes("a.classroom_id IS NOT DISTINCT FROM l.classroom_id") &&
+    studentSource.includes("a.classroom_id = enrollment.classroom_id"),
+    "Student assignments must match the classroom on the lesson and the same enrollment row.");
+  const submissionStart = portalSource.indexOf("async function handleSubmissions");
+  const submissionEnd = portalSource.indexOf("\nexport default async function handler", submissionStart);
+  const submissionSource = portalSource.slice(submissionStart, submissionEnd);
+  assert.ok(submissionSource.includes("a.classroom_id IS NOT DISTINCT FROM l.classroom_id") &&
+    submissionSource.includes("a.classroom_id = enrollment.classroom_id"),
+    "Student submissions must be rejected when the assignment classroom is outside the enrollment.");
   assert.ok(!portalSource.includes("program_id = ANY(") && !portalSource.includes("classroom_id = ANY("),
     "Separate program/classroom arrays must not be used for learner authorization.");
 
   const pairedEnrollments = [
-    { program_id: "program-a", classroom_id: "class-a" },
-    { program_id: "program-b", classroom_id: "class-b" }
+    { learner_id: "child-a", program_id: "program-a", classroom_id: "class-a" },
+    { learner_id: "child-a", program_id: "program-b", classroom_id: "class-b" },
+    { learner_id: "child-b", program_id: "program-a", classroom_id: "class-a" }
   ];
-  const matchesPair = (lesson, rows) => rows.some(row =>
-    (!lesson.program_id || row.program_id === lesson.program_id) &&
-    (!lesson.classroom_id || row.classroom_id === lesson.classroom_id)
-  );
-  assert.equal(matchesPair({ program_id: "program-a", classroom_id: "class-a" }, pairedEnrollments), true);
-  assert.equal(matchesPair({ program_id: "program-a", classroom_id: "class-b" }, pairedEnrollments), false,
-    "A cross-paired program/classroom must not be treated as an active enrollment.");
+  const eligible = (assignment, lesson, enrollment) =>
+    (!lesson.program_id || lesson.program_id === enrollment.program_id) &&
+    (!lesson.classroom_id || lesson.classroom_id === enrollment.classroom_id) &&
+    assignment.classroom_id === lesson.classroom_id &&
+    (assignment.classroom_id === null || assignment.classroom_id === enrollment.classroom_id);
+  assert.equal(eligible(
+    { classroom_id: "class-a" }, { program_id: "program-a", classroom_id: "class-a" }, pairedEnrollments[0]
+  ), true, "A matching enrollment must allow its assignment.");
+  assert.equal(eligible(
+    { classroom_id: "class-b" }, { program_id: "program-a", classroom_id: "class-b" }, pairedEnrollments[0]
+  ), false, "A cross-paired program/classroom must not allow an assignment.");
+  assert.equal(eligible(
+    { classroom_id: "class-a" }, { program_id: "program-a", classroom_id: "class-a" }, pairedEnrollments[2]
+  ), true, "A separately linked sibling may see content within their own matching enrollment.");
+  assert.equal(eligible(
+    { classroom_id: "class-c" }, { program_id: "program-c", classroom_id: "class-c" },
+    { learner_id: "child-a", program_id: null, classroom_id: null }
+  ), false, "A learner with no matching enrollment must not qualify.");
+  assert.equal(eligible(
+    { classroom_id: null }, { program_id: null, classroom_id: null },
+    { learner_id: "child-a", program_id: "program-a", classroom_id: "class-a" }
+  ), true, "Null program/classroom references remain valid only for a genuinely unscoped lesson and assignment.");
 
   process.env.DAR_ALIRTIQAA_APP = "education";
   process.env.DATABASE_URL = "postgres://synthetic:synthetic@127.0.0.1:5432/synthetic";
