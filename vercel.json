@@ -29,6 +29,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/education/status",
+      "destination": "/api/education/services?health=1"
+    },
+    {
       "source": "/api/zoom/meetings",
       "destination": "/api/education/portal?resource=zoom-meetings"
     }
