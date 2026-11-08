@@ -7,6 +7,10 @@ export default async function handler(req, res) {
   }
   try {
     const sql = getDatabase("education");
+    if (req.query?.health === "1") {
+      await sql`SELECT 1 AS ok`;
+      return sendJson(res, 200, { ok: true, service: "education-api", database: "connected" });
+    }
     const services = await sql`
       SELECT id, service_code, service_name, service_category, description,
              registration_method, registration_method_label, form_fields,
