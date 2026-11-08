@@ -158,12 +158,14 @@ async function handleStudent(req, res, identity) {
       JOIN education.school_lessons l ON l.id = a.lesson_id
       WHERE a.status = 'published'
         AND l.status = 'published'
+        AND a.classroom_id IS NOT DISTINCT FROM l.classroom_id
         AND EXISTS (
           SELECT 1
           FROM jsonb_to_recordset(${enrollmentScope}::jsonb)
             AS enrollment(program_id uuid, classroom_id uuid)
           WHERE (l.program_id IS NULL OR l.program_id = enrollment.program_id)
             AND (l.classroom_id IS NULL OR l.classroom_id = enrollment.classroom_id)
+            AND (a.classroom_id IS NULL OR a.classroom_id = enrollment.classroom_id)
         )
       ORDER BY a.due_at ASC NULLS LAST, a.created_at DESC
       LIMIT 1000
@@ -346,7 +348,18 @@ async function handleParent(req, res, identity) {
                a.max_score, a.due_at
         FROM education.school_submissions s
         JOIN education.school_assignments a ON a.id = s.assignment_id
+        JOIN education.school_lessons l ON l.id = a.lesson_id
         WHERE s.learner_id = ${learnerId}::uuid
+          AND a.classroom_id IS NOT DISTINCT FROM l.classroom_id
+          AND EXISTS (
+            SELECT 1
+            FROM jsonb_to_recordset(${enrollmentScope}::jsonb)
+              AS enrollment(learner_id uuid, program_id uuid, classroom_id uuid)
+            WHERE enrollment.learner_id = s.learner_id
+              AND (l.program_id IS NULL OR l.program_id = enrollment.program_id)
+              AND (l.classroom_id IS NULL OR l.classroom_id = enrollment.classroom_id)
+              AND (a.classroom_id IS NULL OR a.classroom_id = enrollment.classroom_id)
+          )
         ORDER BY s.submitted_at DESC NULLS LAST, s.created_at DESC
         LIMIT 100
       `))
@@ -407,6 +420,8 @@ async function handleSubmissions(req, res, identity) {
                  AS enrollment(program_id uuid, classroom_id uuid)
                WHERE (l.program_id IS NULL OR l.program_id = enrollment.program_id)
                  AND (l.classroom_id IS NULL OR l.classroom_id = enrollment.classroom_id)
+                 AND a.classroom_id IS NOT DISTINCT FROM l.classroom_id
+                 AND (a.classroom_id IS NULL OR a.classroom_id = enrollment.classroom_id)
              ) AS enrolled
       FROM education.school_assignments a
       JOIN education.school_lessons l ON l.id = a.lesson_id
