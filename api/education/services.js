@@ -8,6 +8,48 @@ export default async function handler(req, res) {
   try {
     const sql = getDatabase("education");
     if (req.query?.health === "1") {
+      const [databaseIdentity] = await sql`
+        SELECT current_database() AS database_name,
+               current_user AS role_name,
+               current_schema() AS current_schema
+      `;
+      const expectedBranch = process.env.EDUCATION_QA_NEON_BRANCH_ID;
+      const expectedDatabase = process.env.EDUCATION_QA_NEON_DATABASE;
+      const expectedRole = process.env.EDUCATION_QA_NEON_ROLE;
+      const expectedHost = process.env.EDUCATION_QA_NEON_ENDPOINT_HOST;
+      if (expectedBranch || expectedDatabase || expectedRole || expectedHost) {
+        let configuredHost = "";
+        try {
+          configuredHost = new URL(process.env.DATABASE_URL || "").hostname;
+        } catch {
+          configuredHost = "";
+        }
+        const verified =
+          Boolean(expectedBranch && expectedDatabase && expectedRole && expectedHost) &&
+          databaseIdentity.database_name === expectedDatabase &&
+          databaseIdentity.role_name === expectedRole &&
+          databaseIdentity.current_schema === "education" &&
+          configuredHost === expectedHost;
+        if (!verified) {
+          return sendJson(res, 503, {
+            ok: false,
+            service: "education-api",
+            error: "DATABASE_IDENTITY_MISMATCH"
+          });
+        }
+        return sendJson(res, 200, {
+          ok: true,
+          service: "education-api",
+          database: "connected",
+          database_identity: {
+            verified: true,
+            database_name: databaseIdentity.database_name,
+            role_name: databaseIdentity.role_name,
+            schema: databaseIdentity.current_schema,
+            neon_branch_id: expectedBranch
+          }
+        });
+      }
       await sql`SELECT 1 AS ok`;
       return sendJson(res, 200, { ok: true, service: "education-api", database: "connected" });
     }
