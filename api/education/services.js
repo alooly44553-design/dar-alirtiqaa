@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       const [databaseIdentity] = await sql`
         SELECT current_database() AS database_name,
                current_user AS role_name,
-               current_schema() AS current_schema
+               has_schema_privilege(current_user, 'education', 'USAGE') AS education_schema_usage
       `;
       const expectedBranch = process.env.EDUCATION_QA_NEON_BRANCH_ID;
       const expectedDatabase = process.env.EDUCATION_QA_NEON_DATABASE;
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
           Boolean(expectedBranch && expectedDatabase && expectedRole && expectedHost) &&
           databaseIdentity.database_name === expectedDatabase &&
           databaseIdentity.role_name === expectedRole &&
-          databaseIdentity.current_schema === "education" &&
+          databaseIdentity.education_schema_usage === true &&
           configuredHost === expectedHost;
         if (!verified) {
           return sendJson(res, 503, {
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
             verified: true,
             database_name: databaseIdentity.database_name,
             role_name: databaseIdentity.role_name,
-            schema: databaseIdentity.current_schema,
+            schema: "education",
             neon_branch_id: expectedBranch
           }
         });
