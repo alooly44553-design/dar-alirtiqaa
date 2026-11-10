@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       return sendJson(res, 400, { error: "INVALID_SERVICE" });
     }
 
-    const sql = getDatabase("education");
+    const sql = getDatabase("education", { app_role: "public_service_request" });
     const found = await sql`
       SELECT id, service_code, service_name, form_fields, consent_text
       FROM education.service_catalog
