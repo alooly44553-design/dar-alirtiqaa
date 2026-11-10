@@ -4,12 +4,12 @@ const config: CapacitorConfig = {
   appId: 'com.daralirtiqaa.app',
   appName: 'منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية',
   webDir: 'www',
-  // This Android wrapper is intentionally online-connected so the hosted API routes,
-  // authentication flows, and live student/teacher portals share the production origin.
+  // QA-only Android artifact for PR #111. Do not use the production origin here.
+  // The branch alias keeps the installed test client pointed at the QA Preview.
   server: {
-    url: 'https://alirtiqaa-educational-platform.vercel.app',
+    url: 'https://alirtiqaa-educational-platform-git-secu-98cfdd-alooly44553-7281.vercel.app',
     cleartext: false,
-    allowNavigation: ['alirtiqaa-educational-platform.vercel.app'],
+    allowNavigation: ['alirtiqaa-educational-platform-git-secu-98cfdd-alooly44553-7281.vercel.app'],
   },
 };
 
