@@ -3,7 +3,7 @@ name: Android APK
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, security/education-role-scope-tests-2026-11-05]
   workflow_dispatch:
 
 jobs:
