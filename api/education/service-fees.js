@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     if (!/^[0-9a-f-]{36}$/i.test(serviceId)) {
       return sendJson(res, 400, { error: "INVALID_SERVICE_ID" });
     }
-    const sql = getDatabase("education");
+    const sql = getDatabase("education", { app_role: "public_catalog" });
     const found = await sql`SELECT service_code FROM education.service_catalog WHERE id = ${serviceId}::uuid AND is_active = true LIMIT 1`;
     if (!found.length) return sendJson(res, 404, { error: "SERVICE_NOT_FOUND" });
     return sendJson(res, 200, { ok: true, fees: approvedFees(found[0].service_code) });
