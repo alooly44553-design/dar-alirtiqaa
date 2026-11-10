@@ -15,7 +15,7 @@ function requireUuid(value) {
 
 async function handleTeacher(req, res, identity) {
   if (!identity.staff) return sendJson(res, 403, { error: "TEACHER_PROFILE_REQUIRED" });
-  const sql = getDatabase("education");
+  const sql = getDatabase("education", { app_role: "teacher", sub: identity.user.id, staff_id: identity.staff.id });
 
   if (req.method === "GET") {
     const [lessons, submissions] = await Promise.all([
@@ -103,7 +103,7 @@ async function handleAssignments(req, res, identity) {
     dueAt = parsed.toISOString();
   }
 
-  const sql = getDatabase("education");
+  const sql = getDatabase("education", { app_role: "teacher", sub: identity.user.id, staff_id: identity.staff.id });
   const lessons = await sql`
     SELECT id, classroom_id, subject_id, status
     FROM education.school_lessons
@@ -131,10 +131,20 @@ async function handleAssignments(req, res, identity) {
 async function handleStudent(req, res, identity) {
   if (!identity.learner || identity.staff) return sendJson(res, 403, { error: "LEARNER_PROFILE_REQUIRED" });
   const enrollmentScope = JSON.stringify(identity.enrollments.map(row => ({
+    learner_id: identity.learner.id,
     program_id: row.program_id || null,
     classroom_id: row.classroom_id || null
   })));
-  const sql = getDatabase("education");
+  const sql = getDatabase("education", {
+    app_role: "student",
+    sub: identity.user.id,
+    learner_id: identity.learner.id,
+    enrollments: identity.enrollments.map(row => ({
+      learner_id: identity.learner.id,
+      program_id: row.program_id || null,
+      classroom_id: row.classroom_id || null
+    }))
+  });
   // Match program and classroom on the SAME enrollment row. Separate UUID
   // arrays create a cross-product and can expose content from another class.
   const [visibleLessons, visibleAssignments] = await Promise.all([
@@ -202,7 +212,7 @@ async function handleAiDraft(req, res, identity) {
   const rateKey = "teacher-ai:" + identity.user.id;
   let rateCount;
   try {
-    const sql = getDatabase("education");
+    const sql = getDatabase("education", { app_role: "teacher_ai", sub: identity.user.id, chat_id: rateKey });
     const rows = await sql`
       INSERT INTO education.telegram_conversations
         (chat_id, history, rate_window_started_at, rate_count, updated_at)
@@ -305,7 +315,7 @@ async function handleParent(req, res, identity) {
   let assignments = [];
   let submissions = [];
   if (enrollments.length || childIds.length) {
-    const sql = getDatabase("education");
+    const sql = getDatabase("education", { app_role: "guardian", sub: identity.user.id, guardian_id: identity.guardian.id, learner_ids: childIds, enrollments: enrollments.map(row => ({ learner_id: row.learner_id, program_id: row.program_id || null, classroom_id: row.classroom_id || null })) });
     const [visibleLessons, visibleAssignments, submissionGroups] = await Promise.all([
       sql`
         SELECT l.id, l.title, l.explanation, l.objectives, l.scheduled_for,
@@ -396,8 +406,23 @@ async function handleParent(req, res, identity) {
 }
 
 async function handleSubmissions(req, res, identity) {
-  const sql = getDatabase("education");
   const body = req.body && typeof req.body === "object" ? req.body : {};
+  const sql = getDatabase("education", req.method === "POST"
+    ? {
+        app_role: "student",
+        sub: identity.user.id,
+        learner_id: identity.learner?.id || null,
+        enrollments: (identity.enrollments || []).map(row => ({
+          learner_id: identity.learner?.id || null,
+          program_id: row.program_id || null,
+          classroom_id: row.classroom_id || null
+        }))
+      }
+    : {
+        app_role: "teacher",
+        sub: identity.user.id,
+        staff_id: identity.staff?.id || null
+      });
 
   if (req.method === "POST") {
     if (!identity.learner || identity.staff) return sendJson(res, 403, { error: "LEARNER_PROFILE_REQUIRED" });
