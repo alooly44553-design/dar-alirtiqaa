@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return sendJson(res, 405, { error: "METHOD_NOT_ALLOWED" });
   }
   try {
-    const sql = getDatabase("education");
+    const sql = getDatabase("education", { app_role: req.query?.health === "1" ? "health_check" : "public_catalog" });
     if (req.query?.health === "1") {
       const [databaseIdentity] = await sql`
         SELECT current_database() AS database_name,
