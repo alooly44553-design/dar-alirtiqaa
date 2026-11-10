@@ -82,7 +82,7 @@ export default async function handler(req, res) {
     }
     const submittedNotes = cleanText(body.notes, 1000);
     const registrationNumber = "EDU-" + Date.now().toString(36).toUpperCase() + "-" + crypto.randomUUID().slice(0, 6).toUpperCase();
-    const sql = getDatabase("education");
+    const sql = getDatabase("education", { app_role: "public_registration" });
     const rows = await sql`
       INSERT INTO education.student_registrations
         (registration_number, student_name, full_name, gender, date_of_birth, nationality,
