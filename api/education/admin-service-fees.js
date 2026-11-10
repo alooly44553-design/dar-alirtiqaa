@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     const user = await adminUser(req);
     if (!user) return sendJson(res, 401, { error: "ADMIN_AUTH_REQUIRED" });
 
-    const sql = getDatabase("education");
+    const sql = getDatabase("education", { app_role: "admin", sub: user.id });
     const [services, fees] = await Promise.all([
       sql`
         SELECT id, service_code, service_name, registration_method_label, display_order
