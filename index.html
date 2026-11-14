@@ -180,7 +180,7 @@ function commonFields(isStudent){
  ];
 }
 function renderForm(service){
- $("service-form-title").textContent=(service.service_code==="university_guidance"?"التعليم الجامعي والدراسات العليا":service.service_name)+" — "+service.registration_method_label;
+ $("service-form-title").textContent=(service.service_code==="university_guidance"?"فتح حزمة التعليم الجامعي والدراسات العليا":service.service_name)+" — "+service.registration_method_label;
  $("service-form-description").textContent=service.description||"أدخل البيانات بدقة؛ الطلبات تُراجع من الإدارة.";
  const consentText=service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.";
  const mergedFields=new Map(commonFields(service.service_code==="student_registration").map(f=>[f.key,f]));
@@ -188,6 +188,13 @@ function renderForm(service){
   if(!f||typeof f.key!=="string")return;
   mergedFields.set(f.key,{...(mergedFields.get(f.key)||{}),...f});
  });
+ if(service.service_code==="activity_join"){
+  mergedFields.set("path_count",{key:"path_count",type:"select",label:"عدد المسارات في الباقة",required:true,options:[{label:"ثلاثة مسارات — 150 ريالًا شهريًا",value:"3"},{label:"خمسة مسارات — 200 ريال شهريًا",value:"5"}]});
+ }
+ if(service.service_code==="course_registration"){
+  mergedFields.set("training_type",{key:"training_type",type:"select",label:"نوع التدريب",required:true,options:[{label:"تدريب مهني",value:"professional"},{label:"تدريب تقني",value:"technical"}]});
+  mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة التدريبية",required:true,options:[{label:"الفصل التدريبي",value:"term"},{label:"السنة التدريبية",value:"annual"}]});
+ }
  if(service.service_code==="student_registration"){
   mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للطالب في المنظومة؟",required:true,options:[{label:"لا، تسجيل أول مرة",value:"no"},{label:"نعم، يوجد ملف سابق",value:"yes"}]});
  }
@@ -301,9 +308,9 @@ async function loadFees(serviceId, serviceCode){
   if(field("has_existing_file")==="no")rows.push(["فتح الملف والتسجيل",100,"مرة واحدة للمستجدين فقط"]);
   if(stage==="early_childhood"){
    rows.push(["رسوم الزي والكتب",100,"سنويًا"]);
-   if(grade){const nursery=["الحضانة","تمهيدي 1 KG1"].includes(grade);rows.push(["الرسوم الدراسية — "+grade,period==="term"?(nursery?1050:900):(nursery?2100:1800),period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
+   if(grade){const kindergarten=grade==="الحضانة";const amount=kindergarten?(period==="term"?1050:2100):(period==="term"?900:1800);rows.push(["الرسوم الدراسية — "+(kindergarten?"رياض الأطفال":grade),amount,period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
   }else{
-   const fees={primary:{term:750,annual:1500},middle:{term:900,annual:1800},secondary:{term:1050,annual:2100}};
+   const fees={primary:{term:600,annual:1200},middle:{term:750,annual:1500},secondary:{term:1000,annual:2000}};
    if(fees[stage]&&grade){
     const gradeThree=stage==="secondary"&&grade==="الثالث الثانوي";
     const amount=gradeThree?(period==="term"?1500:3000):(fees[stage][period]||fees[stage].annual);
@@ -312,16 +319,21 @@ async function loadFees(serviceId, serviceCode){
    }
   }
  }else if(serviceCode==="university_guidance"){
-  if(field("has_existing_file")==="no")rows.push(["فتح الملف",100,"مرة واحدة للمستجدين فقط"]);
-  rows.push(["تحديد المستوى",200,"حسب الحاجة فقط"],["معادلة الشهادة أو الأعمار",200,"حسب الحاجة فقط"]);
+  if(field("has_existing_file")==="no")rows.push(["فتح الملف والتسجيل",200,"مرة واحدة للمستجدين فقط"]);
+  rows.push(["تحديد المستوى أو معادلة الشهادة",300,"حسب الحاجة — لا تُجمع الخدمتان"]);
   const degree=field("degree_level"),period=field("tuition_period")||"annual";
-  if(degree){const graduate=["masters","doctorate","postgraduate_studies","other_graduate"].includes(degree);rows.push([graduate?"الدراسات العليا والماجستير":"الدبلوم والدبلوم العالي والبكالوريوس",graduate?(period==="term"?1000:3000):(period==="term"?900:2700),period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
+  if(degree){const graduate=["masters","doctorate","postgraduate_studies","other_graduate"].includes(degree);rows.push([graduate?"التعليم العالي والدراسات العليا":"البرامج الجامعية والأكاديمية",graduate?(period==="term"?1500:3000):(period==="term"?1400:2800),period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
  }else if(serviceCode==="activity_join"){
-  if(field("has_existing_file")==="no")rows.push(["فتح الملف",50,"مرة واحدة للمستفيد الجديد فقط"],["الاشتراك في المركز التعليمي",150,"شهريًا"]);
-  else if(field("has_existing_file")==="yes")rows.push(["الاشتراك في المركز التعليمي",150,"شهريًا"]);
- }else if(["program_application","course_registration"].includes(serviceCode)){
-  if(field("has_existing_file")==="no")rows.push(["فتح الملف",50,"مرة واحدة للمستفيد"],["الاشتراك التعليمي أو التدريبي",150,"شهريًا"]);
-  else if(field("has_existing_file")==="yes")rows.push(["الاشتراك التعليمي أو التدريبي",150,"شهريًا"]);
+  if(field("has_existing_file")==="no")rows.push(["فتح الملف والتسجيل",50,"مرة واحدة للمستفيد الجديد فقط"]);
+  const count=field("path_count")||"3";
+  rows.push([count==="5"?"خمسة مسارات":"ثلاثة مسارات",count==="5"?200:150,"شهريًا"]);
+ }else if(serviceCode==="course_registration"){
+  if(field("has_existing_file")==="no")rows.push(["فتح الملف والتسجيل",200,"مرة واحدة للمستفيد الجديد فقط"]);
+  const training=field("training_type"),period=field("tuition_period")||"annual";
+  if(training){const professional=training==="professional";rows.push([professional?"التدريب المهني":"التدريب التقني",professional?(period==="term"?1000:2000):(period==="term"?1200:2400),period==="term"?"للفصل التدريبي":"للسنة التدريبية"]);}
+ }else if(serviceCode==="program_application"){
+  if(field("has_existing_file")==="no")rows.push(["فتح الملف والتسجيل",50,"مرة واحدة للمستفيد الجديد فقط"]);
+  rows.push(["الاشتراك الأساسي",150,"شهريًا"]);
  }
  box.innerHTML="<strong>الرسوم المعتمدة</strong>"+(rows.length?rows.map(x=>'<div class="fee-row"><span>'+esc(x[0])+'<small style="display:block;color:var(--muted)">'+esc(x[2])+'</small></span><strong>'+money(x[1])+'</strong></div>').join(""):"<div style='color:var(--muted);margin-top:5px'>لا توجد رسوم معتمدة لهذا الاختيار.</div>")+"<small style='display:block;color:var(--muted);margin-top:8px'>لا تُعرض أو تُحصّل أي رسوم أخرى غير البنود المعتمدة.</small>";
 }
