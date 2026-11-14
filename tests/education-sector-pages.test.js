@@ -22,7 +22,7 @@ for (const page of pages) {
   assert.doesNotMatch(html, /التوجيه الجامعي والقبول|فتح مجال التعليم الجامعي/, page + " must use the approved higher-education naming");
   assert.doesNotMatch(html, /دار الارتقاء الفكري العالمية|دار الإرتقاء الفكري العالمية/, page + " must use the education identity");
   assert.doesNotMatch(html, /رسوم إضافية غير معتمدة|رسوم قبول إضافية|رسوم عمومية غير معتمدة/, page + " must not advertise unapproved fees");
-  const serviceByPage = { "early-learning.html":"student_registration", "general-education.html":"student_registration", "higher-education.html":"university_guidance", "vocational-training.html":"course_registration", "international-education.html":"student_registration" };
+  const serviceByPage = { "early-learning.html":"early_childhood_registration", "general-education.html":"general_education_registration", "higher-education.html":"university_guidance", "vocational-training.html":"course_registration", "international-education.html":"general_education_registration" };
   const expectedService = serviceByPage[page] || "activity_join";
   assert.match(html, new RegExp("service=" + expectedService), page + " must route to its approved registration service");
 }
@@ -44,8 +44,8 @@ assert.match(packages, /id="approved-fees"/, "the packages hub must show the app
 assert.match(packages, /id="curriculum-reference"/, "the packages hub must expose curriculum selection before registration");
 assert.match(packages, /مرجع المنهج وإصداره والمرحلة والمستوى/, "the packages hub must describe the curriculum metadata");
 assert.doesNotMatch(packages, /<h3>🌐 التعليم الدولي<\/h3>/, "international curricula must remain a reference choice, not a separate track");
-assert.match(packages, /service=student_registration[^"]*الطفولة|service=student_registration/, "early and general education packages must use student registration");
-assert.match(packages, /service=student_registration/, "early and general packages must use student registration");
+assert.match(packages, /service=early_childhood_registration/, "early-childhood package must use its dedicated form");
+assert.match(packages, /service=general_education_registration/, "general education package must use its dedicated form");
 assert.match(packages, /service=university_guidance/, "higher-education package must use the university application service");
 assert.match(packages, /service=course_registration/, "vocational package must use the vocational course service");
 assert.match(packages, /service=activity_join/, "the fifth-field pathways must use pathway registration");
