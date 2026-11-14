@@ -24,7 +24,7 @@ for (const amount of [
 for (const text of [
   "مرجع المنهج التعليمي", "curriculum_reference", "curriculum_country",
   "الفصل الدراسي", "السنة الدراسية", "عدد دفعات الفصل الدراسي",
-  "فتح الملف والتسجيل", "الاشتراك التعليمي أو التدريبي",
+  "فتح الملف والتسجيل", "التدريب المهني", "ثلاثة مسارات", "خمسة مسارات",
   "فتح حزمة التعليم الجامعي والدراسات العليا"
 ]) assert(home.includes(text) || higher.includes(text), "Missing unified form requirement: " + text);
 
