@@ -79,7 +79,7 @@ assert.match(home, /curriculumReferenceOptions/);
 assert.match(home, /curriculum_reference_other/);
 assert.match(requestApi, /curriculumReferenceOther/u);
 
-assert.match(home, /href="education-packages\.html">استعراض المجال/u);
+assert.match(home, /href="education-packages\.html#pathways">استعراض المجال/u);
 assert.match(home, /serviceCode==="early_childhood_registration"/u);
 assert.match(home, /serviceCode==="general_education_registration"/u);
 assert.match(requestApi, /INVALID_STUDENT_AGE/u);
