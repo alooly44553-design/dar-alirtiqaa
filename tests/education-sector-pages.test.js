@@ -55,6 +55,7 @@ assert.match(packages, /لا توجد رسوم إضافية أو عمومية/, 
 const index = fs.readFileSync("index.html", "utf8");
 assert.match(index, /label:"مرجع المنهج التعليمي"/, "the unified registration form must include curriculum reference selection");
 assert.match(index, /label:"الدولة أو النظام التعليمي"/, "the unified registration form must capture the country or education system");
-assert.match(index, /label:"اسم المنهج أو مرجعه التعليمي"/, "the unified registration form must capture the curriculum reference");
+assert.match(index, /key:"curriculum_reference",type:"select",label:"مرجع المنهج أو الإطار التعليمي"/, "each registration form must present a domain-specific curriculum reference selector");
+assert.match(index, /curriculumReferenceOptions/, "registration forms must provide appropriate curriculum references for the five fields");
 
 console.log("PASS: " + pages.length + " education and professional sector pages, unified package fees, and curriculum fields.");
