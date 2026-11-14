@@ -404,7 +404,9 @@ $("serviceForm").addEventListener("submit",async e=>{
     INVALID_SERVICE_FIELDS:"يرجى مراجعة الحقول المطلوبة والتأكد من صحتها.",
     INVALID_EMAIL:"تحقق من صيغة البريد الإلكتروني.",
     INVALID_PHONE:"تحقق من صيغة رقم الهاتف.",
-    INVALID_CONTACT:"أدخل رقم هاتف أو بريدًا إلكترونيًا للتواصل معك."
+    INVALID_CONTACT:"أدخل رقم هاتف أو بريدًا إلكترونيًا للتواصل معك.",
+    INVALID_STUDENT_AGE:"تاريخ الميلاد لا يتوافق مع الفئة العمرية لهذا المجال.",
+    GUARDIAN_REQUIRED:"يجب إدخال بيانات ولي الأمر للطلاب دون 18 عامًا."
    })[result.error]||"تعذر إرسال الطلب. حاول مرة أخرى.");
    requestNumber=result.request?.request_number||"";
   }
