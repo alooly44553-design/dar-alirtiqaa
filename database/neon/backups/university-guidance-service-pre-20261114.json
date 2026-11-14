@@ -1,0 +1,343 @@
+{
+  "source": "Neon QA branch br-late-dawn-azs3g3i2 / education.service_catalog",
+  "captured_at": "2026-11-14",
+  "record": {
+    "id": "eef8d730-709e-493e-bdf5-99905a5c500e",
+    "is_active": true,
+    "created_at": "2026-10-04T03:27:29.805229+00:00",
+    "updated_at": "2026-11-03T02:39:57.413844+00:00",
+    "description": "طلب الالتحاق ببرامج التعليم والتدريس المباشر والمحدّث في التخصصات الجامعية والدراسات العليا، وفق البرامج المتاحة.",
+    "form_fields": [
+      {
+        "key": "applicant_name",
+        "type": "text",
+        "label": "اسم المتقدم",
+        "required": true
+      },
+      {
+        "key": "applicant_phone",
+        "type": "tel",
+        "label": "رقم التواصل",
+        "required": true
+      },
+      {
+        "key": "applicant_email",
+        "type": "email",
+        "label": "البريد الإلكتروني"
+      },
+      {
+        "key": "country_interest",
+        "type": "text",
+        "label": "الدولة المرغوبة",
+        "required": true
+      },
+      {
+        "key": "academic_system",
+        "type": "text",
+        "label": "النظام الأكاديمي"
+      },
+      {
+        "key": "degree_level",
+        "type": "select",
+        "label": "الدرجة المطلوبة",
+        "options": [
+          {
+            "label": "دبلوم",
+            "value": "diploma"
+          },
+          {
+            "label": "بكالوريوس",
+            "value": "bachelor"
+          },
+          {
+            "label": "دبلوم عالٍ",
+            "value": "higher_diploma"
+          },
+          {
+            "label": "ماجستير",
+            "value": "masters"
+          },
+          {
+            "label": "دكتوراه",
+            "value": "doctorate"
+          },
+          {
+            "label": "دراسات عليا أخرى",
+            "value": "other_graduate"
+          }
+        ]
+      },
+      {
+        "key": "specialty_interest",
+        "type": "select",
+        "label": "التخصص المرغوب",
+        "options": [
+          {
+            "label": "الطب البشري",
+            "value": "medicine"
+          },
+          {
+            "label": "طب الأسنان",
+            "value": "dentistry"
+          },
+          {
+            "label": "الصيدلة",
+            "value": "pharmacy"
+          },
+          {
+            "label": "التمريض والعلوم الصحية",
+            "value": "nursing_health"
+          },
+          {
+            "label": "المختبرات والأشعة والعلاج الطبيعي",
+            "value": "allied_health"
+          },
+          {
+            "label": "الصحة العامة والتغذية",
+            "value": "public_health_nutrition"
+          },
+          {
+            "label": "الهندسة المدنية",
+            "value": "civil_engineering"
+          },
+          {
+            "label": "الهندسة المعمارية",
+            "value": "architecture"
+          },
+          {
+            "label": "الهندسة الكهربائية والإلكترونية",
+            "value": "electrical_electronics"
+          },
+          {
+            "label": "الهندسة الميكانيكية والصناعية",
+            "value": "mechanical_industrial"
+          },
+          {
+            "label": "هندسة الحاسب والشبكات",
+            "value": "computer_network_engineering"
+          },
+          {
+            "label": "علوم الحاسب والبرمجة",
+            "value": "computer_science"
+          },
+          {
+            "label": "تقنية المعلومات والأمن السيبراني",
+            "value": "it_cybersecurity"
+          },
+          {
+            "label": "الذكاء الاصطناعي وعلوم البيانات",
+            "value": "ai_data_science"
+          },
+          {
+            "label": "نظم المعلومات",
+            "value": "information_systems"
+          },
+          {
+            "label": "الرياضيات والإحصاء",
+            "value": "math_statistics"
+          },
+          {
+            "label": "الفيزياء والكيمياء والأحياء",
+            "value": "natural_sciences"
+          },
+          {
+            "label": "العلوم البيئية والزراعية",
+            "value": "environment_agriculture"
+          },
+          {
+            "label": "إدارة الأعمال",
+            "value": "business_admin"
+          },
+          {
+            "label": "المحاسبة والمالية",
+            "value": "accounting_finance"
+          },
+          {
+            "label": "الاقتصاد والتجارة",
+            "value": "economics_commerce"
+          },
+          {
+            "label": "التسويق والعلاقات العامة",
+            "value": "marketing_pr"
+          },
+          {
+            "label": "الموارد البشرية والإدارة العامة",
+            "value": "hr_public_admin"
+          },
+          {
+            "label": "القانون والأنظمة",
+            "value": "law"
+          },
+          {
+            "label": "الشريعة والدراسات الإسلامية",
+            "value": "islamic_studies"
+          },
+          {
+            "label": "اللغة العربية وآدابها",
+            "value": "arabic_literature"
+          },
+          {
+            "label": "اللغات والترجمة",
+            "value": "languages_translation"
+          },
+          {
+            "label": "التاريخ والجغرافيا",
+            "value": "history_geography"
+          },
+          {
+            "label": "علم النفس والخدمة الاجتماعية",
+            "value": "psychology_social_work"
+          },
+          {
+            "label": "الإعلام والصحافة والاتصال",
+            "value": "media_communication"
+          },
+          {
+            "label": "التربية والمناهج وطرق التدريس",
+            "value": "education_curriculum"
+          },
+          {
+            "label": "رياض الأطفال والتربية الخاصة",
+            "value": "early_childhood_special_ed"
+          },
+          {
+            "label": "التصميم والفنون الجميلة",
+            "value": "design_fine_arts"
+          },
+          {
+            "label": "السياحة والفندقة",
+            "value": "tourism_hospitality"
+          },
+          {
+            "label": "اللوجستيات وسلاسل الإمداد",
+            "value": "logistics_supply_chain"
+          },
+          {
+            "label": "التخصصات العسكرية والأمنية",
+            "value": "military_security"
+          },
+          {
+            "label": "الدبلومات المهنية والتطبيقية",
+            "value": "professional_diplomas"
+          },
+          {
+            "label": "الدراسات العليا والبحث العلمي",
+            "value": "graduate_research"
+          },
+          {
+            "label": "تخصص آخر غير مدرج",
+            "value": "other"
+          }
+        ]
+      },
+      {
+        "key": "budget_range",
+        "type": "text",
+        "label": "الميزانية التقريبية"
+      },
+      {
+        "key": "notes",
+        "type": "textarea",
+        "label": "الأسئلة أو الاحتياج"
+      },
+      {
+        "key": "identity_type",
+        "type": "select",
+        "label": "نوع الهوية أو الوثيقة",
+        "options": [
+          {
+            "label": "هوية وطنية",
+            "value": "national_id"
+          },
+          {
+            "label": "هوية مقيم",
+            "value": "resident_id"
+          },
+          {
+            "label": "هوية زائر",
+            "value": "visitor_id"
+          },
+          {
+            "label": "زيارة عائلية",
+            "value": "family_visit"
+          },
+          {
+            "label": "حج أو عمرة",
+            "value": "hajj_umrah"
+          },
+          {
+            "label": "وثيقة",
+            "value": "document"
+          },
+          {
+            "label": "مشهد",
+            "value": "official_letter"
+          },
+          {
+            "label": "أخرى",
+            "value": "other"
+          },
+          {
+            "label": "لا يوجد",
+            "value": "none"
+          }
+        ],
+        "required": false
+      },
+      {
+        "key": "identity_number",
+        "type": "text",
+        "label": "رقم الهوية أو الوثيقة (اختياري)",
+        "required": false
+      },
+      {
+        "key": "study_period",
+        "type": "select",
+        "label": "فترة تقديم الخدمة عن بُعد",
+        "options": [
+          {
+            "label": "صباحية عن بُعد",
+            "value": "online_morning"
+          },
+          {
+            "label": "مسائية عن بُعد",
+            "value": "online_evening"
+          },
+          {
+            "label": "مرنة عن بُعد",
+            "value": "online_flexible"
+          },
+          {
+            "label": "تعلم ذاتي إلكتروني غير متزامن",
+            "value": "online_asynchronous"
+          }
+        ],
+        "required": true
+      },
+      {
+        "key": "has_existing_file",
+        "type": "select",
+        "label": "هل لديك ملف سابق لدى المركز؟",
+        "options": [
+          {
+            "label": "نعم، لدي ملف سابق",
+            "value": "yes"
+          },
+          {
+            "label": "لا، لا يوجد ملف سابق",
+            "value": "no"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "consent_text": "أوافق على استخدام البيانات لتقديم خدمة التوجيه والمراجعة والتواصل.",
+    "service_code": "university_guidance",
+    "service_name": "التعليم الجامعي والدراسات العليا",
+    "display_order": 7,
+    "service_category": "التعليم الجامعي والدراسات العليا",
+    "registration_method": "guided_application",
+    "registration_method_label": "طلب توجيه جامعي",
+    "requires_management_review": true
+  }
+}
