@@ -25,6 +25,18 @@ for (const page of pages) {
   assert.doesNotMatch(html, /service=program_application|service=university_guidance/, page + " must use unified student registration");
 }
 
+const homepage = fs.readFileSync("index.html", "utf8");
+const pathwaysStart = homepage.indexOf('<section id="pathways" class="section">');
+const pathwaysEnd = homepage.indexOf('<section id="curriculum-model"', pathwaysStart);
+assert.ok(pathwaysStart >= 0 && pathwaysEnd > pathwaysStart, "homepage must contain the approved pathways section");
+const pathways = homepage.slice(pathwaysStart, pathwaysEnd);
+assert.equal((pathways.match(/<div class="path">/g) || []).length, 5, "homepage must show only the four core domains and the fifth advancement-pathways domain");
+assert.match(pathways, /مسارات الإرتقاء التعليمية والتربوية والمهارية/, "homepage must include the approved fifth domain");
+assert.doesNotMatch(pathways, /القرآن والإسلامية|التقوية والعربية والتأهيل|الإرشاد الأكاديمي|التعليم الدولي/, "additional services and curriculum choices must not appear as separately numbered or standalone homepage domains");
+assert.doesNotMatch(pathways, /(?:^|[>\\s])(?:[0-9]+|[٠-٩]+)[.)、-]\\s*/m, "homepage domain cards must not be numbered");
+assert.match(homepage, /منظومة دار الإرتقاء الفكري التعليمية/, "homepage must use the approved education identity");
+assert.doesNotMatch(homepage, /منظومة مدارس(?:\\s*\/\\s*مراكز| ومراكز) دار الإرتقاء الفكري التعليمية/, "old education identity must not remain on the homepage");
+
 const packages = fs.readFileSync("education-packages.html", "utf8");
 assert.match(packages, /id="approved-fees"/, "the packages hub must show the approved fee schedule");
 assert.match(packages, /id="curriculum-reference"/, "the packages hub must expose curriculum selection before registration");
