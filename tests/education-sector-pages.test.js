@@ -23,6 +23,7 @@ for (const page of pages) {
   assert.doesNotMatch(html, /دار الارتقاء الفكري العالمية|دار الإرتقاء الفكري العالمية/, page + " must use the education identity");
   assert.doesNotMatch(html, /رسوم إضافية غير معتمدة|رسوم قبول إضافية|رسوم عمومية غير معتمدة/, page + " must not advertise unapproved fees");
   const serviceByPage = { "early-learning.html":"early_childhood_registration", "general-education.html":"general_education_registration", "higher-education.html":"university_guidance", "vocational-training.html":"course_registration", "international-education.html":"general_education_registration" };
+  assert.doesNotMatch(html, /service=student_registration/, page + " must not route to the disabled legacy unified registration form");
   const expectedService = serviceByPage[page] || "activity_join";
   assert.match(html, new RegExp("service=" + expectedService), page + " must route to its approved registration service");
 }
