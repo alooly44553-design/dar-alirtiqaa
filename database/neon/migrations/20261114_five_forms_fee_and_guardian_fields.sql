@@ -23,4 +23,11 @@ SET form_fields = (
 ),
 updated_at=now()
 WHERE service_code='general_education_registration';
+
+UPDATE education.service_catalog
+SET form_fields = form_fields || '[{"key":"has_existing_file","type":"select","label":"هل سبق فتح ملف للطالب؟","required":true,"options":[{"label":"لا، تسجيل أول مرة","value":"no"},{"label":"نعم، يوجد ملف سابق","value":"yes"}]}]'::jsonb,
+updated_at=now()
+WHERE service_code IN ('early_childhood_registration','general_education_registration')
+AND NOT (form_fields @> '[{"key":"has_existing_file"}]'::jsonb);
+
 COMMIT;
