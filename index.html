@@ -198,10 +198,18 @@ function renderForm(service){
  if(service.service_code==="student_registration"){
   mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للطالب في المنظومة؟",required:true,options:[{label:"لا، تسجيل أول مرة",value:"no"},{label:"نعم، يوجد ملف سابق",value:"yes"}]});
  }
- [
+ const curriculumReferenceOptions={
+   early_childhood_registration:[{label:"المنهج السعودي لرياض الأطفال",value:"saudi_early_childhood"},{label:"منهج مونتيسوري",value:"montessori"},{label:"منهج ريجيو إميليا",value:"reggio_emilia"},{label:"منهج هاي سكوب",value:"high_scope"},{label:"التعلم القائم على اللعب والاستكشاف",value:"play_based_learning"},{label:"مرجع آخر",value:"other"}],
+   general_education_registration:[{label:"المنهج السعودي",value:"saudi_curriculum"},{label:"المنهج اليمني",value:"yemeni_curriculum"},{label:"المنهج المصري",value:"egyptian_curriculum"},{label:"المنهج الأردني",value:"jordanian_curriculum"},{label:"إطار كامبردج / البكالوريا الدولية بحسب الإتاحة",value:"cambridge_ib_framework"},{label:"مرجع آخر",value:"other"}],
+   university_guidance:[{label:"الخطة الدراسية المنشورة للجامعة أو الجهة",value:"institution_study_plan"},{label:"الإطار الوطني للمؤهلات",value:"national_qualifications_framework"},{label:"نظام الساعات الأوروبي ECTS",value:"ects_framework"},{label:"إطار الساعات الأكاديمية البريطاني",value:"uk_credit_framework"},{label:"نظام الساعات المعتمدة الأمريكي",value:"us_credit_hours"},{label:"مرجع آخر",value:"other"}],
+   course_registration:[{label:"المعايير المهنية الوطنية",value:"national_occupational_standards"},{label:"التدريب القائم على الكفايات TVET",value:"competency_based_tvet"},{label:"إطار BTEC المهني",value:"btec_framework"},{label:"معايير City & Guilds",value:"city_guilds_standards"},{label:"معايير تقنية مهنية من الجهة المزودة",value:"vendor_technical_standards"},{label:"مرجع آخر",value:"other"}],
+   activity_join:[{label:"إطار التعلم مدى الحياة",value:"lifelong_learning_framework"},{label:"إطار المهارات الحياتية والاجتماعية",value:"life_social_skills_framework"},{label:"إطار الريادة والقيادة",value:"entrepreneurship_leadership_framework"},{label:"إطار التربية الفنية والإبداع",value:"arts_creativity_framework"},{label:"إطار الأنشطة الرياضية والترفيهية",value:"sports_recreation_framework"},{label:"مرجع آخر",value:"other"}]
+  };
+  [
    {key:"curriculum_track",type:"select",label:"مرجع المنهج التعليمي",required:true,options:[{label:"المنهج السعودي",value:"saudi_curriculum"},{label:"منهج دولة أخرى / منهج دولي",value:"multi_country_curriculum"}]},
    {key:"curriculum_country",type:"text",label:"الدولة أو النظام التعليمي",required:false},
-   {key:"curriculum_reference",type:"text",label:"اسم المنهج أو مرجعه التعليمي",required:true}
+   {key:"curriculum_reference",type:"select",label:"مرجع المنهج أو الإطار التعليمي",required:true,options:curriculumReferenceOptions[service.service_code]||[{label:"مرجع المنهج أو الخطة المعتمدة لدى الجهة",value:"institution_study_plan"},{label:"مرجع آخر",value:"other"}]},
+   {key:"curriculum_reference_other",type:"text",label:"اسم المرجع الآخر (عند اختيار مرجع آخر)",required:false}
   ].forEach(f=>mergedFields.set(f.key,{...(mergedFields.get(f.key)||{}),...f}));
   if(service.service_code==="university_guidance"){
    mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
@@ -236,6 +244,16 @@ function renderForm(service){
   }
  };
  curriculumTrackField?.addEventListener("change",syncCurriculum);syncCurriculum();
+ const curriculumReferenceField=$("service-fields").querySelector('[data-key="curriculum_reference"]');
+ const curriculumReferenceOtherField=$("service-fields").querySelector('[data-key="curriculum_reference_other"]');
+ const syncCurriculumReference=()=>{
+  if(!curriculumReferenceField||!curriculumReferenceOtherField)return;
+  const isOther=curriculumReferenceField.value==="other";
+  const wrap=curriculumReferenceOtherField.closest(".field");
+  if(wrap)wrap.style.display=isOther?"":"none";
+  curriculumReferenceOtherField.required=isOther;
+ };
+ curriculumReferenceField?.addEventListener("change",syncCurriculumReference);syncCurriculumReference();
  if(service.service_code==="university_guidance"){
   const period=$("service-fields").querySelector('[data-key="tuition_period"]');
   const count=$("service-fields").querySelector('[data-key="installment_count"]');
