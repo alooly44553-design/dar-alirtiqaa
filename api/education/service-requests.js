@@ -96,6 +96,29 @@ export default async function handler(req, res) {
       ? "المملكة العربية السعودية"
       : curriculumCountry;
     payload.curriculum_reference = curriculumReference;
+    if (["early_childhood_registration", "general_education_registration"].includes(serviceCode)) {
+      const birthValue = cleanText(payload.date_of_birth, 10);
+      const birthDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(birthValue)
+        ? new Date(birthValue + "T00:00:00.000Z")
+        : new Date("invalid");
+      const today = new Date();
+      if (!Number.isFinite(birthDate.getTime()) || birthDate > today) {
+        return sendJson(res, 400, { error: "INVALID_STUDENT_AGE" });
+      }
+      let age = today.getUTCFullYear() - birthDate.getUTCFullYear();
+      const monthDelta = today.getUTCMonth() - birthDate.getUTCMonth();
+      if (monthDelta < 0 || (monthDelta === 0 && today.getUTCDate() < birthDate.getUTCDate())) age--;
+      if (serviceCode === "early_childhood_registration" && (age < 3 || age > 6)) {
+        return sendJson(res, 400, { error: "INVALID_STUDENT_AGE" });
+      }
+      if (serviceCode === "general_education_registration" && (age < 6 || age > 18)) {
+        return sendJson(res, 400, { error: "INVALID_STUDENT_AGE" });
+      }
+      if (age < 18 && (!cleanText(payload.guardian_name, 120) || !cleanText(payload.guardian_phone, 30) || !cleanText(payload.guardian_relationship, 60))) {
+        return sendJson(res, 400, { error: "GUARDIAN_REQUIRED" });
+      }
+    }
+
     if (serviceCode === "university_guidance") {
       const tuitionPeriod = cleanText(payload.tuition_period, 10);
       const installmentCount = cleanText(payload.installment_count, 1);
