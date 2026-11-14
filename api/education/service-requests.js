@@ -87,15 +87,19 @@ export default async function handler(req, res) {
     const curriculumTrack = payload.curriculum_track;
     const curriculumCountry = cleanText(payload.curriculum_country, 100);
     const curriculumReference = cleanText(payload.curriculum_reference, 200);
+    const curriculumReferenceOther = cleanText(payload.curriculum_reference_other, 200);
     if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
         !curriculumReference ||
-        (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2)) {
+        (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2) ||
+        (curriculumReference === "other" && curriculumReferenceOther.length < 2)) {
       return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
     }
     payload.curriculum_country = curriculumTrack === "saudi_curriculum"
       ? "المملكة العربية السعودية"
       : curriculumCountry;
-    payload.curriculum_reference = curriculumReference;
+    payload.curriculum_reference = curriculumReference === "other"
+      ? curriculumReferenceOther
+      : curriculumReference;
     if (["early_childhood_registration", "general_education_registration"].includes(serviceCode)) {
       const birthValue = cleanText(payload.date_of_birth, 10);
       const birthDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(birthValue)
