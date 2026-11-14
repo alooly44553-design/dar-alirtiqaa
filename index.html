@@ -98,7 +98,7 @@ footer{background:#061f3a;color:#b9c9db;padding:35px 0}.footer-grid{display:grid
 <div class="path"><strong>📚 التعليم الأساسي والعام</strong><p>المراحل الابتدائية والمتوسطة والثانوية، والمواد الأساسية والواجبات والتقييم والمتابعة التعليمية.</p><p><a class="btn dark" href="general-education.html">استعراض المجال</a></p></div>
 <div class="path"><strong>🎓 التعليم الجامعي والدراسات العليا</strong><p>البرامج الأكاديمية والتعليم العالي والدراسات العليا بحسب البرامج المتاحة ومتطلبات الجهات المختصة.</p><p><a class="btn dark" href="higher-education.html">استعراض المجال</a></p></div>
 <div class="path"><strong>🛠️ التدريب المهني والتقني</strong><p>المهارات المهنية والتقنية والتطبيقية وفق البرامج والخطط والمتطلبات المعتمدة والمتاحة.</p><p><a class="btn dark" href="vocational-training.html">استعراض المجال</a></p></div>
-<div class="path"><strong>✨ مسارات الإرتقاء التعليمية والتربوية والمهارية</strong><p>مسارات متكاملة تُنظم داخليًا ضمن تصنيفات تعليمية وتربوية ومهارية وترفيهية، دون ترقيم أو تقسيم ظاهر في الصفحة الرئيسية.</p><p>تشمل المسارات التعليمية، والمسارات التربوية والمهارية، والمسارات الترفيهية والفعاليات، وفق البرامج والجداول المتاحة.</p><p><a class="btn dark" href="?service=activity_join#services">الاستفسار والتسجيل</a></p></div>
+<div class="path"><strong>✨ مسارات الإرتقاء التعليمية والتربوية والمهارية</strong><p>مسارات متكاملة تُنظم داخليًا ضمن تصنيفات تعليمية وتربوية ومهارية وترفيهية، دون ترقيم أو تقسيم ظاهر في الصفحة الرئيسية.</p><p>تشمل المسارات التعليمية، والمسارات التربوية والمهارية، والمسارات الترفيهية والفعاليات، وفق البرامج والجداول المتاحة.</p><p><a class="btn dark" href="education-packages.html">استعراض المجال</a></p></div>
 </div>
 <div style="display:flex;justify-content:center;margin-top:20px"><a class="btn dark" href="education-packages.html">استعراض الحزم التعليمية</a></div>
 </section>
@@ -149,7 +149,7 @@ footer{background:#061f3a;color:#b9c9db;padding:35px 0}.footer-grid{display:grid
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 const toast=(msg,ok=false)=>{const t=$("toast");t.textContent=msg;t.style.background=ok?"#13795b":"#092f54";t.classList.add("show");setTimeout(()=>t.classList.remove("show"),4500)};
-const icons={student_registration:"🎓",program_application:"📘",course_registration:"🧑‍🏫",activity_join:"🏃",event_registration:"🎪",employment_training:"💼",university_guidance:"🎓",general_service:"🧾"};
+const icons={student_registration:"🎓",early_childhood_registration:"👶",general_education_registration:"📚",program_application:"📘",course_registration:"🧑‍🏫",activity_join:"✨",event_registration:"🎪",employment_training:"💼",university_guidance:"🎓",general_service:"🧾"};
 let services=[];
 function inputField(f){
  const req=f.required?"required":"", star=f.required?' <span class="required">*</span>':"";
@@ -208,7 +208,7 @@ function renderForm(service){
    mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية",required:true,options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
    mergedFields.set("installment_count",{key:"installment_count",type:"select",label:"عدد دفعات الفصل الدراسي",options:[{label:"دفعتان",value:"2"},{label:"ثلاث دفعات",value:"3"}]});
   }
-  if(["program_application","course_registration","activity_join"].includes(service.service_code)){
+  if(["program_application","course_registration","activity_join","early_childhood_registration","general_education_registration"].includes(service.service_code)){
    mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
   }
 
@@ -273,8 +273,8 @@ function renderForm(service){
   if(tuitionPeriodField)tuitionPeriodField.addEventListener("change",()=>loadFees(service.id,service.service_code));
   if(installmentCountField)installmentCountField.addEventListener("change",()=>loadFees(service.id,service.service_code));
  }
- if(["activity_join","course_registration"].includes(service.service_code)){
-  ["has_existing_file","path_count","training_type","tuition_period"].forEach(key=>{
+ if(["activity_join","course_registration","early_childhood_registration","general_education_registration"].includes(service.service_code)){
+  ["has_existing_file","path_count","training_type","tuition_period","education_grade","needs_level_assessment"].forEach(key=>{
    const field=$("service-fields").querySelector('[data-key="'+key+'"]');
    if(field)field.addEventListener("change",()=>loadFees(service.id,service.service_code));
   });
@@ -309,7 +309,17 @@ async function loadFees(serviceId, serviceCode){
  const field=k=>$("service-fields").querySelector('[data-key="'+k+'"]')?.value||"";
  const money=n=>Number(n).toLocaleString("en-US")+" ريال";
  const rows=[];
- if(serviceCode==="student_registration"){
+ if(serviceCode==="early_childhood_registration"){
+  const grade=field("education_grade"),period=field("tuition_period")||"annual";
+  if(field("has_existing_file")==="no")rows.push(["فتح الملف والتسجيل",100,"مرة واحدة للمستجدين فقط"]);
+  rows.push(["رسوم الزي والكتب",100,"سنويًا"]);
+  if(grade){const kindergarten=grade==="الحضانة";const amount=kindergarten?(period==="term"?1050:2100):(period==="term"?900:1800);rows.push(["الرسوم الدراسية — "+(kindergarten?"رياض الأطفال":grade),amount,period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
+ }else if(serviceCode==="general_education_registration"){
+  const grade=field("education_grade"),period=field("tuition_period")||"annual";
+  if(field("has_existing_file")==="no")rows.push(["فتح الملف والتسجيل",100,"مرة واحدة للمستجدين فقط"]);
+  if(grade){const stage=grade.includes("الابتدائي")?"primary":grade.includes("المتوسط")?"middle":"secondary";const gradeThree=grade==="الثالث الثانوي";const fee={primary:{term:600,annual:1200},middle:{term:750,annual:1500},secondary:{term:1000,annual:2000}}[stage];rows.push(["الرسوم الدراسية — "+grade,gradeThree?(period==="term"?1500:3000):fee[period],period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
+  if(field("needs_level_assessment")==="yes")rows.push(["تحديد المستوى أو معادلة الشهادة",200,"حسب الحاجة — عند طلب الخدمة فقط"]);
+ }else if(serviceCode==="student_registration"){
   const stage=field("education_stage"),grade=field("education_grade"),period=field("tuition_period")||"annual";
   if(field("has_existing_file")==="no")rows.push(["فتح الملف والتسجيل",100,"مرة واحدة للمستجدين فقط"]);
   if(stage==="early_childhood"){
