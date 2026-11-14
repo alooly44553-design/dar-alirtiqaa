@@ -59,3 +59,7 @@ JOIN (VALUES
 ) AS v(service_code, fee_code, fee_type, fee_name, amount, calculation_method, is_required, condition_rule, payment_stage, display_order)
   ON s.service_code = v.service_code
 WHERE s.is_active = true;
+
+UPDATE education.service_catalog
+SET registration_method_label = 'طلب الالتحاق بالحزمة الجامعية'
+WHERE service_code = 'university_guidance';
