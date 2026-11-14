@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.daralirtiqaa.app',
-  appName: 'منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية',
+  appName: 'منظومة دار الإرتقاء الفكري التعليمية',
   webDir: 'www',
   // QA-only Android artifact for PR #111. Do not use the production origin here.
   // The branch alias keeps the installed test client pointed at the QA Preview.
