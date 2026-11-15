@@ -149,7 +149,7 @@ footer{background:#061f3a;color:#b9c9db;padding:35px 0}.footer-grid{display:grid
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 const toast=(msg,ok=false)=>{const t=$("toast");t.textContent=msg;t.style.background=ok?"#13795b":"#092f54";t.classList.add("show");setTimeout(()=>t.classList.remove("show"),4500)};
-const icons={student_registration:"🎓",early_childhood_registration:"👶",general_education_registration:"📚",program_application:"📘",course_registration:"🧑‍🏫",activity_join:"✨",event_registration:"🎪",employment_training:"💼",university_guidance:"🎓",general_service:"🧾"};
+const icons={student_registration:"🎓",early_childhood_registration:"👶",general_education_registration:"📚",program_application:"📘",course_registration:"🛠️",activity_join:"✨",event_registration:"🎪",employment_training:"💼",university_guidance:"🎓",general_service:"🧾"};
 let services=[];
 function inputField(f){
  const req=f.required?"required":"", star=f.required?' <span class="required">*</span>':"";
@@ -220,10 +220,13 @@ function renderForm(service){
    mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
   }
 
-  if(service.service_code==="student_registration"){
-   mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية المحتسبة",required:true,options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
-   mergedFields.set("installment_count",{key:"installment_count",type:"select",label:"عدد دفعات الفصل الدراسي",options:[{label:"دفعتان",value:"2"},{label:"ثلاث دفعات",value:"3"}]});
-  }
+  const removedFieldKeys={
+   early_childhood_registration:["learning_content","tuition_period"],
+   general_education_registration:["learning_content","tuition_period"],
+   university_guidance:["country_interest","academic_system","budget_range","notes","study_period","learning_content","curriculum_track","curriculum_country","curriculum_reference","curriculum_reference_other","tuition_period","installment_count"],
+   course_registration:["preferred_schedule","study_period","learning_content","tuition_period","curriculum_track","curriculum_country","country_interest"]
+  };
+  (removedFieldKeys[service.service_code]||[]).forEach(key=>mergedFields.delete(key));
   const unique=Array.from(mergedFields.values());
  const attachmentField='<div class="field full"><small>المرفقات غير مفعّلة مؤقتًا حتى اكتمال ربط تخزين خاص ومستقل وآمن.</small></div>';
  $("service-fields").innerHTML=unique.map(inputField).join("")+attachmentField+
