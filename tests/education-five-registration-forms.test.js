@@ -8,6 +8,7 @@ const curriculumMigration = read("database/neon/migrations/20261114_domain_curri
 const home = read("index.html");
 const packages = read("education-packages.html");
 const requestApi = read("api/education/service-requests.js");
+const servicesApi = read("api/education/services.js");
 
 const fiveForms = [
   "early_childhood_registration",
@@ -79,6 +80,10 @@ assert.match(curriculumMigration, /sports_recreation_framework/u);
 assert.match(home, /curriculumReferenceOptions/);
 assert.match(home, /curriculum_reference_other/);
 assert.match(requestApi, /curriculumReferenceOther/u);
+assert.match(servicesApi, /EDUCATION_QA_NEON_BRANCH_ID/u);
+assert.match(servicesApi, /EDUCATION_QA_NEON_DATABASE/u);
+assert.match(servicesApi, /EDUCATION_QA_NEON_ROLE/u);
+assert.match(servicesApi, /EDUCATION_QA_NEON_ENDPOINT_HOST/u);
 
 assert.match(home, /href="education-packages\.html#pathways">استعراض المجال/u);
 assert.match(home, /serviceCode==="early_childhood_registration"/u);
