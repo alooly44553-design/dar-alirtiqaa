@@ -254,6 +254,24 @@ function renderForm(service){
   curriculumReferenceOtherField.required=isOther;
  };
  curriculumReferenceField?.addEventListener("change",syncCurriculumReference);syncCurriculumReference();
+ if(service.service_code==="general_education_registration"){
+  const birthField=$("service-fields").querySelector('[data-key="date_of_birth"]');
+  const guardianFields=["guardian_name","guardian_relationship","guardian_phone"].map(key=>$("service-fields").querySelector('[data-key="'+key+'"]')).filter(Boolean);
+  const syncGuardianRequirements=()=>{
+   let age=null;
+   const raw=birthField?.value||"";
+   if(/^\\d{4}-\\d{2}-\\d{2}$/.test(raw)){
+    const birth=new Date(raw+"T00:00:00.000Z"),now=new Date();
+    if(Number.isFinite(birth.getTime())&&birth<=now){
+     age=now.getUTCFullYear()-birth.getUTCFullYear();
+     const monthDelta=now.getUTCMonth()-birth.getUTCMonth();
+     if(monthDelta<0||(monthDelta===0&&now.getUTCDate()<birth.getUTCDate()))age--;
+    }
+   }
+   guardianFields.forEach(field=>{field.required=age!==null&&age<18;});
+  };
+  birthField?.addEventListener("change",syncGuardianRequirements);syncGuardianRequirements();
+ }
  if(service.service_code==="university_guidance"){
   const period=$("service-fields").querySelector('[data-key="tuition_period"]');
   const count=$("service-fields").querySelector('[data-key="installment_count"]');
