@@ -173,13 +173,12 @@ assert.match(higherEducation, /مباشر/u, "Higher education must describe dir
 assert.match(higherEducation, /مسجل/u, "Higher education must describe recorded teaching");
 assert.match(higherEducation, /تفاعلي/u, "Higher education must describe interactive teaching");
 assert.match(higherEducation, /عملي/u, "Higher education must describe practical teaching");
-assert.match(registrationApi, /curriculum_track, curriculum_country, curriculum_reference, tuition_period, installment_count, payment_plan/u, "Student registration must persist curriculum reference and approved fee period selections");
+assert.match(registrationApi, /LEGACY_REGISTRATION_DISABLED/u, "The retired unified public registration endpoint must reject new submissions");
 assert.match(serviceRequestsApi, /payload\.curriculum_country = curriculumTrack === "saudi_curriculum"/u, "University requests must persist a normalized curriculum country");
 assert.match(index, /requestedCurriculum=new URLSearchParams/u, "Registration links must preselect the requested curriculum track");
 assert.match(adminRegistrationApi, /curriculum_track[\s\S]*curriculum_country[\s\S]*curriculum_reference[\s\S]*tuition_period[\s\S]*installment_count[\s\S]*payment_plan/u, "Admin registration must expose curriculum reference and approved fee period selections");
 assert.match(curriculumMigration, /education_student_registrations_curriculum_idx/u, "Curriculum migration must index the selected curriculum reference");
-assert.match(index, /key:"tuition_period"/u, "Student registration form must capture term or annual tuition period");
-assert.match(index, /key:"installment_count"/u, "Student registration form must capture two or three installments");
+assert.doesNotMatch(index, /key:"tuition_period"|key:"installment_count"/u, "The five approved public forms must not expose removed study-period or installment fields");
 assert.doesNotMatch(index, /data-key="payment_plan"/u, "Legacy early-childhood-only monthly payment field must be removed");
 const earlyFeesMigration = read("database/migrations/20261103_early_childhood_fee_items.sql");
 assert.match(index, /has_existing_file/u, "Student registration must declare whether a prior file exists");
@@ -202,4 +201,4 @@ assert.match(internationalEducation, /id="general"/u, "Multi-country curriculum 
 assert.match(internationalEducation, /id="higher"/u, "Multi-country curriculum page must include higher-education pathway");
 assert.match(internationalEducation, /خيارات التعليم الإلكتروني/u, "Multi-country curriculum page must include all online learning modes");
 
-console.log("Readiness source checks passed: required pages, Arabic RTL, seven scopes, 39 templates, branches, fixed weekly load, sitemap, draft-policy indexing, Zoom authorization, and coordinated versions.");
+console.log("Readiness source checks passed: required pages, Arabic RTL, approved scopes, 39 templates, branches, fixed weekly load, sitemap, draft-policy indexing, Zoom authorization, and coordinated versions.");
