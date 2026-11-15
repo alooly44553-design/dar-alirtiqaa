@@ -6,6 +6,7 @@ const migration = read("database/neon/migrations/20261114_split_five_education_r
 const followup = read("database/neon/migrations/20261114_five_forms_fee_and_guardian_fields.sql");
 const curriculumMigration = read("database/neon/migrations/20261114_domain_curriculum_reference_choices.sql");
 const home = read("index.html");
+const packages = read("education-packages.html");
 const requestApi = read("api/education/service-requests.js");
 
 const fiveForms = [
@@ -85,6 +86,8 @@ assert.match(home, /serviceCode==="general_education_registration"/u);
 assert.match(requestApi, /INVALID_STUDENT_AGE/u);
 assert.match(requestApi, /GUARDIAN_REQUIRED/u);
 assert.match(requestApi, /age < 18/u);
+assert.match(home, /syncGuardianRequirements/u, "guardian fields must become required in the school form when the learner is under 18");
+assert.doesNotMatch(packages, /curriculum_track=selected_curriculum/u, "package links must not preselect an unsupported curriculum track");
 assert.match(read("early-learning.html"), /service=early_childhood_registration/u);
 assert.match(read("general-education.html"), /service=general_education_registration/u);
 
