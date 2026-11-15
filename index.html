@@ -260,7 +260,7 @@ function renderForm(service){
   const syncGuardianRequirements=()=>{
    let age=null;
    const raw=birthField?.value||"";
-   if(/^\\d{4}-\\d{2}-\\d{2}$/.test(raw)){
+   if(/^\d{4}-\d{2}-\d{2}$/.test(raw)){
     const birth=new Date(raw+"T00:00:00.000Z"),now=new Date();
     if(Number.isFinite(birth.getTime())&&birth<=now){
      age=now.getUTCFullYear()-birth.getUTCFullYear();
