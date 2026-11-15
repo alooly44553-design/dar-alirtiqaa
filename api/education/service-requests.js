@@ -88,18 +88,33 @@ export default async function handler(req, res) {
     const curriculumCountry = cleanText(payload.curriculum_country, 100);
     const curriculumReference = cleanText(payload.curriculum_reference, 200);
     const curriculumReferenceOther = cleanText(payload.curriculum_reference_other, 200);
-    if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
-        !curriculumReference ||
-        (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2) ||
-        (curriculumReference === "other" && curriculumReferenceOther.length < 2)) {
+    const fullCurriculumSelectionRequired = [
+      "early_childhood_registration",
+      "general_education_registration",
+      "activity_join"
+    ].includes(serviceCode);
+    const referenceOnlyRequired = serviceCode === "course_registration";
+    if (fullCurriculumSelectionRequired &&
+        (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
+         !curriculumReference ||
+         (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2) ||
+         (curriculumReference === "other" && curriculumReferenceOther.length < 2))) {
       return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
     }
-    payload.curriculum_country = curriculumTrack === "saudi_curriculum"
-      ? "المملكة العربية السعودية"
-      : curriculumCountry;
-    payload.curriculum_reference = curriculumReference === "other"
-      ? curriculumReferenceOther
-      : curriculumReference;
+    if (referenceOnlyRequired &&
+        (!curriculumReference || (curriculumReference === "other" && curriculumReferenceOther.length < 2))) {
+      return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
+    }
+    if (curriculumTrack) {
+      payload.curriculum_country = curriculumTrack === "saudi_curriculum"
+        ? "المملكة العربية السعودية"
+        : curriculumCountry;
+    }
+    if (curriculumReference) {
+      payload.curriculum_reference = curriculumReference === "other"
+        ? curriculumReferenceOther
+        : curriculumReference;
+    }
     if (["early_childhood_registration", "general_education_registration"].includes(serviceCode)) {
       const birthValue = cleanText(payload.date_of_birth, 10);
       const birthDate = /^\d{4}-\d{2}-\d{2}$/.test(birthValue)
@@ -123,16 +138,6 @@ export default async function handler(req, res) {
       }
     }
 
-    if (serviceCode === "university_guidance") {
-      const tuitionPeriod = cleanText(payload.tuition_period, 10);
-      const installmentCount = cleanText(payload.installment_count, 1);
-      if (!["term", "annual"].includes(tuitionPeriod) ||
-          (tuitionPeriod === "term" && !["2", "3"].includes(installmentCount))) {
-        return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
-      }
-      payload.tuition_period = tuitionPeriod;
-      payload.installment_count = installmentCount;
-    }
     if (["program_application", "course_registration", "activity_join", "early_childhood_registration", "general_education_registration"].includes(serviceCode)) {
       if (!["yes", "no"].includes(payload.has_existing_file)) {
         return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
