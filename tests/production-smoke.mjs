@@ -106,11 +106,16 @@ await check("education service catalog", async () => {
   assert.equal(response.status, 200);
   const data = JSON.parse(body);
   assert.equal(data.ok, true);
-  assert.ok(Array.isArray(data.services) && data.services.length >= 7);
-  const codes = new Set(data.services.map(item => item.service_code));
-  assert.ok(codes.has("student_registration"), "student_registration missing");
-  assert.ok(codes.has("general_service"), "general_service missing");
-  return data.services.length + " services";
+  assert.ok(Array.isArray(data.services) && data.services.length === 5, "catalog must expose exactly five approved forms");
+  const codes = data.services.map(item => item.service_code);
+  assert.deepEqual(codes, [
+    "early_childhood_registration",
+    "general_education_registration",
+    "university_guidance",
+    "course_registration",
+    "activity_join"
+  ], "catalog must expose the five approved forms in their approved order");
+  return data.services.length + " approved forms in order";
 });
 
 for (const path of ["/api/education/registrations", "/api/education/service-requests"]) {
@@ -134,15 +139,18 @@ for (const path of [
   });
 }
 
-for (const path of ["/api/education/registrations", "/api/education/service-requests"]) {
-  await check("missing consent rejected " + path, async () => {
-    const { response, body } = await postJson(path, {});
-    assert.equal(response.status, 400, "expected invalid request to be rejected before insert");
-    const data = JSON.parse(body);
-    assert.equal(data.error, "CONSENT_REQUIRED");
-    return "400 CONSENT_REQUIRED; no record inserted";
-  });
-}
+await check("retired unified registration endpoint is disabled", async () => {
+  const { response, body } = await postJson("/api/education/registrations", {});
+  assert.equal(response.status, 410, "legacy unified form must be permanently retired");
+  assert.equal(JSON.parse(body).error, "LEGACY_REGISTRATION_DISABLED");
+  return "410; historical records remain admin-readable";
+});
+await check("service request API rejects missing consent", async () => {
+  const { response, body } = await postJson("/api/education/service-requests", {});
+  assert.equal(response.status, 400, "expected invalid request to be rejected before insert");
+  assert.equal(JSON.parse(body).error, "CONSENT_REQUIRED");
+  return "400 CONSENT_REQUIRED; no record inserted";
+});
 
 await check("Telegram webhook configuration", async () => {
   const { response, body } = await get("/api/telegram");
