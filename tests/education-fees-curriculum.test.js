@@ -29,11 +29,11 @@ for (const text of [
 ]) assert(home.includes(text) || higher.includes(text), "Missing unified form requirement: " + text);
 
 assert(home.includes("curriculum_track") && home.includes("curriculum_reference"), "All education service forms must offer curriculum selection and reference.");
-assert(home.includes("tuition_period") && home.includes("installment_count"), "Student registration must capture term/annual period and installment count.");
+assert.doesNotMatch(home, /key:"tuition_period"|key:"installment_count"/u, "The five public forms must not expose the removed study-period or installment fields.");
 assert(serviceRequests.includes("curriculum_reference") && serviceRequests.includes("curriculumCountry"), "Service requests must validate and store the curriculum reference.");
-assert(registrations.includes("curriculum_reference, tuition_period, installment_count"), "Student registration must persist curriculum and fee period fields.");
-assert(registrations.includes("curriculumReference") && registrations.includes("installmentCount"), "Student registration API must validate the new fields.");
-assert(serviceFees.includes('serviceCode === "student_registration"') && serviceFees.includes('serviceCode === "university_guidance"') && serviceFees.includes('serviceCode === "activity_join"'), "Public fee API must return the approved schedule for school, university, program, course, and center subscriptions.");
+assert.match(registrations, /LEGACY_REGISTRATION_DISABLED/u, "The retired unified registration endpoint must reject new submissions while historical records remain accessible to admins.");
+assert.doesNotMatch(serviceFees, /student_registration|program_application/u, "Public fee API must not expose fee schedules for retired forms.");
+assert(serviceFees.includes('serviceCode === "university_guidance"') && serviceFees.includes('serviceCode === "activity_join"') && serviceFees.includes('serviceCode === "course_registration"'), "Public fee API must expose approved fees for the remaining university, pathways, and vocational forms.");
 assert(serviceFees.includes('fee_code: "PATHS_3"') && serviceFees.includes('fee_code: "PATHS_5"') && serviceFees.includes('amount: 150') && serviceFees.includes('amount: 200'), "Field five must support three paths at 150 SAR and five paths at 200 SAR monthly.");
 assert(serviceFees.includes('amount: 50') && serviceFees.includes('applies_when: "no_existing_file"'), "Educational center file-opening fee must be 50 SAR once for new beneficiaries.");
 assert(feeMigration.includes("'activity_join','PATHS_3','subscription'") && feeMigration.includes("'activity_join','PATHS_5','subscription'"), "Fee migration must preserve both approved pathway subscription tiers.");
@@ -42,7 +42,7 @@ assert(migration.includes("ADD COLUMN IF NOT EXISTS has_existing_file boolean"),
 assert(!serviceFees.includes("FROM education.service_fee_items"), "Public fee API must not expose unapproved legacy rows.");
 assert(migration.includes("DELETE FROM education.service_fee_items"), "Migration must delete all legacy unapproved fee rows before restoring the approved list.");
 assert(feeMigration.includes("DELETE FROM education.service_fee_items") && feeMigration.includes("LEVEL_OR_EQUIVALENCY") && feeMigration.includes("TUITION_STANDARD_TERM") && feeMigration.includes("PATHS_5"), "November 14 migration must replace legacy fees with the approved fee matrix.");
-assert(feeMigration.includes("'program_application','REGISTRATION','subscription'") && feeMigration.includes("'course_registration','PROFESSIONAL_TERM','tuition'") && feeMigration.includes("'course_registration','TECHNICAL_TERM','tuition'"), "Fee migration must separate generic monthly subscriptions from professional and technical training fees.");
+assert(feeMigration.includes("'course_registration','PROFESSIONAL_TERM','tuition'") && feeMigration.includes("'course_registration','TECHNICAL_TERM','tuition'"), "Fee migration must retain professional and technical training fees.");
 assert(packages.includes("ضمن المنظومة الموحدة"), "Package page must describe one unified education system.");
 assert(!/مسارات مستقلة|خيارات مستقلة|حزم مستقلة|صفحة مستقلة لكل مجال/u.test(packages), "Package page must not imply separate curriculum branches.");
 assert(higher.includes("فتح حزمة التعليم الجامعي والدراسات العليا"), "Higher education CTA must use the approved package wording.");
@@ -65,4 +65,4 @@ assert.doesNotMatch(adminFeesApi, /UPDATE education\.service_fee_items/u, "Admin
 assert.match(admin, /إنشاء رسوم يدوية أو وصفية إضافية متوقف/u, "Admin finance panel must disable new manual unapproved student fees.");
 assert.doesNotMatch(admin, /id="addFee"|id="feeAmount"|id="feeDesc"/u, "Manual student fee entry controls must be removed while existing records remain stored.");
 
-console.log("Unified education curriculum, approved fee display, and registration validation checks passed.");
+console.log("Five approved education forms, curriculum selection, approved fee display, and legacy form retirement checks passed.");
