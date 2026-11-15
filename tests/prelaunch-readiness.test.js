@@ -183,7 +183,7 @@ assert.doesNotMatch(index, /data-key="payment_plan"/u, "Legacy early-childhood-o
 const earlyFeesMigration = read("database/migrations/20261103_early_childhood_fee_items.sql");
 assert.match(index, /has_existing_file/u, "Student registration must declare whether a prior file exists");
 assert.match(index, /field\("has_existing_file"\)==="no"/u, "File-opening fee must be shown only for a new file");
-assert.match(registrationApi, /has_existing_file/u, "Registration API must persist prior-file status");
+assert.match(registrationApi, /LEGACY_REGISTRATION_DISABLED/u, "The old public registration API must remain retired");
 assert.match(adminRegistrationApi, /has_existing_file/u, "Admin registration API must expose prior-file status");
 assert.match(admin, /x\.has_existing_file===true/u, "Admin registration list must display prior-file status");
 const approvedFeeMigration = read("database/migrations/20261104_unified_curriculum_and_approved_fees.sql");
