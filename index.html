@@ -149,7 +149,7 @@ footer{background:#061f3a;color:#b9c9db;padding:35px 0}.footer-grid{display:grid
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 const toast=(msg,ok=false)=>{const t=$("toast");t.textContent=msg;t.style.background=ok?"#13795b":"#092f54";t.classList.add("show");setTimeout(()=>t.classList.remove("show"),4500)};
-const icons={student_registration:"🎓",early_childhood_registration:"👶",general_education_registration:"📚",program_application:"📘",course_registration:"🛠️",activity_join:"✨",event_registration:"🎪",employment_training:"💼",university_guidance:"🎓",general_service:"🧾"};
+const icons={early_childhood_registration:"👶",general_education_registration:"📚",university_guidance:"🎓",course_registration:"🛠️",activity_join:"✨"};
 let services=[];
 function inputField(f){
  const req=f.required?"required":"", star=f.required?' <span class="required">*</span>':"";
@@ -157,23 +157,8 @@ function inputField(f){
  if(f.type==="select") return '<div class="field"><label>'+esc(f.label)+star+'</label><select data-key="'+esc(f.key)+'" '+req+'><option value="">اختر…</option>'+((f.options||[]).map(o=>'<option value="'+esc(o.value)+'">'+esc(o.label)+'</option>').join(""))+'</select></div>';
  return '<div class="field"><label>'+esc(f.label)+star+'</label><input data-key="'+esc(f.key)+'" type="'+esc(f.type||"text")+'" '+req+' maxlength="500"></div>';
 }
-function commonFields(isStudent){
- return isStudent?[
-  {key:"student_name",type:"text",label:"اسم الطالب/الطالبة",required:true},
-  {key:"gender",type:"select",label:"النوع",required:true,options:[{label:"طالب",value:"male"},{label:"طالبة",value:"female"}]},
-  {key:"date_of_birth",type:"date",label:"تاريخ الميلاد"},
-  {key:"nationality",type:"text",label:"الجنسية"},
-  {key:"identity_type",type:"text",label:"نوع الهوية/الوثيقة"},
-  {key:"identity_number",type:"text",label:"رقم الهوية/الوثيقة"},
-  {key:"phone",type:"tel",label:"رقم التواصل"},
-  {key:"email",type:"email",label:"البريد الإلكتروني"},
-  {key:"guardian_name",type:"text",label:"اسم ولي الأمر"},
-  {key:"guardian_relationship",type:"text",label:"صلة القرابة"},
-  {key:"guardian_phone",type:"tel",label:"هاتف ولي الأمر"},
-  {key:"address",type:"text",label:"العنوان"},
-  {key:"previous_education",type:"text",label:"المؤهل أو التعليم السابق"},
-  {key:"notes",type:"textarea",label:"ملاحظات"}
- ]:[
+function commonFields(){
+ return [
   {key:"applicant_name",type:"text",label:"الاسم",required:true},
   {key:"applicant_phone",type:"tel",label:"رقم التواصل"},
   {key:"applicant_email",type:"email",label:"البريد الإلكتروني"}
@@ -183,7 +168,7 @@ function renderForm(service){
  $("service-form-title").textContent=(service.service_code==="university_guidance"?"فتح حزمة التعليم الجامعي والدراسات العليا":service.service_name)+" — "+service.registration_method_label;
  $("service-form-description").textContent=service.description||"أدخل البيانات بدقة؛ الطلبات تُراجع من الإدارة.";
  const consentText=service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.";
- const mergedFields=new Map(commonFields(service.service_code==="student_registration").map(f=>[f.key,f]));
+ const mergedFields=new Map(commonFields().map(f=>[f.key,f]));
  (service.form_fields||[]).forEach(f=>{
   if(!f||typeof f.key!=="string")return;
   mergedFields.set(f.key,{...(mergedFields.get(f.key)||{}),...f});
@@ -193,10 +178,6 @@ function renderForm(service){
  }
  if(service.service_code==="course_registration"){
   mergedFields.set("training_type",{key:"training_type",type:"select",label:"نوع التدريب",required:true,options:[{label:"تدريب مهني",value:"professional"},{label:"تدريب تقني",value:"technical"}]});
-  mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة التدريبية",required:true,options:[{label:"الفصل التدريبي",value:"term"},{label:"السنة التدريبية",value:"annual"}]});
- }
- if(service.service_code==="student_registration"){
-  mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للطالب في المنظومة؟",required:true,options:[{label:"لا، تسجيل أول مرة",value:"no"},{label:"نعم، يوجد ملف سابق",value:"yes"}]});
  }
  const curriculumReferenceOptions={
    early_childhood_registration:[{label:"المنهج السعودي لرياض الأطفال",value:"saudi_early_childhood"},{label:"منهج مونتيسوري",value:"montessori"},{label:"منهج ريجيو إميليا",value:"reggio_emilia"},{label:"منهج هاي سكوب",value:"high_scope"},{label:"التعلم القائم على اللعب والاستكشاف",value:"play_based_learning"},{label:"مرجع آخر",value:"other"}],
@@ -213,10 +194,8 @@ function renderForm(service){
   ].forEach(f=>mergedFields.set(f.key,{...(mergedFields.get(f.key)||{}),...f}));
   if(service.service_code==="university_guidance"){
    mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
-   mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية",required:true,options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
-   mergedFields.set("installment_count",{key:"installment_count",type:"select",label:"عدد دفعات الفصل الدراسي",options:[{label:"دفعتان",value:"2"},{label:"ثلاث دفعات",value:"3"}]});
   }
-  if(["program_application","course_registration","activity_join","early_childhood_registration","general_education_registration"].includes(service.service_code)){
+  if(["course_registration","activity_join","early_childhood_registration","general_education_registration"].includes(service.service_code)){
    mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
   }
 
