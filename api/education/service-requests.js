@@ -102,7 +102,7 @@ export default async function handler(req, res) {
       : curriculumReference;
     if (["early_childhood_registration", "general_education_registration"].includes(serviceCode)) {
       const birthValue = cleanText(payload.date_of_birth, 10);
-      const birthDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(birthValue)
+      const birthDate = /^\d{4}-\d{2}-\d{2}$/.test(birthValue)
         ? new Date(birthValue + "T00:00:00.000Z")
         : new Date("invalid");
       const today = new Date();
