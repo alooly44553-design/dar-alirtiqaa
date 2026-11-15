@@ -89,6 +89,7 @@ assert.match(home, /href="education-packages\.html#pathways">استعراض ال
 assert.match(home, /serviceCode==="early_childhood_registration"/u);
 assert.match(home, /serviceCode==="general_education_registration"/u);
 assert.match(requestApi, /INVALID_STUDENT_AGE/u);
+assert.match(requestApi, /\/\^\\d\{4\}-\\d\{2\}-\\d\{2\}\$\//u, "server must accept a valid YYYY-MM-DD birth date");
 assert.match(requestApi, /GUARDIAN_REQUIRED/u);
 assert.match(requestApi, /age < 18/u);
 assert.match(home, /syncGuardianRequirements/u, "guardian fields must become required in the school form when the learner is under 18");
