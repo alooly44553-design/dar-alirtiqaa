@@ -16,8 +16,12 @@ const pages = [
 for (const page of pages) {
   assert.ok(fs.existsSync(page), page + " must exist");
   const html = fs.readFileSync(page, "utf8");
-  assert.match(html, /مرجع المنهج والمحتوى التعليمي|مرجع المنهج التعليمي|مرجع المناهج متعددة الدول/, page + " must describe curriculum reference selection");
-  assert.match(html, /ملف المتعلم الموحد|استمارة المجال|استمارة التسجيل/, page + " must connect curriculum selection to the unified learner record or registration");
+  if (page !== "higher-education.html") {
+    assert.match(html, /مرجع المنهج والمحتوى التعليمي|مرجع المنهج التعليمي|مرجع المناهج متعددة الدول/, page + " must describe curriculum reference selection");
+    assert.match(html, /ملف المتعلم الموحد|استمارة المجال|استمارة التسجيل/, page + " must connect curriculum selection to the unified learner record or registration");
+  } else {
+    assert.doesNotMatch(html, /استمارة الجامعة[^<]*(مرجع المنهج|الإطار التعليمي)/u, "University registration must not expose a curriculum-reference question");
+  }
   assert.doesNotMatch(html, /حزمة تعليمية مستقلة/, page + " must not imply an independently branched package");
   assert.doesNotMatch(html, /التوجيه الجامعي والقبول|فتح مجال التعليم الجامعي/, page + " must use the approved higher-education naming");
   assert.doesNotMatch(html, /دار الارتقاء الفكري العالمية|دار الإرتقاء الفكري العالمية/, page + " must use the education identity");
