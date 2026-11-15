@@ -23,10 +23,13 @@ for (const amount of [
 
 for (const text of [
   "مرجع المنهج التعليمي", "curriculum_reference", "curriculum_country",
-  "الفصل الدراسي", "السنة الدراسية",
+  "الفصل الدراسي",
   "فتح الملف والتسجيل", "التدريب المهني", "ثلاثة مسارات", "خمسة مسارات",
   "فتح حزمة التعليم الجامعي والدراسات العليا"
-]) assert(home.includes(text) || higher.includes(text), "Missing unified form requirement: " + text);
+]) assert(home.includes(text) || higher.includes(text), "Missing approved education content: " + text);
+
+assert(feeMigration.includes("'annual'") && feeMigration.includes("'term'"),
+  "Approved fee matrix must retain annual and term pricing without reintroducing study-period fields into public forms.");
 
 assert(home.includes("curriculum_track") && home.includes("curriculum_reference"), "All education service forms must offer curriculum selection and reference.");
 assert.doesNotMatch(home, /key:"tuition_period"|key:"installment_count"/u, "The five public forms must not expose the removed study-period or installment fields.");
