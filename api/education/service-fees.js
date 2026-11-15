@@ -1,23 +1,6 @@
 import { getDatabase, sendJson } from "../../lib/neon-db.js";
 
 const approvedFees = (serviceCode) => {
-  if (serviceCode === "student_registration") return [
-    { fee_code: "FILE_OPENING", fee_name: "فتح الملف والتسجيل", amount: 100, currency: "SAR", calculation_method: "conditional", is_required: true, condition_rule: { applies_when: "no_existing_file" } },
-    { fee_code: "EARLY_UNIFORM_BOOKS", fee_name: "رسوم الزي والكتب", amount: 100, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { education_stage: "early_childhood", period: "annual" } },
-    { fee_code: "TUITION_PRIMARY", fee_name: "الابتدائية — سنوي", amount: 1200, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { education_stage: "primary", period: "annual" } },
-    { fee_code: "TUITION_PRIMARY_TERM", fee_name: "الابتدائية — فصل دراسي", amount: 600, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { education_stage: "primary", period: "term" } },
-    { fee_code: "TUITION_MIDDLE", fee_name: "المتوسطة — سنوي", amount: 1500, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { education_stage: "middle", period: "annual" } },
-    { fee_code: "TUITION_MIDDLE_TERM", fee_name: "المتوسطة — فصل دراسي", amount: 750, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { education_stage: "middle", period: "term" } },
-    { fee_code: "TUITION_SECONDARY", fee_name: "الثانوية — سنوي", amount: 2000, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { education_stage: "secondary", period: "annual", exclude_grade: "الثالث الثانوي" } },
-    { fee_code: "TUITION_SECONDARY_TERM", fee_name: "الثانوية — فصل دراسي", amount: 1000, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { education_stage: "secondary", period: "term", exclude_grade: "الثالث الثانوي" } },
-    { fee_code: "TUITION_GRADE_12", fee_name: "الثالث الثانوي — سنوي", amount: 3000, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { education_stage: "secondary", grade: "الثالث الثانوي", period: "annual" } },
-    { fee_code: "TUITION_GRADE_12_TERM", fee_name: "الثالث الثانوي — فصل دراسي", amount: 1500, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { education_stage: "secondary", grade: "الثالث الثانوي", period: "term" } },
-    { fee_code: "LEVEL_OR_EQUIVALENCY", fee_name: "تحديد المستوى أو معادلة الشهادة أو العمر", amount: 200, currency: "SAR", calculation_method: "conditional", is_required: false, condition_rule: { applies_when: "level_assessment_or_equivalency_required" } },
-    { fee_code: "EARLY_NURSERY", fee_name: "رياض الأطفال — سنوي", amount: 2100, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { education_stage: "early_childhood", grade: "الحضانة", period: "annual" } },
-    { fee_code: "EARLY_NURSERY_TERM", fee_name: "رياض الأطفال — فصل دراسي", amount: 1050, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { education_stage: "early_childhood", grade: "الحضانة", period: "term" } },
-    { fee_code: "EARLY_KG", fee_name: "التمهيدي الأول والثاني والثالث — سنوي", amount: 1800, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { education_stage: "early_childhood", grade_group: "preparatory", period: "annual" } },
-    { fee_code: "EARLY_KG_TERM", fee_name: "التمهيدي الأول والثاني والثالث — فصل دراسي", amount: 900, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { education_stage: "early_childhood", grade_group: "preparatory", period: "term" } }
-  ];
   if (serviceCode === "university_guidance") return [
     { fee_code: "FILE_OPENING", fee_name: "فتح الملف والتسجيل", amount: 200, currency: "SAR", calculation_method: "conditional", is_required: true, condition_rule: { applies_when: "no_existing_file" } },
     { fee_code: "LEVEL_OR_EQUIVALENCY", fee_name: "تحديد المستوى أو معادلة الشهادة", amount: 300, currency: "SAR", calculation_method: "conditional", is_required: false, condition_rule: { applies_when: "level_assessment_or_equivalency_required" } },
@@ -37,10 +20,6 @@ const approvedFees = (serviceCode) => {
     { fee_code: "PROFESSIONAL_ANNUAL", fee_name: "التدريب المهني — سنوي", amount: 2000, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { training_type: "professional", period: "annual" } },
     { fee_code: "TECHNICAL_TERM", fee_name: "التدريب التقني — فصل دراسي", amount: 1200, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { training_type: "technical", period: "term" } },
     { fee_code: "TECHNICAL_ANNUAL", fee_name: "التدريب التقني — سنوي", amount: 2400, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { training_type: "technical", period: "annual" } }
-  ];
-  if (serviceCode === "program_application") return [
-    { fee_code: "FILE_OPENING", fee_name: "فتح الملف والتسجيل", amount: 50, currency: "SAR", calculation_method: "once", is_required: true, condition_rule: { applies_when: "no_existing_file" } },
-    { fee_code: "REGISTRATION", fee_name: "الاشتراك الأساسي", amount: 150, currency: "SAR", calculation_method: "monthly", is_required: true, condition_rule: { period: "monthly" } }
   ];
   return [];
 };
