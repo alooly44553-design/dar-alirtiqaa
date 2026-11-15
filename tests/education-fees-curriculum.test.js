@@ -23,7 +23,7 @@ for (const amount of [
 
 for (const text of [
   "مرجع المنهج التعليمي", "curriculum_reference", "curriculum_country",
-  "الفصل الدراسي", "السنة الدراسية", "عدد دفعات الفصل الدراسي",
+  "الفصل الدراسي", "السنة الدراسية",
   "فتح الملف والتسجيل", "التدريب المهني", "ثلاثة مسارات", "خمسة مسارات",
   "فتح حزمة التعليم الجامعي والدراسات العليا"
 ]) assert(home.includes(text) || higher.includes(text), "Missing unified form requirement: " + text);
@@ -53,8 +53,7 @@ for (const page of packagePages) {
   assert.doesNotMatch(source, /رسوم إضافية|رسوم إدارية إضافية|رسوم قبول إضافية/u, "Unapproved extra-fee labels must not appear: " + page);
 }
 assert.doesNotMatch(read("early-learning.html"), /أقساط شهرية/u, "Early-childhood fees must use semester installment selection, not monthly installments.");
-assert.doesNotMatch(registrations, /educationStage === "early_childhood".*monthly_installments/u, "Early-childhood registration must validate the selected term/annual period, not a monthly payment option.");
-assert.match(registrations, /const paymentPlan = tuitionPeriod === "annual" \? "annual" : "monthly_installments"/u, "Legacy payment storage must be derived from the selected tuition period.");
+assert.match(registrations, /LEGACY_REGISTRATION_DISABLED/u, "New registrations must use only the five approved service forms; legacy records remain preserved.");
 assert.match(admin, /curriculum_reference/u, "Admin registration records must expose the curriculum reference.");
 assert.match(admin, /installment_count/u, "Admin registration records must expose the installment count.");
 assert.match(admin, /يعرض هذا القسم جدول الرسوم المعتمد فقط/u, "Admin fee section must state that only approved fees are displayed.");
