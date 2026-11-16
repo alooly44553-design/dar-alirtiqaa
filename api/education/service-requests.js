@@ -166,7 +166,10 @@ export default async function handler(req, res) {
     // Ignore every client-supplied attachment path or metadata field.
     const requestNumber = "EDU-SVC-" + Date.now().toString(36).toUpperCase() + "-" +
       crypto.randomUUID().slice(0, 6).toUpperCase();
-    const rows = await sql`
+    const submittedAt = new Date().toISOString();
+    // Public submitters cannot SELECT request rows under the admin-only read policy.
+    // Avoid INSERT ... RETURNING here: PostgreSQL applies the SELECT policy to RETURNING.
+    await sql`
       INSERT INTO education.service_requests
         (request_number, applicant_name, phone, applicant_email, service_code,
          payload, status, consent_given, consent_recorded_at, consent_text)
@@ -174,7 +177,6 @@ export default async function handler(req, res) {
         (${requestNumber}, ${applicantName}, NULLIF(${phone}, ''),
          NULLIF(${email}, ''), ${serviceCode}, ${JSON.stringify(payload)}::jsonb,
          'new', true, now(), ${service.consent_text})
-      RETURNING id, request_number, status, created_at
     `;
     // Queue a minimal follow-up task without copying applicant PII into the task list.
     // Request intake remains successful if the task queue is temporarily unavailable.
@@ -196,7 +198,7 @@ export default async function handler(req, res) {
     }
     return sendJson(res, 201, {
       ok: true,
-      request: rows[0],
+      request: { request_number: requestNumber, status: "new", created_at: submittedAt },
       follow_up_queued: followUpQueued,
       message: "تم استلام الطلب وإرساله للمراجعة الإدارية؛ الاستلام لا يعني القبول النهائي."
     });
