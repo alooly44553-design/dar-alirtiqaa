@@ -111,9 +111,10 @@ assert.match(admin, /early_childhood:\["الحضانة","تمهيدي 1 KG1","ت
 assert.match(admin, /loadRegistrations\(\{silent:true\}\)/u, "Student registration list must receive read-only refreshes");
 
 const feeApi = read("api/education/service-fees.js");
-assert.match(feeApi, /approvedFees/u, "Fee API must return the approved fee catalog only");
-assert.doesNotMatch(feeApi, /FROM education\.service_fee_items/u, "Public fee API must not expose unapproved legacy fee rows");
-assert.match(index, /لا تُعرض أو تُحصّل أي رسوم أخرى غير البنود المعتمدة/u, "Forms must disclose that only approved fees apply");
+assert.match(feeApi, /fees:\s*\[\]/u, "Public fee API must not expose numeric fee rows before fresh management approval");
+assert.match(feeApi, /pricing_notice/u, "Public fee API must refer pricing questions to management");
+assert.doesNotMatch(feeApi, /amount:\s*\d|fee_code:\s*["']/u, "Public fee API must not contain hard-coded fee amounts or codes");
+assert.match(index, /لا يُنشأ أي التزام مالي قبل مراجعة الإدارة وإبلاغ المستفيد بالتفاصيل/u, "Forms must require management review before any financial commitment");
 assert.match(index, /<html lang="ar" dir="rtl">/u, "Homepage must remain Arabic RTL");
 const manifestCacheVersion = index.match(/app\.webmanifest\?v=([\w-]+)/u)?.[1];
 const serviceWorkerCacheVersion = index.match(/sw\.js\?v=([\w-]+)/u)?.[1];
@@ -121,7 +122,7 @@ assert(manifestCacheVersion, "Manifest must have a cache-busting version");
 assert(serviceWorkerCacheVersion, "Service worker must have a cache-busting version");
 assert.equal(manifestCacheVersion, serviceWorkerCacheVersion, "Manifest and service-worker cache-busters must stay aligned");
 
-for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والعالي","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
+for (const label of ["الطفولة المبكرة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والدراسات العليا","التدريب المهني والتقني","مسارات الإرتقاء التعليمية والتربوية والمهارية"]) {
   assert(index.includes(label), "Missing educational scope: " + label);
 }
 const templates = read("operations-templates.html");
@@ -163,10 +164,10 @@ for (const [label, source] of [["early learning", earlyLearning], ["general educ
   assert.match(source, /خيارات التعليم الإلكتروني/u, label + " must include the e-learning modes");
   assert.match(source, /شهادات/u, label + " must include semester certificate/assessment information");
 }
-assert.match(index, /رسوم الزي والكتب/u, "Early learning must show the approved uniform and books fee");
-assert.match(index, /1050:1050|1050/u, "Early learning term fee must be available");
-assert.match(index, /2100:2100|2100/u, "Nursery and KG1 annual fee must be available");
-assert.match(index, /1800:1800|1800/u, "KG2 and KG3 annual fee must be available");
+assert.match(index, /رسوم دراسية ميسرة/u, "Early learning must disclose the approved fee-concession policy without publishing unconfirmed amounts");
+assert.match(index, /خصم 50% للأيتام/u, "Early learning must retain the approved orphan discount");
+assert.match(index, /خصم 50% للأيتام دون 15 عامًا/u, "General education must retain the approved age-limited orphan discount");
+assert.doesNotMatch(index, /(?:\d[\d,]*(?:\.\d+)?\s*ريال|(?:ريال|SAR)\s*\d)/u, "Homepage must not publish unconfirmed numeric fee amounts");
 assert.match(generalEducation, /المنهج السعودي/u, "General education must reference Saudi curriculum plans and records");
 assert.doesNotMatch(higherEducation, /التوجيه/u, "Higher education page must not use the guidance wording");
 assert.match(higherEducation, /مباشر/u, "Higher education must describe direct teaching");
@@ -187,12 +188,8 @@ assert.match(registrationApi, /LEGACY_REGISTRATION_DISABLED/u, "The old public r
 assert.match(adminRegistrationApi, /has_existing_file/u, "Admin registration API must expose prior-file status");
 assert.match(admin, /x\.has_existing_file===true/u, "Admin registration list must display prior-file status");
 const approvedFeeMigration = read("database/migrations/20261104_unified_curriculum_and_approved_fees.sql");
-assert.match(approvedFeeMigration, /DELETE FROM education\.service_fee_items/u, "Unapproved legacy fees must be deleted by the approved fee migration");
-assert.match(approvedFeeMigration, /150\.00/u, "Approved monthly educational subscription must be 150 SAR");
-assert.match(approvedFeeMigration, /100\.00/u, "Approved new-file opening fee must be 100 SAR");
-assert.match(approvedFeeMigration, /200\.00/u, "Approved conditional assessment/equivalency fee must be 200 SAR");
-assert.match(approvedFeeMigration, /2700\.00/u, "Approved annual diploma/bachelor fee must be 2700 SAR");
-assert.match(approvedFeeMigration, /3000\.00/u, "Approved annual graduate fee must be 3000 SAR");
+assert.match(approvedFeeMigration, /DELETE FROM education\.service_fee_items/u, "Historical fee migration must remain available for audit; current public disclosure is controlled by the fee API");
+assert.match(feeApi, /fees:\s*\[\]/u, "Numeric fee rows remain suppressed until management re-approves a fee schedule");
 assert.match(approvedFeeMigration, /التعليم الجامعي والدراسات العليا/u, "University service must use the approved package name");
 assert.match(index, /التعليم الجامعي والدراسات العليا/u, "Homepage must use the approved higher education package name");
 assert.doesNotMatch(index + read("education-packages.html") + higherEducation, /التوجيه والقبول الجامعي|القبول الجامعي والعالي|فتح مجال التعليم الجامعي/u, "Old higher education labels must be removed");
