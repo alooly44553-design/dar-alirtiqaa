@@ -1,29 +1,5 @@
 import { getDatabase, sendJson } from "../../lib/neon-db.js";
 
-const approvedFees = (serviceCode) => {
-  if (serviceCode === "university_guidance") return [
-    { fee_code: "FILE_OPENING", fee_name: "فتح الملف والتسجيل", amount: 200, currency: "SAR", calculation_method: "conditional", is_required: true, condition_rule: { applies_when: "no_existing_file" } },
-    { fee_code: "LEVEL_OR_EQUIVALENCY", fee_name: "تحديد المستوى أو معادلة الشهادة", amount: 300, currency: "SAR", calculation_method: "conditional", is_required: false, condition_rule: { applies_when: "level_assessment_or_equivalency_required" } },
-    { fee_code: "TUITION_STANDARD_TERM", fee_name: "البرامج الجامعية والأكاديمية — فصل دراسي", amount: 1400, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { fee_scope: "tuition_only", applies_to: ["diploma", "bachelor", "higher_diploma"], period: "term" } },
-    { fee_code: "TUITION_STANDARD", fee_name: "البرامج الجامعية والأكاديمية — سنوي", amount: 2800, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { fee_scope: "tuition_only", applies_to: ["diploma", "bachelor", "higher_diploma"], period: "annual" } },
-    { fee_code: "TUITION_GRADUATE_TERM", fee_name: "التعليم العالي والدراسات العليا — فصل دراسي", amount: 1500, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { fee_scope: "tuition_only", applies_to: ["masters", "doctorate", "postgraduate_studies", "other_graduate"], period: "term" } },
-    { fee_code: "TUITION_GRADUATE", fee_name: "التعليم العالي والدراسات العليا — سنوي", amount: 3000, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { fee_scope: "tuition_only", applies_to: ["masters", "doctorate", "postgraduate_studies", "other_graduate"], period: "annual" } }
-  ];
-  if (serviceCode === "activity_join") return [
-    { fee_code: "FILE_OPENING", fee_name: "فتح الملف والتسجيل", amount: 50, currency: "SAR", calculation_method: "once", is_required: true, condition_rule: { applies_when: "no_existing_file" } },
-    { fee_code: "PATHS_3", fee_name: "ثلاثة مسارات — شهري", amount: 150, currency: "SAR", calculation_method: "monthly", is_required: true, condition_rule: { path_count: 3, period: "monthly" } },
-    { fee_code: "PATHS_5", fee_name: "خمسة مسارات — شهري", amount: 200, currency: "SAR", calculation_method: "monthly", is_required: true, condition_rule: { path_count: 5, period: "monthly" } }
-  ];
-  if (serviceCode === "course_registration") return [
-    { fee_code: "FILE_OPENING", fee_name: "فتح الملف والتسجيل", amount: 200, currency: "SAR", calculation_method: "once", is_required: true, condition_rule: { applies_when: "no_existing_file" } },
-    { fee_code: "PROFESSIONAL_TERM", fee_name: "التدريب المهني — فصل دراسي", amount: 1000, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { training_type: "professional", period: "term" } },
-    { fee_code: "PROFESSIONAL_ANNUAL", fee_name: "التدريب المهني — سنوي", amount: 2000, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { training_type: "professional", period: "annual" } },
-    { fee_code: "TECHNICAL_TERM", fee_name: "التدريب التقني — فصل دراسي", amount: 1200, currency: "SAR", calculation_method: "term", is_required: true, condition_rule: { training_type: "technical", period: "term" } },
-    { fee_code: "TECHNICAL_ANNUAL", fee_name: "التدريب التقني — سنوي", amount: 2400, currency: "SAR", calculation_method: "annual", is_required: true, condition_rule: { training_type: "technical", period: "annual" } }
-  ];
-  return [];
-};
-
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -38,7 +14,7 @@ export default async function handler(req, res) {
     const sql = getDatabase("education", { app_role: "public_catalog" });
     const found = await sql`SELECT service_code FROM education.service_catalog WHERE id = ${serviceId}::uuid AND is_active = true LIMIT 1`;
     if (!found.length) return sendJson(res, 404, { error: "SERVICE_NOT_FOUND" });
-    return sendJson(res, 200, { ok: true, fees: approvedFees(found[0].service_code) });
+    return sendJson(res, 200, { ok: true, fees: [], pricing_notice: "تُحدد الرسوم والتيسيرات بعد مراجعة الإدارة، ويُبلّغ بها المستفيد قبل تأكيد أي التزام مالي." });
   } catch (error) {
     const status = error.statusCode || 500;
     return sendJson(res, status, { error: status === 503 ? error.message : "SERVICE_FEES_FAILED" });
