@@ -64,7 +64,7 @@ for (const page of packagePages) {
 }
 assert.doesNotMatch(home, /(?:\d[\d,]*(?:\.\d+)?\s*ريال|(?:ريال|SAR)\s*\d)/u,
   "Main page must not publish numeric fee amounts.");
-assert.doesNotMatch(read("early-learning.html"), /أقساط شهرية/u,
+assert.doesNotMatch(packages, /(?:\\d[\\d,]*(?:\\.\\d+)?\\s*ريال|(?:ريال|SAR)\\s*\\d)/u,\n  "Education packages overview must not publish numeric fee amounts.");\nassert.doesNotMatch(read("early-learning.html"), /أقساط شهرية/u,
   "Early-childhood fees must not be described as monthly installments.");
 assert.match(migration, /DO \$\$/u);
 assert.match(migration, /ADD COLUMN IF NOT EXISTS has_existing_file boolean/u);
