@@ -20,7 +20,7 @@ for (const file of requiredFiles) assert(fs.existsSync(path.join(root, file)), "
 const packageJson = JSON.parse(read("package.json"));
 const manifest = JSON.parse(read("app.webmanifest"));
 const appName = "منظومة دار الإرتقاء الفكري التعليمية";
-assert.equal(packageJson.version, "1.1.9", "Package version must match intended release");
+assert.equal(packageJson.version, "1.1.10", "Package version must match intended release");
 assert.equal(manifest.version, packageJson.version, "Manifest and package versions differ");
 assert.equal(manifest.name, appName, "PWA display name mismatch");
 assert.equal(manifest.short_name, appName, "PWA short name mismatch");
