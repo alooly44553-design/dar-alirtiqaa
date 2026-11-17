@@ -58,7 +58,7 @@ footer{background:#061f3a;color:#b9c9db;padding:35px 0}.footer-grid{display:grid
 </div>
 <div class="hero-card">
 <div class="card-logo"><img class="brand-mark" src="icon.svg?v=20261020-2" alt="شعار منظومة دار الإرتقاء الفكري التعليمية"><div><strong>هوية تعليمية موحدة</strong><br><small>لجميع المراحل والمجالات</small></div></div>
-<div class="hero-list"><div>👶 الطفولة والتأسيس</div><div>📚 التعليم الأساسي والعام</div><div>🎓 التعليم الجامعي والعالي</div><div>🛠️ التدريب المهني والتقني</div><div>📖 القرآن والإسلامية</div><div>✍️ التقوية والعربية والتأهيل</div><div>🧭 الإرشاد الأكاديمي</div><div>✨ والعديد من المجالات التعليمية والتربوية والترفيهية</div></div>
+<div class="hero-list"><div>👶 الطفولة المبكرة والتأسيس</div><div>📚 التعليم الأساسي والعام</div><div>🎓 التعليم الجامعي والدراسات العليا</div><div>🛠️ التدريب المهني والتقني</div><div>✨ مسارات الإرتقاء التعليمية والتربوية والمهارية</div></div>
 </div>
 </section>
 </div>
@@ -270,14 +270,18 @@ function renderForm(service){
 }
 async function loadFees(serviceId, serviceCode){
  const box=$("service-fees");
- const policies={
-  early_childhood_registration:"رسوم دراسية ميسرة، مع إتاحة السداد على دفعات، وخصم 50% للأيتام. تُراجع الإدارة تفاصيل الرسوم وتُبلغ بها الأسرة قبل تأكيد التسجيل.",
-  general_education_registration:"رسوم ميسرة مع إمكانية السداد على دفعات، وخصم 50% للأيتام دون 15 عامًا. تُبلغ الإدارة الأسرة بالتفاصيل قبل تأكيد التسجيل.",
-  university_guidance:"تُحدد الرسوم وفق البرنامج والجهة التعليمية المختصة، وتُبلغ الإدارة المتقدم بالتفاصيل قبل تأكيد أي التزام.",
-  activity_join:"تُحدد الرسوم والتيسيرات بحسب المسار والبرنامج بعد مراجعة الإدارة، ويُبلّغ بها المستفيد قبل تأكيد التسجيل.",
-  course_registration:"تُحدد الرسوم بحسب نوع البرنامج التدريبي ومدته بعد مراجعة الإدارة، ويُبلّغ بها المستفيد قبل تأكيد التسجيل."
- };
- const message=policies[serviceCode]||"تُراجع الإدارة الرسوم والتيسيرات الخاصة بالخدمة، وتُبلّغ بها المستفيد قبل تأكيد أي التزام.";
+ let message="تُراجع الإدارة الرسوم والتيسيرات الخاصة بالخدمة، وتُبلّغ بها المستفيد قبل تأكيد أي التزام.";
+ if(serviceCode==="early_childhood_registration"){
+  message="رسوم دراسية ميسرة، مع إتاحة السداد على دفعات، وخصم 50% للأيتام. تُراجع الإدارة تفاصيل الرسوم وتُبلغ بها الأسرة قبل تأكيد التسجيل.";
+ }else if(serviceCode==="general_education_registration"){
+  message="رسوم ميسرة مع إمكانية السداد على دفعات، وخصم 50% للأيتام دون 15 عامًا. تُبلغ الإدارة الأسرة بالتفاصيل قبل تأكيد التسجيل.";
+ }else if(serviceCode==="university_guidance"){
+  message="تُحدد الرسوم وفق البرنامج والجهة التعليمية المختصة، وتُبلغ الإدارة المتقدم بالتفاصيل قبل تأكيد أي التزام.";
+ }else if(serviceCode==="activity_join"){
+  message="تُحدد الرسوم والتيسيرات بحسب المسار والبرنامج بعد مراجعة الإدارة، ويُبلّغ بها المستفيد قبل تأكيد التسجيل.";
+ }else if(serviceCode==="course_registration"){
+  message="تُحدد الرسوم بحسب نوع البرنامج التدريبي ومدته بعد مراجعة الإدارة، ويُبلّغ بها المستفيد قبل تأكيد التسجيل.";
+ }
  box.innerHTML="<strong>الرسوم والتيسيرات</strong><p style='margin:8px 0 0;color:var(--muted)'>"+esc(message)+"</p><small style='display:block;color:var(--muted);margin-top:8px'>لا يُنشأ أي التزام مالي قبل مراجعة الإدارة وإبلاغ المستفيد بالتفاصيل.</small>";
 }
 async function loadServices(){
