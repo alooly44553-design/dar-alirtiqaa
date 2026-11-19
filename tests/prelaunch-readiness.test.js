@@ -24,7 +24,12 @@ assert.equal(packageJson.version, "1.1.10", "Package version must match intended
 assert.equal(manifest.version, packageJson.version, "Manifest and package versions differ");
 assert.equal(manifest.name, appName, "PWA display name mismatch");
 assert.equal(manifest.short_name, appName, "PWA short name mismatch");
-assert.match(read("capacitor.config.ts"), /appName:\s*'منظومة دار الإرتقاء الفكري التعليمية'/u, "Capacitor appName mismatch");
+const capacitorConfig = read("capacitor.config.ts");
+if (capacitorConfig.includes("com.daralirtiqaa.app.qa")) {
+  assert.match(capacitorConfig, /appName:\s*'منظومة دار الإرتقاء الفكري التعليمية - QA'/u, "QA Capacitor appName mismatch");
+} else {
+  assert.match(capacitorConfig, /appName:\s*'منظومة دار الإرتقاء الفكري التعليمية'/u, "Production Capacitor appName mismatch");
+}
 const cacheName = read("sw.js").split('const CACHE_NAME = "dar-alirtiqaa-v')[1]?.split('"')[0];
 assert.equal(cacheName, packageJson.version, "Service worker cache version must match the app version and force stale caches to refresh");
 const android = read(".github/workflows/android-apk.yml");
