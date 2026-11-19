@@ -44,7 +44,7 @@
 </main>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-const authConfigResponse=await fetch("./api/education/auth-config",{cache:"no-store"});
+const authConfigResponse=await fetch("./api/education/services?auth_config=1",{cache:"no-store"});
 const authConfig=await authConfigResponse.json().catch(()=>({}));
 if(!authConfigResponse.ok||!authConfig.supabaseUrl||!authConfig.publishableKey){
  const message=document.getElementById("parentAuthStatus"),button=document.getElementById("loginBtn");
