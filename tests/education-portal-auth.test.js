@@ -105,6 +105,14 @@ try {
   // Regression guard: portal queries must preserve each enrollment's
   // program/classroom pair instead of combining independent UUID arrays.
   const portalSource = await readFile(new URL("../api/education/portal.js", import.meta.url), "utf8");
+  const portalPage = await readFile(new URL("../portal.html", import.meta.url), "utf8");
+  const parentPage = await readFile(new URL("../parent.html", import.meta.url), "utf8");
+  const adminPage = await readFile(new URL("../admin.html", import.meta.url), "utf8");
+  assert.ok(portalPage.includes('href="./portal.html?role=teacher#login"'), "The teacher must have a dedicated visible entry route.");
+  assert.ok(portalPage.includes('href="./portal.html?role=student#login"'), "The learner must have a dedicated visible entry route.");
+  assert.ok(portalPage.includes('href="./parent.html"') && parentPage.includes('id="parentLogin"'), "The guardian must have an independent login page.");
+  assert.ok(portalPage.includes('href="./admin.html"') && adminPage.includes("دخول الإدارة"), "The administrator must have an independent login page.");
+  assert.ok(portalPage.includes('expectedRole==="teacher"') && portalPage.includes('expectedRole==="student"'), "Teacher and student routes must reject accounts belonging to the other role.");
   assert.ok((portalSource.match(/jsonb_to_recordset/g) || []).length >= 3,
     "Student lesson, assignment and submission checks must use paired enrollment rows.");
   assert.ok(portalSource.includes("l.classroom_id = enrollment.classroom_id"),
