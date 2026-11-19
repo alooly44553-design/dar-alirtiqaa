@@ -138,6 +138,14 @@ try {
   const portalPage = await readFile(new URL("../portal.html", import.meta.url), "utf8");
   const parentPage = await readFile(new URL("../parent.html", import.meta.url), "utf8");
   const adminPage = await readFile(new URL("../admin.html", import.meta.url), "utf8");
+  const resetPasswordPage = await readFile(new URL("../reset-password.html", import.meta.url), "utf8");
+  assert.ok(portalPage.includes("forgotPasswordBtn") && portalPage.includes("resetPasswordForEmail"),
+    "Teacher and student entry must offer password recovery.");
+  assert.ok(parentPage.includes("parentForgotPassword") && parentPage.includes("resetPasswordForEmail"),
+    "Guardian entry must offer password recovery.");
+  assert.ok(resetPasswordPage.includes("auth_config=1") &&
+    !resetPasswordPage.includes("oisfclsgcjofxzeraqpb.supabase.co"),
+    "Education password recovery must use the isolated education Auth project.");
   assert.doesNotMatch(portalPage + parentPage + adminPage, /zhdbdtokbsnmsikwvvua|sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm/u,
     "Education pages must not hardcode a QA project URL or publishable key.");
   assert.ok(portalPage.includes("/api/education/services?auth_config=1") &&

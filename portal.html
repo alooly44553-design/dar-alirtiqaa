@@ -17,7 +17,7 @@ body{margin:0;font-family:system-ui,Tahoma,Arial;background:#f4f7fb;color:#17203
 <a class="role-entry" href="./parent.html">ولي الأمر <span>متابعة الأبناء المرتبطين بالحساب</span></a>
 </div>
 </section>
-<section id="login" class="card"><h2>الدخول المدرسي</h2><p class="muted">الدخول مخصص للطلاب والمعلمين والحسابات المدرسية المعتمدة.</p><input id="email" type="email" placeholder="البريد الإلكتروني"><input id="password" type="password" placeholder="كلمة المرور"><button id="loginBtn">دخول</button><div id="loginMsg" class="muted"></div></section>
+<section id="login" class="card"><h2>الدخول المدرسي</h2><p class="muted">الدخول مخصص للطلاب والمعلمين والحسابات المدرسية المعتمدة.</p><input id="email" type="email" placeholder="البريد الإلكتروني"><input id="password" type="password" placeholder="كلمة المرور"><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="loginBtn">دخول</button><button id="forgotPasswordBtn" class="secondary" type="button">نسيت كلمة المرور؟</button></div><div id="loginMsg" class="muted" role="status" aria-live="polite"></div></section>
 <section id="app" class="hide">
 <div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div><strong id="who"></strong> <span id="role" class="badge"></span></div><button id="logout" class="secondary">تسجيل الخروج</button></div></div>
 <div id="teacherPanel" class="hide">
@@ -234,6 +234,19 @@ $("loginBtn").onclick=async()=>{
   msg("loginMsg",error.message||"تعذر تسجيل الدخول.");
   await sb.auth.signOut();
  }finally{$("loginBtn").disabled=false}
+};
+$("forgotPasswordBtn").onclick=async()=>{
+ const email=$("email").value.trim();
+ if(!email)return msg("loginMsg","أدخل البريد الإلكتروني للحساب أولًا، ثم اطلب رابط الاستعادة.");
+ const button=$("forgotPasswordBtn");button.disabled=true;button.textContent="جارٍ إرسال رابط الاستعادة...";
+ try{
+  const redirectTo=new URL("reset-password.html",window.location.href).href.split("?")[0];
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo});
+  if(error)throw error;
+  msg("loginMsg","إذا كان البريد مرتبطًا بحساب تعليمي، فستصلك رسالة استعادة. افتح الرابط على هذا الموقع واختر كلمة مرور جديدة.",true);
+ }catch(error){
+  msg("loginMsg","تعذر طلب الاستعادة: "+(error.message||"تحقق من إعدادات البريد وروابط التحويل."));
+ }finally{button.disabled=false;button.textContent="نسيت كلمة المرور؟";}
 };
 $("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
 async function boot(){

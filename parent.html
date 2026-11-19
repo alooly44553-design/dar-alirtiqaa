@@ -20,7 +20,7 @@
  <form id="parentLogin">
   <div class="field"><label for="parentEmail">البريد الإلكتروني</label><input id="parentEmail" type="email" autocomplete="username" required maxlength="254"></div>
   <div class="field"><label for="parentPassword">كلمة المرور</label><input id="parentPassword" type="password" autocomplete="current-password" required maxlength="512"></div>
-  <div class="actions"><button class="btn" id="loginBtn" type="submit">تسجيل الدخول</button><a class="btn secondary" href="./portal.html">بوابة العمل المدرسي</a></div>
+  <div class="actions"><button class="btn" id="loginBtn" type="submit">تسجيل الدخول</button><button class="btn secondary" id="parentForgotPassword" type="button">نسيت كلمة المرور؟</button><a class="btn secondary" href="./portal.html">بوابة العمل المدرسي</a></div>
  </form>
  <div id="parentAuthStatus" class="status" role="status" aria-live="polite">سجّل الدخول لعرض بيانات الأبناء المرتبطين بحسابك فقط.</div>
 </section>
@@ -112,6 +112,19 @@ $("parentLogin").addEventListener("submit",async event=>{
   await loadParent();
  }catch(error){await sb.auth.signOut();status(error.message||"تعذر تسجيل الدخول.", "error");}
  finally{$("loginBtn").disabled=false;}
+});
+$("parentForgotPassword").addEventListener("click",async()=>{
+ const email=$("parentEmail").value.trim();
+ if(!email){status("أدخل البريد الإلكتروني المرتبط بحساب ولي الأمر أولًا.","error");return;}
+ const button=$("parentForgotPassword");button.disabled=true;button.textContent="جارٍ إرسال رابط الاستعادة...";
+ try{
+  const redirectTo=new URL("reset-password.html",window.location.href).href.split("?")[0];
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo});
+  if(error)throw error;
+  status("إذا كان البريد مرتبطًا بحساب ولي أمر، فستصلك رسالة استعادة. افتح الرابط على هذا الموقع واختر كلمة مرور جديدة.","ok");
+ }catch(error){
+  status("تعذر طلب الاستعادة: "+(error.message||"تحقق من إعدادات البريد وروابط التحويل."),"error");
+ }finally{button.disabled=false;button.textContent="نسيت كلمة المرور؟";}
 });
 $("refreshParent").addEventListener("click",loadParent);
 function clearParentPrivateData(){
