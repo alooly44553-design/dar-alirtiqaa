@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolvePortalIdentity } from "../lib/education-portal-auth.js";
+import authConfigHandler from "../api/education/auth-config.js";
 import adminRegistrations from "../api/education/admin-registrations.js";
 
 const IDS = {
@@ -17,6 +18,7 @@ const originalFetch = globalThis.fetch;
 const originalEnv = {
   SUPABASE_URL: process.env.SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY: process.env.SUPABASE_PUBLISHABLE_KEY,
+  SUPABASE_EDUCATION_PROJECT_REF: process.env.SUPABASE_EDUCATION_PROJECT_REF,
   DAR_ALIRTIQAA_APP: process.env.DAR_ALIRTIQAA_APP,
   DATABASE_URL: process.env.DATABASE_URL
 };
@@ -80,8 +82,36 @@ async function identityFor(role) {
 }
 
 try {
-  process.env.SUPABASE_URL = "https://synthetic.supabase.test";
-  process.env.SUPABASE_PUBLISHABLE_KEY = "synthetic-publishable-key";
+  process.env.SUPABASE_URL = "https://synthetic.supabase.co";
+  process.env.SUPABASE_PUBLISHABLE_KEY = "sb_publishable_synthetic-key";
+  process.env.SUPABASE_EDUCATION_PROJECT_REF = "synthetic";
+
+  let configStatus = 0, configBody = null, configHeaders = {};
+  const configResponse = {
+    setHeader(name, value) { configHeaders[name] = value; },
+    status(value) { configStatus = value; return this; },
+    json(value) { configBody = value; return this; }
+  };
+  await authConfigHandler({ method: "GET" }, configResponse);
+  assert.equal(configStatus, 200, "The preview must expose its validated public auth configuration.");
+  assert.deepEqual(Object.keys(configBody).sort(), ["publishableKey", "supabaseUrl"]);
+  assert.equal(configBody.supabaseUrl, "https://synthetic.supabase.co");
+  assert.equal(configHeaders["Cache-Control"], "no-store, private, max-age=0");
+
+  process.env.SUPABASE_URL = "https://shared-centers.supabase.co";
+  configStatus = 0; configBody = null;
+  await authConfigHandler({ method: "GET" }, configResponse);
+  assert.equal(configStatus, 503, "A non-education Supabase project must be rejected.");
+  assert.equal(configBody.error, "EDUCATION_AUTH_NOT_CONFIGURED");
+  process.env.SUPABASE_URL = "https://synthetic.supabase.co";
+
+  const deniedMethodResponse = {
+    setHeader() {},
+    status(value) { configStatus = value; return this; },
+    json(value) { configBody = value; return this; }
+  };
+  await authConfigHandler({ method: "POST" }, deniedMethodResponse);
+  assert.equal(configStatus, 405, "The public auth configuration endpoint must be read-only.");
 
   const noToken = await resolvePortalIdentity({ headers: {} });
   assert.equal(noToken, null, "Unauthenticated requests must not resolve an identity.");
@@ -108,6 +138,14 @@ try {
   const portalPage = await readFile(new URL("../portal.html", import.meta.url), "utf8");
   const parentPage = await readFile(new URL("../parent.html", import.meta.url), "utf8");
   const adminPage = await readFile(new URL("../admin.html", import.meta.url), "utf8");
+  assert.doesNotMatch(portalPage + parentPage + adminPage, /zhdbdtokbsnmsikwvvua|sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm/u,
+    "Education pages must not hardcode a QA project URL or publishable key.");
+  assert.ok(portalPage.includes("/api/education/auth-config") &&
+    parentPage.includes("/api/education/auth-config") &&
+    adminPage.includes("/api/education/auth-config"),
+    "All four role routes must load the authentication configuration from the current deployment.");
+  assert.ok(adminPage.includes('fetch(SUPABASE_URL+"/functions/v1/branch-admin-supervisor"'),
+    "Admin Edge Function calls must target the environment-selected education Supabase project.");
   assert.ok(portalPage.includes('href="./portal.html?role=teacher#login"'), "The teacher must have a dedicated visible entry route.");
   assert.ok(portalPage.includes('href="./portal.html?role=student#login"'), "The learner must have a dedicated visible entry route.");
   assert.ok(portalPage.includes('href="./parent.html"') && parentPage.includes('id="parentLogin"'), "The guardian must have an independent login page.");
