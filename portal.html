@@ -47,7 +47,15 @@ body{margin:0;font-family:system-ui,Tahoma,Arial;background:#f4f7fb;color:#17203
 </section></main>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-const sb=createClient("https://zhdbdtokbsnmsikwvvua.supabase.co","sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm");
+const authConfigResponse=await fetch("/api/education/auth-config",{cache:"no-store"});
+const authConfig=await authConfigResponse.json().catch(()=>({}));
+if(!authConfigResponse.ok||!authConfig.supabaseUrl||!authConfig.publishableKey){
+ const message=document.getElementById("loginMsg"),button=document.getElementById("loginBtn");
+ if(message)message.textContent="بوابة الدخول غير مهيأة لمشروع التعليم المعتمد. يرجى مراجعة الإدارة.";
+ if(button)button.disabled=true;
+ throw new Error("EDUCATION_AUTH_NOT_CONFIGURED");
+}
+const sb=createClient(authConfig.supabaseUrl,authConfig.publishableKey);
 const $=id=>document.getElementById(id), esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 let me=null, selectedAssignment=null, teacherLessons=[];
 const requestedRole=new URLSearchParams(location.search).get("role");
