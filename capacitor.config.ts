@@ -1,10 +1,10 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.daralirtiqaa.app',
-  appName: 'منظومة دار الإرتقاء الفكري التعليمية',
+  appId: 'com.daralirtiqaa.app.qa',
+  appName: 'منظومة دار الإرتقاء الفكري التعليمية - QA',
   webDir: 'www',
-  // QA-only Android artifact for PR #111. Do not use the production origin here.
+  // QA-only app identity and origin: install alongside production without replacing it.
   // The branch alias keeps the installed test client pointed at the QA Preview.
   server: {
     url: 'https://alirtiqaa-educational-platform-git-secu-98cfdd-alooly44553-7281.vercel.app',

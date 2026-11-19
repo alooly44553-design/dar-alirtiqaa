@@ -146,6 +146,10 @@ try {
   assert.ok(resetPasswordPage.includes("auth_config=1") &&
     !resetPasswordPage.includes("oisfclsgcjofxzeraqpb.supabase.co"),
     "Education password recovery must use the isolated education Auth project.");
+  const capacitorConfig = await readFile(new URL("../capacitor.config.ts", import.meta.url), "utf8");
+  assert.ok(capacitorConfig.includes("com.daralirtiqaa.app.qa") &&
+    capacitorConfig.includes("منظومة دار الإرتقاء الفكري التعليمية - QA"),
+    "QA Android must use a separate package identity and must not replace the production app.");
   assert.doesNotMatch(portalPage + parentPage + adminPage, /zhdbdtokbsnmsikwvvua|sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm/u,
     "Education pages must not hardcode a QA project URL or publishable key.");
   assert.ok(portalPage.includes("/api/education/services?auth_config=1") &&
