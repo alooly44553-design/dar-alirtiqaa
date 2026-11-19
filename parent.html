@@ -44,7 +44,15 @@
 </main>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-const sb=createClient("https://zhdbdtokbsnmsikwvvua.supabase.co","sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm");
+const authConfigResponse=await fetch("./api/education/auth-config",{cache:"no-store"});
+const authConfig=await authConfigResponse.json().catch(()=>({}));
+if(!authConfigResponse.ok||!authConfig.supabaseUrl||!authConfig.publishableKey){
+ const message=document.getElementById("parentAuthStatus"),button=document.getElementById("loginBtn");
+ if(message)message.textContent="بوابة ولي الأمر غير مهيأة لمشروع التعليم المعتمد. يرجى مراجعة الإدارة.";
+ if(button)button.disabled=true;
+ throw new Error("EDUCATION_AUTH_NOT_CONFIGURED");
+}
+const sb=createClient(authConfig.supabaseUrl,authConfig.publishableKey);
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 function status(text,kind=""){const e=$("parentAuthStatus");e.textContent=text;e.className="status"+(kind?" "+kind:"");}
