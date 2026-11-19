@@ -96,7 +96,7 @@ try {
   assert.equal(configStatus, 200, "The preview must expose its validated public auth configuration.");
   assert.deepEqual(Object.keys(configBody).sort(), ["publishableKey", "supabaseUrl"]);
   assert.equal(configBody.supabaseUrl, "https://synthetic.supabase.co");
-  assert.equal(configHeaders["Cache-Control"], "no-store, private, max-age=0");
+  assert.equal(configHeaders["Cache-Control"], "no-store", "The shared API response helper must prevent auth-config caching.");
 
   process.env.SUPABASE_URL = "https://shared-centers.supabase.co";
   configStatus = 0; configBody = null;
