@@ -1,9 +1,20 @@
 import { getDatabase, sendJson } from "../../lib/neon-db.js";
+import { getEducationSupabaseConfig } from "../../lib/education-portal-auth.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return sendJson(res, 405, { error: "METHOD_NOT_ALLOWED" });
+  }
+  if (req.query?.auth_config === "1") {
+    try {
+      const { base, key } = getEducationSupabaseConfig();
+      res.setHeader("Cache-Control", "no-store, private, max-age=0");
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      return sendJson(res, 200, { supabaseUrl: base, publishableKey: key });
+    } catch {
+      return sendJson(res, 503, { error: "EDUCATION_AUTH_NOT_CONFIGURED" });
+    }
   }
   try {
     const sql = getDatabase("education", { app_role: req.query?.health === "1" ? "health_check" : "public_catalog" });
