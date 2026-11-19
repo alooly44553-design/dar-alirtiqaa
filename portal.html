@@ -3,10 +3,20 @@
 <meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="./icon.svg?v=20261020-1" type="image/svg+xml">
 <title>بوابة العمل المدرسي — منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية</title>
 <style>
-body{margin:0;font-family:system-ui,Tahoma,Arial;background:#f4f7fb;color:#172033}header{background:#082f57;color:#fff;padding:18px}main{max-width:1100px;margin:auto;padding:18px}.card{background:#fff;border:1px solid #dbe3ee;border-radius:16px;padding:16px;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}input,textarea,select{width:100%;box-sizing:border-box;padding:11px;margin:5px 0;border:1px solid #cbd5e1;border-radius:10px}button{border:0;border-radius:10px;padding:11px 15px;background:#082f57;color:#fff;cursor:pointer}button.secondary{background:#e2e8f0;color:#172033}.muted{color:#64748b;font-size:13px}.item{border:1px solid #e2e8f0;border-radius:11px;padding:11px;margin:7px 0}.ok{color:#166534}.err{color:#991b1b}.hide{display:none}.tabs button{margin-left:6px}.badge{display:inline-block;padding:4px 9px;border-radius:99px;background:#e2e8f0;font-size:12px}
+body{margin:0;font-family:system-ui,Tahoma,Arial;background:#f4f7fb;color:#172033}header{background:#082f57;color:#fff;padding:18px}main{max-width:1100px;margin:auto;padding:18px}.card{background:#fff;border:1px solid #dbe3ee;border-radius:16px;padding:16px;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}input,textarea,select{width:100%;box-sizing:border-box;padding:11px;margin:5px 0;border:1px solid #cbd5e1;border-radius:10px}button{border:0;border-radius:10px;padding:11px 15px;background:#082f57;color:#fff;cursor:pointer}button.secondary{background:#e2e8f0;color:#172033}.muted{color:#64748b;font-size:13px}.item{border:1px solid #e2e8f0;border-radius:11px;padding:11px;margin:7px 0}.ok{color:#166534}.err{color:#991b1b}.hide{display:none}.tabs button{margin-left:6px}.badge{display:inline-block;padding:4px 9px;border-radius:99px;background:#e2e8f0;font-size:12px}.role-entry{display:block;text-decoration:none;border:1px solid #dbe3ee;border-radius:12px;padding:14px;background:#f8fbff;font-weight:800;color:#082f57}.role-entry span{display:block;font-size:12px;font-weight:400;color:#64748b;margin-top:4px}
 </style></head><body>
 <header style="display:flex;align-items:center;gap:12px"><img src="icon.svg?v=20261019-1" alt="الشعار الموحد لمنظومة دار الارتقاء الفكري التعليمية" style="width:62px;height:52px;object-fit:contain"><div><strong>منظومة مدارس / مراكز دار الإرتقاء الفكري التعليمية</strong><div class="muted" style="color:#dbeafe">لتعليم الجاليات • بوابة العمل المدرسي: الدروس ← الشرح ← الواجبات ← التسليم ← المراجعة والنتيجة</div></div></header>
 <main>
+<section class="card" id="roleEntrances">
+<h2>بوابات الدخول حسب الصلاحية</h2>
+<p class="muted">اختر المسار المخصص لحسابك. تتحقق كل بوابة من الدور المرتبط بالحساب قبل عرض البيانات.</p>
+<div class="grid">
+<a class="role-entry" href="./admin.html">الإدارة <span>الدخول الإداري والصلاحيات المعتمدة</span></a>
+<a class="role-entry" href="./portal.html?role=teacher#login">المعلم <span>الدروس والواجبات ومراجعة التسليمات</span></a>
+<a class="role-entry" href="./portal.html?role=student#login">الطالب <span>الدروس والواجبات والنتائج</span></a>
+<a class="role-entry" href="./parent.html">ولي الأمر <span>متابعة الأبناء المرتبطين بالحساب</span></a>
+</div>
+</section>
 <section id="login" class="card"><h2>الدخول المدرسي</h2><p class="muted">الدخول مخصص للطلاب والمعلمين والحسابات المدرسية المعتمدة.</p><input id="email" type="email" placeholder="البريد الإلكتروني"><input id="password" type="password" placeholder="كلمة المرور"><button id="loginBtn">دخول</button><div id="loginMsg" class="muted"></div></section>
 <section id="app" class="hide">
 <div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div><strong id="who"></strong> <span id="role" class="badge"></span></div><button id="logout" class="secondary">تسجيل الخروج</button></div></div>
@@ -40,6 +50,12 @@ import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 const sb=createClient("https://zhdbdtokbsnmsikwvvua.supabase.co","sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm");
 const $=id=>document.getElementById(id), esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 let me=null, selectedAssignment=null, teacherLessons=[];
+const requestedRole=new URLSearchParams(location.search).get("role");
+const expectedRole=["teacher","student"].includes(requestedRole)?requestedRole:null;
+if(expectedRole){
+ $("login").querySelector("h2").textContent=expectedRole==="teacher"?"دخول المعلم":"دخول الطالب";
+ $("login").querySelector("p").textContent=expectedRole==="teacher"?"هذا المسار مخصص لحسابات المعلمين المعتمدة.":"هذا المسار مخصص لحسابات الطلاب المعتمدة.";
+}
 
 async function api(path,method="GET",body){
  const sessionResult=await sb.auth.getSession();
@@ -217,6 +233,8 @@ async function boot(){
  if(!session.data?.session)return;
  try{
   me=await profile();
+  if(expectedRole==="teacher"&&!me.staff)throw new Error("هذا المسار مخصص للمعلم. استخدم بوابة الطالب أو بوابة ولي الأمر حسب صفتك.");
+  if(expectedRole==="student"&&!me.learner)throw new Error("هذا المسار مخصص للطالب. استخدم بوابة المعلم أو بوابة ولي الأمر حسب صفتك.");
   $("login").classList.add("hide");
   $("app").classList.remove("hide");
   $("who").textContent=me.staff?.full_name||me.learner?.full_name||me.user?.email||"";
