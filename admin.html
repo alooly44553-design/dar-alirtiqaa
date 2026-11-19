@@ -424,8 +424,16 @@ textarea{width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px
 
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
-const SUPABASE_URL="https://zhdbdtokbsnmsikwvvua.supabase.co";
-const SUPABASE_KEY="sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm";
+const authConfigResponse=await fetch("/api/education/auth-config",{cache:"no-store"});
+const authConfig=await authConfigResponse.json().catch(()=>({}));
+if(!authConfigResponse.ok||!authConfig.supabaseUrl||!authConfig.publishableKey){
+ const message=document.getElementById("loginMsg"),button=document.getElementById("loginBtn");
+ if(message)message.textContent="لوحة الإدارة غير مهيأة لمشروع التعليم المعتمد. يرجى مراجعة الإدارة.";
+ if(button)button.disabled=true;
+ throw new Error("EDUCATION_AUTH_NOT_CONFIGURED");
+}
+const SUPABASE_URL=authConfig.supabaseUrl;
+const SUPABASE_KEY=authConfig.publishableKey;
 const sb=createClient(SUPABASE_URL,SUPABASE_KEY); window.sb=null; const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 const escapeHtml=esc;
@@ -1055,7 +1063,7 @@ document.getElementById("addPlan")?.addEventListener("click",async()=>{const pla
   if(!access){msg.textContent="انتهت الجلسة؛ سجّل الدخول مجددًا.";return;}
   runBtn.disabled=true;msg.textContent="جارٍ فحص سجلات الفروع...";
   try{
-   const response=await fetch("https://zhdbdtokbsnmsikwvvua.supabase.co/functions/v1/branch-admin-supervisor",{method:"POST",headers:{"Authorization":"Bearer "+access,"apikey":"sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm","Content-Type":"application/json"},body:"{}"});
+   const response=await fetch(SUPABASE_URL+"/functions/v1/branch-admin-supervisor",{method:"POST",headers:{"Authorization":"Bearer "+access,"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:"{}"});
    const result=await response.json().catch(()=>({}));
    if(!response.ok)throw new Error(result.error||"فشل تشغيل الفحص");
    msg.textContent="اكتمل الفحص الفعلي: "+(result.result?.centers_checked??0)+" فرعًا، وتنبيهات جديدة: "+(result.result?.new_supervision_items??0)+".";
