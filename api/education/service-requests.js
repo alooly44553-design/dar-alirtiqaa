@@ -93,7 +93,7 @@ export default async function handler(req, res) {
       "general_education_registration",
       "activity_join"
     ].includes(serviceCode);
-    const referenceOnlyRequired = serviceCode === "course_registration";
+    const referenceOnlyRequired = ["course_registration", "university_guidance"].includes(serviceCode);
     if (fullCurriculumSelectionRequired &&
         (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
          !curriculumReference ||
