@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolvePortalIdentity } from "../lib/education-portal-auth.js";
-import authConfigHandler from "../api/education/auth-config.js";
+import servicesHandler from "../api/education/services.js";
 import adminRegistrations from "../api/education/admin-registrations.js";
 
 const IDS = {
@@ -92,7 +92,7 @@ try {
     status(value) { configStatus = value; return this; },
     json(value) { configBody = value; return this; }
   };
-  await authConfigHandler({ method: "GET" }, configResponse);
+  await servicesHandler({ method: "GET", query: { auth_config: "1" } }, configResponse);
   assert.equal(configStatus, 200, "The preview must expose its validated public auth configuration.");
   assert.deepEqual(Object.keys(configBody).sort(), ["publishableKey", "supabaseUrl"]);
   assert.equal(configBody.supabaseUrl, "https://synthetic.supabase.co");
@@ -100,7 +100,7 @@ try {
 
   process.env.SUPABASE_URL = "https://shared-centers.supabase.co";
   configStatus = 0; configBody = null;
-  await authConfigHandler({ method: "GET" }, configResponse);
+  await servicesHandler({ method: "GET", query: { auth_config: "1" } }, configResponse);
   assert.equal(configStatus, 503, "A non-education Supabase project must be rejected.");
   assert.equal(configBody.error, "EDUCATION_AUTH_NOT_CONFIGURED");
   process.env.SUPABASE_URL = "https://synthetic.supabase.co";
@@ -110,7 +110,7 @@ try {
     status(value) { configStatus = value; return this; },
     json(value) { configBody = value; return this; }
   };
-  await authConfigHandler({ method: "POST" }, deniedMethodResponse);
+  await servicesHandler({ method: "POST", query: { auth_config: "1" } }, deniedMethodResponse);
   assert.equal(configStatus, 405, "The public auth configuration endpoint must be read-only.");
 
   const noToken = await resolvePortalIdentity({ headers: {} });
@@ -140,9 +140,9 @@ try {
   const adminPage = await readFile(new URL("../admin.html", import.meta.url), "utf8");
   assert.doesNotMatch(portalPage + parentPage + adminPage, /zhdbdtokbsnmsikwvvua|sb_publishable_xzL0U4zTzfJ8X1CIECB0jw_JoP7msJm/u,
     "Education pages must not hardcode a QA project URL or publishable key.");
-  assert.ok(portalPage.includes("/api/education/auth-config") &&
-    parentPage.includes("/api/education/auth-config") &&
-    adminPage.includes("/api/education/auth-config"),
+  assert.ok(portalPage.includes("/api/education/services?auth_config=1") &&
+    parentPage.includes("/api/education/services?auth_config=1") &&
+    adminPage.includes("/api/education/services?auth_config=1"),
     "All four role routes must load the authentication configuration from the current deployment.");
   assert.ok(adminPage.includes('fetch(SUPABASE_URL+"/functions/v1/branch-admin-supervisor"'),
     "Admin Edge Function calls must target the environment-selected education Supabase project.");
