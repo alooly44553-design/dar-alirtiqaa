@@ -6,6 +6,7 @@ const migration = read("database/neon/migrations/20261114_split_five_education_r
 const followup = read("database/neon/migrations/20261114_five_forms_fee_and_guardian_fields.sql");
 const curriculumMigration = read("database/neon/migrations/20261114_domain_curriculum_reference_choices.sql");
 const cleanupMigration = read("database/neon/migrations/20261115_five_forms_only_and_field_cleanup.sql");
+const universityCurriculumMigration = read("database/neon/migrations/20261119_university_curriculum_reference_required.sql");
 const home = read("index.html");
 const packages = read("education-packages.html");
 const requestApi = read("api/education/service-requests.js");
@@ -100,6 +101,12 @@ assert.match(cleanupMigration, /'learning_content','tuition_period'/u, "Early ch
 assert.match(cleanupMigration, /'country_interest','academic_system','budget_range','notes','study_period'/u, "University form must not ask the removed academic questions.");
 assert.match(cleanupMigration, /'preferred_schedule','study_period','learning_content','tuition_period'/u, "Vocational form must not ask the removed schedule/content/period questions.");
 assert.match(requestApi, /fullCurriculumSelectionRequired/u);
+assert.match(requestApi, /referenceOnlyRequired = \["course_registration", "university_guidance"\]/u,
+  "University applications must require an academic-plan reference before submission.");
+assert.match(universityCurriculumMigration, /فتح حزمة التعليم الجامعي والدراسات العليا/u);
+assert.match(universityCurriculumMigration, /مرجع الخطة الأكاديمية/u);
+assert.match(universityCurriculumMigration, /institution_study_plan/u);
+
 assert.doesNotMatch(requestApi, /const tuitionPeriod = cleanText\(payload\.tuition_period/u, "University submission must not require the removed study period.");
 assert.match(home, /syncGuardianRequirements/u, "guardian fields must become required in the school form when the learner is under 18");
 assert.doesNotMatch(packages, /curriculum_track=selected_curriculum/u, "package links must not preselect an unsupported curriculum track");
