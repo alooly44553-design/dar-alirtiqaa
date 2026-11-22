@@ -65,19 +65,9 @@ async function portalRequest(){
  if(!res.ok)throw new Error(data.error||"PARENT_PORTAL_FAILED");
  return data;
 }
-async function loadFinance(){
- const box=$("financeSummary"),list=$("financeList");
- try{
-  const {data:{user},error:userError}=await sb.auth.getUser();
-  if(userError||!user){box.textContent="سجّل الدخول بحساب ولي الأمر لعرض الفواتير.";list.innerHTML="";return;}
-  const {data:g,error:guardianError}=await sb.from("edu_guardians").select("id,full_name").eq("auth_user_id",user.id).maybeSingle();
-  if(guardianError||!g){box.textContent="لم يُربط هذا الحساب بعد بملف ولي الأمر.";list.innerHTML="";return;}
-  const {data:rows,error}=await sb.from("edu_parent_financial_overview").select("*").eq("guardian_id",g.id).order("due_date",{ascending:true});
-  if(error){box.textContent="تعذر تحميل ملخص الرسوم الآمن؛ راجع الإدارة.";list.innerHTML="";return;}
-  const rs=rows||[],paid=rs.reduce((n,x)=>n+Number(x.paid_amount||0),0),remaining=rs.reduce((n,x)=>n+Number(x.remaining_amount||0),0);
-  box.innerHTML="<strong>"+esc(g.full_name)+"</strong><div class=\"muted\">الفواتير: "+rs.length+" · المدفوع: "+paid.toFixed(2)+" · المتبقي: "+remaining.toFixed(2)+"</div>";
-  list.innerHTML=rs.map(x=>card(x.invoice_number||"فاتورة",(x.learner_name||"")+(x.description?" — "+x.description:""),"الإجمالي: "+x.net_amount+" "+x.currency+" · المدفوع: "+x.paid_amount+" · المتبقي: "+x.remaining_amount+" · الاستحقاق: "+x.due_date)).join("")||'<div class="row muted">لا توجد فواتير مسجلة حاليًا.</div>';
- }catch(_){box.textContent="تعذر تحميل الرسوم حاليًا.";list.innerHTML="";}
+function showFinanceAvailability(){
+ $("financeSummary").textContent="خدمة الفواتير غير مهيأة في بيئة الاختبار الحالية؛ لا توجد بيانات مالية معتمدة لعرضها في هذه البوابة. يرجى مراجعة الإدارة.";
+ $("financeList").textContent="";
 }
 async function loadParent(){
  $("refreshParent").disabled=true;
@@ -91,11 +81,11 @@ async function loadParent(){
   $("parentLessons").innerHTML=(data.lessons||[]).map(x=>card(x.title,x.explanation,(x.child_names||[]).join("، ")+(x.scheduled_for?" · "+new Date(x.scheduled_for).toLocaleString("ar-SA"):" · موعد غير محدد"))).join("")||'<div class="row muted">لا توجد دروس منشورة مرتبطة بالأبناء المسجلين.</div>';
   $("parentAssignments").innerHTML=(data.assignments||[]).map(x=>card(x.title,x.instructions,(x.child_names||[]).join("، ")+" · آخر موعد: "+(x.due_at?new Date(x.due_at).toLocaleString("ar-SA"):"غير محدد")+" · الدرجة القصوى: "+x.max_score)).join("")||'<div class="row muted">لا توجد واجبات منشورة مرتبطة بالأبناء.</div>';
   $("parentSubmissions").innerHTML=(data.submissions||[]).map(x=>card(x.learner_name+" — "+(x.assignment_title||"تسليم"),x.feedback||"لا توجد ملاحظات من المعلم بعد.","الحالة: "+x.status+" · الدرجة: "+(x.score??"لم ترصد")+" من "+x.max_score+" · التسليم: "+(x.submitted_at?new Date(x.submitted_at).toLocaleString("ar-SA"):"غير مسجل"))).join("")||'<div class="row muted">لا توجد تسليمات أو نتائج مسجلة للأبناء المرتبطين.</div>';
-  const sess=await sb.from("edu_virtual_sessions").select("id,title_ar,starts_at,ends_at,delivery_mode,status").order("starts_at",{ascending:true}).limit(50);
-  $("parentSessions").innerHTML=sess.error?'<div class="row muted">تعذر تحميل الفصول المصرح بها.</div>':(sess.data||[]).map(x=>card(x.title_ar,x.delivery_mode||"عن بُعد",x.starts_at?new Date(x.starts_at).toLocaleString("ar-SA"):"الموعد غير محدد")+"").join("")||'<div class="row muted">لا توجد جلسات مرتبطة بمشاركة ولي الأمر المصرح بها حاليًا.</div>';
+  const sessions=data.sessions||[];
+  $("parentSessions").innerHTML=sessions.map(x=>card(x.title||x.title_ar||"فصل افتراضي",x.delivery_mode||"عن بُعد",x.starts_at?new Date(x.starts_at).toLocaleString("ar-SA"):"الموعد غير محدد")).join("")||'<div class="row muted">لا توجد فصول افتراضية منشورة ومصرح بها لهذا الحساب حاليًا.</div>';
   $("parentDataStatus").textContent="تم جلب بيانات ولي الأمر والأبناء المرتبطين من واجهة محمية؛ صلاحيات هذه الصفحة للقراءة فقط.";
   $("parentDataStatus").className="status ok";
-  await loadFinance();
+  showFinanceAvailability();
  }catch(error){
   $("parentDashboard").classList.add("hidden");
   $("loginCard").classList.remove("hidden");
