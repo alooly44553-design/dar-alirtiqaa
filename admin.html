@@ -502,7 +502,7 @@ $("scheduleClassroom").innerHTML=classrooms.map(x=>`<option value="${esc(x.id)}"
 $("scheduleTeacher").innerHTML=staff.filter(x=>x.is_active).map(x=>`<option value="${esc(x.id)}">${esc(x.full_name)}</option>`).join("")||`<option value="">لا يوجد معلمون</option>`;
 $("attendanceEnrollment").innerHTML=enrollments.map(x=>{const lr=learners.find(y=>y.id===x.learner_id),pr=programs.find(y=>y.id===x.program_id);return `<option value="${esc(x.id)}">${esc(lr?.full_name||"طالب")} — ${esc(pr?.name||"برنامج")}</option>`}).join("")||`<option value="">لا توجد تسجيلات</option>`;
 $("attendanceDate").value=new Date().toISOString().slice(0,10);$("recordLearner").innerHTML=learners.map(x=>`<option value="${esc(x.id)}">${esc(x.full_name)}</option>`).join("")||`<option value="">لا يوجد طلاب</option>`;
-$("progressLearner").innerHTML=$("recordLearner").innerHTML;$("messageLearner").innerHTML=$("recordLearner").innerHTML;$("feeLearner").innerHTML=$("recordLearner").innerHTML;
+$("progressLearner").innerHTML=$("recordLearner").innerHTML;$("messageLearner").innerHTML=$("recordLearner").innerHTML;if($("feeLearner"))$("feeLearner").innerHTML=$("recordLearner").innerHTML;
 $("assessmentProgram").innerHTML=programs.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")||`<option value="">لا توجد برامج نشطة</option>`;
 $("assessmentSubject").innerHTML=subjects.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("")||`<option value="">لا توجد مواد</option>`;
 $("resultAssessment").innerHTML=assessments.map(x=>`<option value="${esc(x.id)}">${esc(x.title)} — ${esc(programs.find(p=>p.id===x.program_id)?.name||"برنامج")}</option>`).join("")||`<option value="">لا توجد تقييمات</option>`;
