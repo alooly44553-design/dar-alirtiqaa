@@ -300,7 +300,7 @@ async function loadFees(serviceId, serviceCode){
   if(field("has_existing_file")==="no")rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",200,"رسوم إدارية"]);
   rows.push(["رسوم الكتب والمقررات الدراسية",200,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",300,"رسوم إدارية"]);
   const degree=field("degree_level");
-  if(degree){const graduate=["masters","doctorate","postgraduate_studies","other_graduate"].includes(degree);rows.push([graduate?"مستوى الدراسات العليا":"مستوى الدراسات الجامعية",graduate?3000:2700,"سنويًا"]);}
+  if(degree){const graduate=["masters","doctorate","postgraduate_studies","other_graduate","graduate_research"].includes(degree);rows.push([graduate?"مستوى الدراسات العليا":"مستوى الدراسات الجامعية",graduate?3000:2700,"سنويًا"]);}
   else rows.push(["مستوى الدراسات الجامعية",2700,"سنويًا"],["مستوى الدراسات العليا",3000,"سنويًا"]);
  }else if(serviceCode==="employment_training"){
   rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",150,"رسوم إدارية"],["رسوم المنهج والمستلزمات التدريبية",150,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",200,"رسوم إدارية"],["الرسوم التدريبية المهنية",1800,"سنويًا"],["الرسوم التدريبية التقنية",2100,"سنويًا"]);
