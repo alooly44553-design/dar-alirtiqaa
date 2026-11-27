@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", "notes", "curriculum_track", "curriculum_country", "curriculum_reference", "has_existing_file", "tuition_period", "installment_count", ...fieldsByKey.keys()]);
+    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", "notes", "curriculum_track", "curriculum_country", "curriculum_reference", "has_existing_file", "tuition_period", "installment_count", "gender", "date_of_birth", "nationality", "identity_type", "identity_number", "guardian_name", "guardian_relationship", "guardian_phone", "address", ...fieldsByKey.keys()]);
     const payload = {};
     for (const key of allowedKeys) {
       if (!(key in body)) continue;
@@ -59,6 +59,18 @@ export default async function handler(req, res) {
         const v = cleanText(typeof value === "string" ? value : "", 254);
         if (!validEmail(v)) return sendJson(res, 400, { error: "INVALID_EMAIL" });
         if (v) payload[key] = v;
+        continue;
+      }
+      if (key === "guardian_phone") {
+        const v = cleanText(typeof value === "string" ? value : "", 30);
+        if (v && !validPhone(v)) return sendJson(res, 400, { error: "INVALID_PHONE" });
+        if (v) payload[key] = v;
+        continue;
+      }
+      if (key === "gender") {
+        const v = cleanText(typeof value === "string" ? value : "", 10);
+        if (!["male", "female"].includes(v)) return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
+        payload[key] = v;
         continue;
       }
       if (field?.type === "number") {
