@@ -126,6 +126,8 @@ export default async function handler(req, res) {
 
     for (const field of configuredFields) {
       if (!field?.required || typeof field.key !== "string") continue;
+      if (serviceCode === "university_guidance" &&
+          ["country_interest", "academic_system", "budget_range", "notes", "study_period"].includes(field.key)) continue;
       const value = payload[field.key];
       if (value === undefined || value === null || value === "") {
         return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
