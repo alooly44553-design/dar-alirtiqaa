@@ -4,12 +4,12 @@ const config: CapacitorConfig = {
   appId: 'com.daralirtiqaa.app.qa',
   appName: 'منظومة دار الإرتقاء الفكري التعليمية - QA',
   webDir: 'www',
-  // QA-only app identity and origin: install alongside production without replacing it.
-  // The branch alias keeps the installed test client pointed at the QA Preview.
+  // QA-only app identity and immutable QA deployment origin.
+  // Install alongside production; never replace the production application.
   server: {
-    url: 'https://alirtiqaa-educational-platform-git-secu-98cfdd-alooly44553-7281.vercel.app',
+    url: 'https://alirtiqaa-educational-platform-h2vt125vh-alooly44553-7281.vercel.app',
     cleartext: false,
-    allowNavigation: ['alirtiqaa-educational-platform-git-secu-98cfdd-alooly44553-7281.vercel.app'],
+    allowNavigation: ['alirtiqaa-educational-platform-h2vt125vh-alooly44553-7281.vercel.app'],
   },
 };
 
