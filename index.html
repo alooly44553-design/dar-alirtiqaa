@@ -239,7 +239,7 @@ function renderForm(service){
  const attachmentField=["student_registration","program_application","university_guidance"].includes(service.service_code)?'<div class="field full files"><strong>المرفقات المطلوبة</strong><small>تُسلَّم المرفقات مع الاستمارة والإيصال؛ رفع الملفات إلكترونيًا غير متاح حاليًا.</small><ul><li>صورة إثبات ولي الأمر أو الجواز — صورة شخصية</li><li>صورة إثبات الطالب / ـة أو الجواز — تعبئة الاستمارة</li><li>صورة آخر شهادة دراسية — صورة الإيصال</li><li>صورة شهادة الميلاد أو تبليغ الولادة أو كرت التطعيم</li></ul></div>':'<div class="field full"><small>المرفقات غير مفعّلة مؤقتًا حتى اكتمال ربط تخزين خاص ومستقل وآمن.</small></div>';
  const hiddenFields=service.service_code==="student_registration"?'<input type="hidden" data-key="curriculum_track" value="saudi_curriculum"><input type="hidden" data-key="curriculum_country" value="المملكة العربية السعودية"><input type="hidden" data-key="curriculum_reference" value="غير مطلوب وفق التوجيه"><input type="hidden" data-key="tuition_period" value="annual">':
  service.service_code==="program_application"?'<input type="hidden" data-key="program_category" value="school_tutoring"><input type="hidden" data-key="curriculum_track" value="saudi_curriculum"><input type="hidden" data-key="curriculum_country" value="المملكة العربية السعودية"><input type="hidden" data-key="curriculum_reference" value="غير مطلوب وفق التوجيه">':
- service.service_code==="university_guidance"?'<input type="hidden" data-key="curriculum_track" value="saudi_curriculum"><input type="hidden" data-key="curriculum_country" value="المملكة العربية السعودية"><input type="hidden" data-key="curriculum_reference" value="غير مطلوب وفق التوجيه"><input type="hidden" data-key="tuition_period" value="annual">':'';
+ service.service_code==="university_guidance"?'':'';
  $("service-fields").innerHTML=unique.map(inputField).join("")+attachmentField+hiddenFields+
  '<div class="field full"><label><input id="serviceConsent" type="checkbox" required> '+esc(consentText)+'</label></div>'+
  '<div class="field full"><button class="btn dark" id="serviceSubmit" type="submit">إرسال الطلب</button><div id="serviceStatus" class="status"></div></div>';
@@ -365,9 +365,7 @@ $("serviceForm").addEventListener("submit",async e=>{
     data.curriculum_track="saudi_curriculum";data.curriculum_country="المملكة العربية السعودية";data.curriculum_reference="غير مطلوب وفق التوجيه";
     data.notes=[data.notes,"المرحلة التعليمية المطلوبة: "+grade].filter(Boolean).join(" — ");
    }
-   if(serviceCode==="university_guidance"){
-    data.curriculum_track="saudi_curriculum";data.curriculum_country="المملكة العربية السعودية";data.curriculum_reference="غير مطلوب وفق التوجيه";data.tuition_period="annual";
-   }
+ 
    const response=await fetch("/api/education/service-requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,service_code:serviceCode,consent_given:true,consent_text:consentText})});
    const result=await response.json().catch(()=>({}));
    if(!response.ok)throw new Error(({
