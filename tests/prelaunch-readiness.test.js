@@ -180,7 +180,8 @@ assert.match(serviceRequestsApi, /payload\.curriculum_country = curriculumTrack 
 assert.match(index, /requestedCurriculum=new URLSearchParams/u, "Registration links must preselect the requested curriculum track");
 assert.match(adminRegistrationApi, /curriculum_track,[\s\S]{0,300}curriculum_country,[\s\S]{0,300}payment_plan/u, "Admin registration must expose curriculum and payment selections");
 assert.match(curriculumMigration, /education_student_registrations_curriculum_idx/u, "Curriculum migration must index the separate curriculum records");
-assert.match(index, /data-key="payment_plan"/u, "Student registration form must capture annual or monthly payment selection");
+assert.match(index, /key:"tuition_period"/u, "Student registration form must capture annual or term tuition period");
+assert.match(index, /key:"installment_count"/u, "Student registration form must capture installment count");
 assert.match(marketingApi, /is_center_management_admin/u, "Marketing workspace API must verify admin role server-side");
 assert.match(marketingApi, /ADMIN_AUTH_REQUIRED/u, "Marketing workspace API must fail closed without admin authentication");
 assert.match(marketingApi, /DIRECTOR_APPROVAL_REQUIRED/u, "Final marketing approvals must require director identity");
