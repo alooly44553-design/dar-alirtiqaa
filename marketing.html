@@ -35,6 +35,7 @@ footer{background:#061f3a;color:#c4d5e4;padding:22px 0}footer .container{display
 function copyCaption(id,button){const el=document.getElementById(id);const text=el.value;const done=()=>{const old=button.textContent;button.textContent='تم نسخ النص ✓';setTimeout(()=>button.textContent=old,1700)};if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done).catch(()=>fallback(el,done))}else fallback(el,done)}
 function fallback(el,done){el.focus();el.select();try{document.execCommand('copy');done()}catch(e){}}
 </script>
+<script src="/education-identity.js?v=20261127" defer></script>
 </head>
 <body>
 <header class="hero"><div class="container">
