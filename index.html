@@ -203,12 +203,24 @@ function renderForm(service){
  }
  if(service.service_code==="program_application"){
   ["curriculum_track","curriculum_country","curriculum_reference","program_category"].forEach(k=>mergedFields.delete(k));
-  mergedFields.set("applicant_name",{...(mergedFields.get("applicant_name")||{}),key:"applicant_name",type:"text",label:"الإسم الرباعي للطالب / ـة",required:true});
-  mergedFields.set("applicant_phone",{...(mergedFields.get("applicant_phone")||{}),key:"applicant_phone",type:"tel",label:"رقم الواتساب المضاف للقروبات التعليمية",required:true});
+  mergedFields.set("applicant_name",{key:"applicant_name",type:"text",label:"الإسم الرباعي للطالب / ـة",required:true});
+  mergedFields.set("gender",{key:"gender",type:"select",label:"النوع",required:true,options:[{label:"طالب",value:"male"},{label:"طالبة",value:"female"}]});
+  mergedFields.set("date_of_birth",{key:"date_of_birth",type:"date",label:"تاريخ الميلاد"});
+  mergedFields.set("nationality",{key:"nationality",type:"text",label:"الجنسية"});
+  mergedFields.set("identity_type",{...(mergedFields.get("identity_type")||{}),key:"identity_type",type:"select",label:"نوع الهوية أو الوثيقة"});
+  mergedFields.set("identity_number",{key:"identity_number",type:"text",label:"رقم الهوية/الوثيقة"});
+  mergedFields.set("applicant_phone",{key:"applicant_phone",type:"tel",label:"رقم الواتساب المضاف للقروبات التعليمية",required:true});
+  mergedFields.set("applicant_email",{key:"applicant_email",type:"email",label:"البريد الإلكتروني"});
+  mergedFields.set("guardian_name",{key:"guardian_name",type:"text",label:"اسم ولي الأمر"});
+  mergedFields.set("guardian_relationship",{key:"guardian_relationship",type:"text",label:"صلة القرابة"});
+  mergedFields.set("guardian_phone",{key:"guardian_phone",type:"tel",label:"هاتف ولي الأمر"});
+  mergedFields.set("address",{key:"address",type:"text",label:"العنوان"});
   mergedFields.set("education_level",{...(mergedFields.get("education_level")||{}),key:"education_level",type:"text",label:"المرحلة أو الصف الدراسي السابق",required:true});
   mergedFields.set("program_interest",{...(mergedFields.get("program_interest")||{}),key:"program_interest",type:"select",label:"المرحلة التعليمية المطلوبة",required:true,options:[
    {label:"الصف الأول الإبتدائي",value:"school_tutoring"},{label:"الصف الثاني الإبتدائي",value:"school_tutoring"},{label:"الصف الثالث الإبتدائي",value:"school_tutoring"},{label:"الصف الرابع الإبتدائي",value:"school_tutoring"},{label:"الصف الخامس الإبتدائي",value:"school_tutoring"},{label:"الصف السادس الإبتدائي",value:"school_tutoring"},{label:"الصف الأول المتوسط",value:"school_tutoring"},{label:"الصف الثاني المتوسط",value:"school_tutoring"},{label:"الصف الثالث المتوسط",value:"school_tutoring"},{label:"الصف الأول الثانوي",value:"school_tutoring"},{label:"الصف الثاني الثانوي",value:"school_tutoring"},{label:"الصف الثالث الثانوي",value:"school_tutoring"}
   ]});
+  mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للطالب في المنظومة؟",required:true,options:[{label:"لا، تسجيل أول مرة",value:"no"},{label:"نعم، يوجد ملف سابق",value:"yes"}]});
+  mergedFields.set("notes",{...(mergedFields.get("notes")||{}),key:"notes",type:"textarea",label:"ملاحظات أو احتياجات تعليمية"});
  }
  if(service.service_code==="university_guidance"){
   ["curriculum_track","curriculum_country","curriculum_reference","study_period","tuition_period","installment_count"].forEach(k=>mergedFields.delete(k));
