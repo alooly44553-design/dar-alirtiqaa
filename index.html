@@ -239,7 +239,7 @@ function renderForm(service){
  const curriculumCountryField=$("service-fields").querySelector('input[data-key="curriculum_country"]');
  const syncCurriculum=()=>{
   const saudi=curriculumTrackField?.value==="saudi_curriculum";
-  if(curriculumCountryField){
+  if(curriculumTrackField && curriculumCountryField){
    const wrap=curriculumCountryField.closest(".field");
    if(saudi){curriculumCountryField.value="المملكة العربية السعودية";if(wrap)wrap.style.display="none";}
    else{if(curriculumCountryField.value==="المملكة العربية السعودية")curriculumCountryField.value="";if(wrap)wrap.style.display="";}
