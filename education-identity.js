@@ -1,1 +1,13 @@
-(()=>{if(document.querySelector('[data-education-identity]'))return;const p=location.pathname;const home=p==='/'||p.endsWith('/index.html');const wrap=document.createElement('aside');wrap.setAttribute('data-education-identity','');wrap.setAttribute('aria-label','الهوية البصرية الرسمية لمنظومة دار الإرتقاء الفكري التعليمية');wrap.style.cssText='display:flex;justify-content:center;align-items:center;width:100%;padding:12px 16px;background:linear-gradient(135deg,#061f3a,#0d477c);border-bottom:3px solid #c89b2c;box-sizing:border-box;position:relative;z-index:5;';const img=document.createElement('img');img.src='https://www.dropbox.com/scl/fi/clez15ztofgp3phqb74l8/681cea08-a00e-46f5-b3e3-c1390a26da8b-1_all_13392.webp?rlkey=ey2x3gemuosppkr60c6vdo558&st=bvgwheb0&dl=1';img.alt='الهوية البصرية المعتمدة لمنظومة دار الإرتقاء الفكري التعليمية';img.decoding='async';img.loading=home?'eager':'lazy';img.style.cssText='display:block;width:auto;height:auto;max-width:min(100%, '+(home?'420px':'280px')+');max-height:'+(home?'500px':'340px')+';object-fit:contain;object-position:center;border-radius:10px;';wrap.appendChild(img);const top=document.querySelector('body > .topbar');if(top)top.insertAdjacentElement('afterend',wrap);else document.body.insertBefore(wrap,document.body.firstChild);})();
+/* إزالة لوحة الهوية الكبيرة من صفحات المحتوى، مع توحيد روابط العودة إلى الصفحة الرئيسية. */
+(()=>{
+  document.querySelectorAll('[data-education-identity]').forEach(el=>el.remove());
+  const official='https://alirtiqaa-educational-platform.vercel.app/';
+  document.querySelectorAll('a[href]').forEach(a=>{
+    try{
+      const u=new URL(a.href,location.href);
+      if(u.origin==='https://alirtiqaa-educational-platform.vercel.app' && u.pathname==='/' && !u.search && !u.hash){
+        a.href=official+'?utm_source=chatgpt.com#leadership';
+      }
+    }catch(_){}
+  });
+})();
