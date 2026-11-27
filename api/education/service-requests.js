@@ -96,27 +96,19 @@ export default async function handler(req, res) {
       payload[key] = v;
     }
 
-    const curriculumTrack = payload.curriculum_track;
-    const curriculumCountry = cleanText(payload.curriculum_country, 100);
-    const curriculumReference = cleanText(payload.curriculum_reference, 200);
-    if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
-        !curriculumReference ||
-        (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2)) {
-      return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
-    }
-    payload.curriculum_country = curriculumTrack === "saudi_curriculum"
-      ? "المملكة العربية السعودية"
-      : curriculumCountry;
-    payload.curriculum_reference = curriculumReference;
-    if (serviceCode === "university_guidance") {
-      const tuitionPeriod = cleanText(payload.tuition_period, 10);
-      const installmentCount = cleanText(payload.installment_count, 1);
-      if (!["term", "annual"].includes(tuitionPeriod) ||
-          (tuitionPeriod === "term" && !["2", "3"].includes(installmentCount))) {
+    if (serviceCode !== "university_guidance") {
+      const curriculumTrack = payload.curriculum_track;
+      const curriculumCountry = cleanText(payload.curriculum_country, 100);
+      const curriculumReference = cleanText(payload.curriculum_reference, 200);
+      if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
+          !curriculumReference ||
+          (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2)) {
         return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
       }
-      payload.tuition_period = tuitionPeriod;
-      payload.installment_count = installmentCount;
+      payload.curriculum_country = curriculumTrack === "saudi_curriculum"
+        ? "المملكة العربية السعودية"
+        : curriculumCountry;
+      payload.curriculum_reference = curriculumReference;
     }
     if (["program_application", "course_registration", "activity_join"].includes(serviceCode)) {
       if (!["yes", "no"].includes(payload.has_existing_file)) {
