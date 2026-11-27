@@ -121,7 +121,7 @@ assert(manifestCacheVersion, "Manifest must have a cache-busting version");
 assert(serviceWorkerCacheVersion, "Service worker must have a cache-busting version");
 assert.equal(manifestCacheVersion, serviceWorkerCacheVersion, "Manifest and service-worker cache-busters must stay aligned");
 
-for (const label of ["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والعالي","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي"]) {
+for (const label of ["الطفولة المبكرة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والدراسات العليا","التدريب المهني والتقني","مسارات الإرتقاء التعليمية والتربوية والمهارية"]) {
   assert(index.includes(label), "Missing educational scope: " + label);
 }
 const templates = read("operations-templates.html");
