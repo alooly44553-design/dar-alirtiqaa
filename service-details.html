@@ -33,7 +33,7 @@ footer{background:#061f3a;color:#d8e8f8;padding:20px 0;text-align:center;font-si
 <body>
 <header class="top"><div class="container">
 <div class="topline"><div class="brand">منظومة دار الإرتقاء الفكري التعليمية<small>لتعليم الجاليات</small></div><a class="back" href="./#pathways">العودة إلى المجالات التعليمية</a></div>
-<div class="hero"><div class="eyebrow">محتوى المجال وبياناته</div><h1 id="page-title">جارٍ تحميل المجال…</h1><p class="intro" id="page-intro"></p></div>
+<div class="hero"><div class="eyebrow">اسم المحتوى</div><h1 id="page-title">جارٍ تحميل المجال…</h1><p class="intro" id="page-intro"></p></div>
 </div></header>
 <main class="container">
 <section class="section"><h2>التعريف</h2><p id="definition"></p><h2 style="margin-top:18px">نبذة عن المحتوى</h2><p id="overview"></p></section>
@@ -139,7 +139,7 @@ document.getElementById("objectives").innerHTML=list(data.objectives);
 document.getElementById("audience").innerHTML=data.audience.startsWith("<")?data.audience:esc(data.audience);
 document.getElementById("fees").innerHTML=data.fees.map(x=>'<div class="fee"><span>'+esc(x[0])+'<small class="muted" style="display:block">'+esc(x[2])+'</small></span><strong>'+esc(x[1])+'</strong></div>').join("");
 let req=data.requirements;
-if(data.attachments)req+='<ul>'+attachmentList.map(x=>"<li>"+esc(x)+"</li>").join("")+'</ul><p class="note">تُسلَّم المرفقات مع الاستمارة والإيصال؛ رفع الملفات إلكترونيًا غير متاح حاليًا.</p>';
+if(data.attachments)req+='<ul>'+attachmentList.map(x=>"<li>"+esc(x)+"</li>").join("")+'</ul><p class="note">تُسلَّم المرفقات مع الاستمارة والإيصال؛ رفع الملفات إلكترونيًا غير متاح حاليًا.</p><p>المتطلبات الإدارية والتعليمية التفصيلية: '+pending+'</p>';
 document.getElementById("requirements").innerHTML=req.startsWith("<")?req:esc(req);
 document.getElementById("learning-type").innerHTML=data.learning;
 document.getElementById("schedule").innerHTML=data.schedule;
