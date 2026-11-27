@@ -276,12 +276,14 @@ async function loadFees(serviceId, serviceCode){
   if(field("has_existing_file")==="no")rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",100,"مرة واحدة"]);
   rows.push(["رسوم الكتب والمقررات الدراسية",100,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",200,"رسوم إدارية"],["الرسوم الدراسية للطفولة المبكرة والتأسيس",1800,"سنويًا"]);
  }else if(serviceCode==="program_application"){
-  rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",100,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",200,"رسوم إدارية"]);
+  if(field("has_existing_file")==="no")rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",100,"رسوم إدارية"]);
+  rows.push(["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",200,"رسوم إدارية"]);
   const grade=selectedLabel("program_interest");
   const amount=grade.includes("الإبتدائي")?1200:grade.includes("المتوسط")?1500:grade.includes("الأول الثانوي")?1800:grade.includes("الثاني الثانوي")?2000:grade.includes("الثالث الثانوي")?2400:0;
   if(amount)rows.push(["الرسوم الدراسية — "+grade,amount,"سنويًا"]);
  }else if(serviceCode==="university_guidance"){
-  rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",200,"رسوم إدارية"],["رسوم الكتب والمقررات الدراسية",200,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",300,"رسوم إدارية"]);
+  if(field("has_existing_file")==="no")rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",200,"رسوم إدارية"]);
+  rows.push(["رسوم الكتب والمقررات الدراسية",200,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",300,"رسوم إدارية"]);
   const degree=field("degree_level");
   if(degree){const graduate=["masters","doctorate","postgraduate_studies","other_graduate"].includes(degree);rows.push([graduate?"مستوى الدراسات العليا":"مستوى الدراسات الجامعية",graduate?3000:2700,"سنويًا"]);}
   else rows.push(["مستوى الدراسات الجامعية",2700,"سنويًا"],["مستوى الدراسات العليا",3000,"سنويًا"]);
