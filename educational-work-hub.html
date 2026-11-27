@@ -20,16 +20,12 @@
 <div class="chips"><span>فصل المسارات</span><span>ترويسة تعليمية موحدة</span><span>صلاحيات إدارية مطلوبة للإنتاج الفعلي</span><span>لا تشخيص أو علاج آلي</span></div>
 </div></header>
 <main class="wrap">
-<section class="section"><div class="head"><h2>مسارات العمل التعليمية</h2><p>الوصول المباشر إلى المجالات القائمة؛ تظل كل صفحة مختصة بمجالها.</p></div>
-<div class="grid">
-<article class="card"><div class="emoji">🧸</div><h3>الطفولة والتأسيس</h3><p>مسار التعليم المبكر والتأسيس.</p><a class="btn alt" href="./early-learning.html">فتح المسار</a></article>
-<article class="card"><div class="emoji">📚</div><h3>التعليم الأساسي والعام</h3><p>المقررات والجداول والبرامج التعليمية القائمة.</p><a class="btn alt" href="./general-education.html">فتح المسار</a></article>
-<article class="card"><div class="emoji">🎓</div><h3>التعليم الجامعي والعالي</h3><p>التعليم العالي والدراسات والبحث.</p><a class="btn alt" href="./higher-education.html">فتح المسار</a></article>
-<article class="card"><div class="emoji">🛠️</div><h3>التدريب المهني والتقني</h3><p>التدريب والمهارات المهنية.</p><a class="btn alt" href="./vocational-training.html">فتح المسار</a></article>
-<article class="card"><div class="emoji">📖</div><h3>القرآن والدراسات الإسلامية</h3><p>برامج القرآن والدراسات الإسلامية.</p><a class="btn alt" href="./quran-islamic-studies.html">فتح المسار</a></article>
-<article class="card"><div class="emoji">✍️</div><h3>التقوية والعربية والتأهيل</h3><p>التقوية الأكاديمية واللغة والتأهيل.</p><a class="btn alt" href="./academic-support.html">فتح المسار</a></article>
-<article class="card"><div class="emoji">🧭</div><h3>الإرشاد الأكاديمي</h3><p>الإرشاد والتوجيه الأكاديمي والمهني.</p><a class="btn alt" href="./academic-career-guidance.html">فتح المسار</a></article>
-<article class="card"><div class="emoji">🗂️</div><h3>قوالب التشغيل الإداري</h3><p>قوالب ونماذج تنظيم العمل القائمة.</p><a class="btn alt" href="./operations-templates.html">فتح القوالب</a></article>
+<section class="section"><div class="head"><h2>مجالات العمل التعليمية المعتمدة</h2><p>خمسة مجالات رئيسية موحدة، وتُنظم موضوعات المجال الخامس داخليًا دون إنشاء مجالات مستقلة ظاهرة.</p></div><div class="grid">
+<article class="card"><div class="emoji">👶</div><h3>الطفولة المبكرة والتأسيس</h3><p>رياض الأطفال والتمهيدي والاستعداد للتعلم.</p><a class="btn alt" href="./early-learning.html">استعراض المجال</a></article>
+<article class="card"><div class="emoji">📚</div><h3>التعليم الأساسي والعام</h3><p>المراحل الابتدائية والمتوسطة والثانوية والمواد والمتابعة.</p><a class="btn alt" href="./general-education.html">استعراض المجال</a></article>
+<article class="card"><div class="emoji">🎓</div><h3>التعليم الجامعي والدراسات العليا</h3><p>البرامج الأكاديمية والبحثية بحسب المتاح ومتطلبات الجهات المختصة.</p><a class="btn alt" href="./higher-education.html">استعراض المجال</a></article>
+<article class="card"><div class="emoji">🛠️</div><h3>التدريب المهني والتقني</h3><p>المهارات المهنية والتقنية والتطبيقية.</p><a class="btn alt" href="./vocational-training.html">استعراض المجال</a></article>
+<article class="card"><div class="emoji">✨</div><h3>مسارات الإرتقاء التعليمية والتربوية والمهارية</h3><p>تضم موضوعات التعليم والقرآن والدراسات الإسلامية والتقوية واللغات والمهارات الرقمية وإعداد المعلمين والعلوم والفنون والبحث والأنشطة والفعاليات.</p><a class="btn alt" href="./education-packages.html">استعراض الحزم التعليمية</a></article>
 </div></section>
 <section class="section"><div class="head"><h2>الدخول الإداري — نطاق الأعمال التعليمية فقط</h2><p>نماذج أولية لتحديد المتطلبات ومسارات العمل، وليست نظام سجلات مركزية معتمدًا.</p></div>
 <div class="grid">
@@ -47,7 +43,7 @@
 <footer class="foot"><div class="wrap">منظومة مدارس ومراكز دار الإرتقاء الفكري التعليمية · إضافة تنظيمية مستقلة لا تلغي الأعمال السابقة.</div></footer>
 <script>
 const definitions={
- request:{title:"سجل طلب تعليمي أو موعد",fields:[["reference","المعرّف المرجعي","text",true],["kind","نوع السجل","select",true,["طلب خدمة","موعد","استفسار"]],["area","المجال التعليمي","select",true,["الطفولة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والعالي","التدريب المهني والتقني","القرآن والإسلامية","التقوية والعربية والتأهيل","الإرشاد الأكاديمي","أعمال الإرتقاء الفكري"]],["date","التاريخ المطلوب","date",false],["status","الحالة","select",true,["جديد","قيد المراجعة","مجدول","مكتمل","مغلق"]],["notes","ملاحظات إدارية غير حساسة","textarea",false]]},
+ request:{title:"سجل طلب تعليمي أو موعد",fields:[["reference","المعرّف المرجعي","text",true],["kind","نوع السجل","select",true,["طلب خدمة","موعد","استفسار"]],["area","المجال التعليمي","select",true,["الطفولة المبكرة والتأسيس","التعليم الأساسي والعام","التعليم الجامعي والدراسات العليا","التدريب المهني والتقني","مسارات الإرتقاء التعليمية والتربوية والمهارية"]],["date","التاريخ المطلوب","date",false],["status","الحالة","select",true,["جديد","قيد المراجعة","مجدول","مكتمل","مغلق"]],["notes","ملاحظات إدارية غير حساسة","textarea",false]]},
  shift:{title:"جدول المناوبات والمهام",fields:[["staff","اسم الموظف/الفريق","text",true],["task","المهمة","text",true],["date","التاريخ","date",true],["slot","الفترة","select",true,["صباحي","مسائي","مرن"]],["status","الحالة","select",true,["مخطط","مؤكد","منجز","مؤجل"]]]},
  referral:{title:"إحالة ومتابعة إدارية",fields:[["reference","معرّف الإحالة","text",true],["destination","الجهة التعليمية المستقبلة","text",true],["consent","موافقة المستفيد","select",true,["تم توثيق الموافقة","لم تتم الموافقة"]],["followup","موعد المتابعة","date",false],["notes","ملاحظات إدارية غير حساسة","textarea",false]]},
  stock:{title:"حركة المخزون التشغيلي",fields:[["item","الصنف","text",true],["movement","نوع الحركة","select",true,["إضافة","صرف","تسوية","جرد"]],["quantity","الكمية","number",true],["owner","المسؤول","text",true],["date","التاريخ","date",true]]},
