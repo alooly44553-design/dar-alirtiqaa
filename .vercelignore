@@ -1,0 +1,4 @@
+# Education Vercel deployment boundary.
+# These endpoints belong to independent non-education service backends and are not referenced by education pages.
+/api/health/appointments.js
+/api/public-services/requests.js
