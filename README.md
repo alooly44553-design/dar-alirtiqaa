@@ -13,6 +13,7 @@
 - شروط الاستخدام: `terms.html` (مسودة تنتظر الاعتماد)
 - SEO: `robots.txt` و`sitemap.xml`
 - نموذج التشغيل والمرجعية: `OPERATING_MODEL.md`
+- سجل مراجعة الوثائق التاريخية وحالتها: `docs/EDUCATION_HISTORICAL_DOCUMENT_REGISTER_2026-11-27.md`
 - القوالب التشغيلية: `operations-templates.html` (39 قالبًا فارغًا)
 
 ## إصدار الويب والتطبيق
