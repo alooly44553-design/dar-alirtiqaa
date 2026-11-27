@@ -162,7 +162,7 @@ function commonFields(isStudent){
   {key:"nationality",type:"text",label:"الجنسية"},
   {key:"identity_type",type:"text",label:"نوع الهوية/الوثيقة"},
   {key:"identity_number",type:"text",label:"رقم الهوية/الوثيقة"},
-  {key:"phone",type:"tel",label:"رقم التواصل"},
+  {key:"phone",type:"tel",label:"رقم الواتساب المضاف للقروبات التعليمية"},
   {key:"email",type:"email",label:"البريد الإلكتروني"},
   {key:"guardian_name",type:"text",label:"اسم ولي الأمر"},
   {key:"guardian_relationship",type:"text",label:"صلة القرابة"},
@@ -172,7 +172,7 @@ function commonFields(isStudent){
   {key:"notes",type:"textarea",label:"ملاحظات"}
  ]:[
   {key:"applicant_name",type:"text",label:"الاسم",required:true},
-  {key:"applicant_phone",type:"tel",label:"رقم التواصل"},
+  {key:"applicant_phone",type:"tel",label:"رقم الواتساب المضاف للقروبات التعليمية"},
   {key:"applicant_email",type:"email",label:"البريد الإلكتروني"}
  ];
 }
@@ -189,11 +189,31 @@ function renderForm(service){
  if(service.service_code==="student_registration"){
   mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للطالب في المنظومة؟",required:true,options:[{label:"لا، تسجيل أول مرة",value:"no"},{label:"نعم، يوجد ملف سابق",value:"yes"}]});
  }
- [
+ if(!["student_registration","program_application","university_guidance"].includes(service.service_code)){
+  [
    {key:"curriculum_track",type:"select",label:"مرجع المنهج التعليمي",required:true,options:[{label:"المنهج السعودي",value:"saudi_curriculum"},{label:"منهج دولة أخرى / منهج دولي",value:"multi_country_curriculum"}]},
    {key:"curriculum_country",type:"text",label:"الدولة أو النظام التعليمي",required:false},
    {key:"curriculum_reference",type:"text",label:"اسم المنهج أو مرجعه التعليمي",required:true}
   ].forEach(f=>mergedFields.set(f.key,{...(mergedFields.get(f.key)||{}),...f}));
+ }
+ if(service.service_code==="student_registration"){
+  ["curriculum_track","curriculum_country","curriculum_reference","tuition_period","installment_count"].forEach(k=>mergedFields.delete(k));
+  mergedFields.set("education_stage",{key:"education_stage",type:"select",label:"المرحلة التعليمية",required:true,options:[{label:"الاستماع",value:"listen"},{label:"الطفولة المبكرة",value:"early_childhood"},{label:"المرحلة التمهيدية",value:"preparatory"}]});
+  mergedFields.set("education_grade",{key:"education_grade",type:"select",label:"الصف الدراسي",required:true,options:[{label:"الاستماع",value:"listen"},{label:"الروضة",value:"kindergarten"},{label:"التمهيدي ١",value:"prep1"},{label:"التمهيدي ٢",value:"prep2"},{label:"التمهيدي ٣",value:"prep3"}]});
+ }
+ if(service.service_code==="program_application"){
+  ["curriculum_track","curriculum_country","curriculum_reference","program_category"].forEach(k=>mergedFields.delete(k));
+  mergedFields.set("applicant_name",{...(mergedFields.get("applicant_name")||{}),key:"applicant_name",type:"text",label:"الإسم الرباعي للطالب / ـة",required:true});
+  mergedFields.set("applicant_phone",{...(mergedFields.get("applicant_phone")||{}),key:"applicant_phone",type:"tel",label:"رقم الواتساب المضاف للقروبات التعليمية",required:true});
+  mergedFields.set("education_level",{...(mergedFields.get("education_level")||{}),key:"education_level",type:"text",label:"المرحلة أو الصف الدراسي السابق",required:true});
+  mergedFields.set("program_interest",{...(mergedFields.get("program_interest")||{}),key:"program_interest",type:"select",label:"المرحلة التعليمية المطلوبة",required:true,options:[
+   {label:"الصف الأول الإبتدائي",value:"school_tutoring"},{label:"الصف الثاني الإبتدائي",value:"school_tutoring"},{label:"الصف الثالث الإبتدائي",value:"school_tutoring"},{label:"الصف الرابع الإبتدائي",value:"school_tutoring"},{label:"الصف الخامس الإبتدائي",value:"school_tutoring"},{label:"الصف السادس الإبتدائي",value:"school_tutoring"},{label:"الصف الأول المتوسط",value:"school_tutoring"},{label:"الصف الثاني المتوسط",value:"school_tutoring"},{label:"الصف الثالث المتوسط",value:"school_tutoring"},{label:"الصف الأول الثانوي",value:"school_tutoring"},{label:"الصف الثاني الثانوي",value:"school_tutoring"},{label:"الصف الثالث الثانوي",value:"school_tutoring"}
+  ]});
+ }
+ if(service.service_code==="university_guidance"){
+  ["curriculum_track","curriculum_country","curriculum_reference","study_period","tuition_period","installment_count"].forEach(k=>mergedFields.delete(k));
+  mergedFields.set("applicant_phone",{...(mergedFields.get("applicant_phone")||{}),key:"applicant_phone",type:"tel",label:"رقم الواتساب المضاف للقروبات التعليمية",required:true});
+ }
   if(service.service_code==="university_guidance"){
    mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
    mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية",required:true,options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
@@ -203,20 +223,20 @@ function renderForm(service){
    mergedFields.set("has_existing_file",{key:"has_existing_file",type:"select",label:"هل سبق فتح ملف للمستفيد؟",required:true,options:[{label:"لا، مستفيد جديد",value:"no"},{label:"نعم، لدي ملف سابق",value:"yes"}]});
   }
 
-  if(service.service_code==="student_registration"){
-   mergedFields.set("tuition_period",{key:"tuition_period",type:"select",label:"الفترة الدراسية المحتسبة",required:true,options:[{label:"الفصل الدراسي",value:"term"},{label:"السنة الدراسية",value:"annual"}]});
-   mergedFields.set("installment_count",{key:"installment_count",type:"select",label:"عدد دفعات الفصل الدراسي",options:[{label:"دفعتان",value:"2"},{label:"ثلاث دفعات",value:"3"}]});
-  }
+
   const unique=Array.from(mergedFields.values());
- const attachmentField='<div class="field full"><small>المرفقات غير مفعّلة مؤقتًا حتى اكتمال ربط تخزين خاص ومستقل وآمن.</small></div>';
- $("service-fields").innerHTML=unique.map(inputField).join("")+attachmentField+
+ const attachmentField=["student_registration","program_application","university_guidance"].includes(service.service_code)?'<div class="field full files"><strong>المرفقات المطلوبة</strong><small>تُسلَّم المرفقات مع الاستمارة والإيصال؛ رفع الملفات إلكترونيًا غير متاح حاليًا.</small><ul><li>صورة إثبات ولي الأمر أو الجواز — صورة شخصية</li><li>صورة إثبات الطالب / ـة أو الجواز — تعبئة الاستمارة</li><li>صورة آخر شهادة دراسية — صورة الإيصال</li><li>صورة شهادة الميلاد أو تبليغ الولادة أو كرت التطعيم</li></ul></div>':'<div class="field full"><small>المرفقات غير مفعّلة مؤقتًا حتى اكتمال ربط تخزين خاص ومستقل وآمن.</small></div>';
+ const hiddenFields=service.service_code==="student_registration"?'<input type="hidden" data-key="curriculum_track" value="saudi_curriculum"><input type="hidden" data-key="curriculum_country" value="المملكة العربية السعودية"><input type="hidden" data-key="curriculum_reference" value="غير مطلوب وفق التوجيه"><input type="hidden" data-key="tuition_period" value="annual">':
+ service.service_code==="program_application"?'<input type="hidden" data-key="program_category" value="school_tutoring"><input type="hidden" data-key="curriculum_track" value="saudi_curriculum"><input type="hidden" data-key="curriculum_country" value="المملكة العربية السعودية"><input type="hidden" data-key="curriculum_reference" value="غير مطلوب وفق التوجيه">':
+ service.service_code==="university_guidance"?'<input type="hidden" data-key="study_period" value="online_flexible"><input type="hidden" data-key="curriculum_track" value="saudi_curriculum"><input type="hidden" data-key="curriculum_country" value="المملكة العربية السعودية"><input type="hidden" data-key="curriculum_reference" value="غير مطلوب وفق التوجيه"><input type="hidden" data-key="tuition_period" value="annual">':'';
+ $("service-fields").innerHTML=unique.map(inputField).join("")+attachmentField+hiddenFields+
  '<div class="field full"><label><input id="serviceConsent" type="checkbox" required> '+esc(consentText)+'</label></div>'+
  '<div class="field full"><button class="btn dark" id="serviceSubmit" type="submit">إرسال الطلب</button><div id="serviceStatus" class="status"></div></div>';
  $("serviceForm").dataset.serviceCode=service.service_code;
  $("service-form-wrap").classList.add("open");
  $("service-form-wrap").scrollIntoView({behavior:"smooth",block:"start"});
- const curriculumTrackField=$("service-fields").querySelector('[data-key="curriculum_track"]');
- const curriculumCountryField=$("service-fields").querySelector('[data-key="curriculum_country"]');
+ const curriculumTrackField=$("service-fields").querySelector('select[data-key="curriculum_track"]');
+ const curriculumCountryField=$("service-fields").querySelector('input[data-key="curriculum_country"]');
  const syncCurriculum=()=>{
   const saudi=curriculumTrackField?.value==="saudi_curriculum";
   if(curriculumCountryField){
@@ -227,32 +247,7 @@ function renderForm(service){
   }
  };
  curriculumTrackField?.addEventListener("change",syncCurriculum);syncCurriculum();
- if(service.service_code==="university_guidance"){
-  const period=$("service-fields").querySelector('[data-key="tuition_period"]');
-  const count=$("service-fields").querySelector('[data-key="installment_count"]');
-  const syncUniversityInstallments=()=>{
-   if(period){period.required=true;period.disabled=false;}
-   if(count){count.required=period?.value==="term";count.disabled=period?.value!=="term";if(count.disabled)count.value="";}
-  };
-  period?.addEventListener("change",syncUniversityInstallments);
-  syncUniversityInstallments();
- }
- if(service.service_code==="student_registration"){
-  const period=$("service-fields").querySelector('[data-key="tuition_period"]');
-  const count=$("service-fields").querySelector('[data-key="installment_count"]');
-  const syncPeriod=()=>{
-   const stage=$("service-fields").querySelector('[data-key="education_stage"]')?.value||"";
-   const periodVisible=Boolean(stage);
-   const countVisible=periodVisible&&period?.value==="term";
-   if(period?.closest(".field"))period.closest(".field").style.display=periodVisible?"":"none";
-   if(count?.closest(".field"))count.closest(".field").style.display=countVisible?"":"none";
-   if(period){period.required=periodVisible;period.disabled=!periodVisible;}
-   if(count){count.required=countVisible;count.disabled=!countVisible;}
-  };
-  period?.addEventListener("change",()=>{syncPeriod();loadFees(service.id,service.service_code);});
-  count?.addEventListener("change",()=>loadFees(service.id,service.service_code));
-  syncPeriod();
- }
+
  loadFees(service.id, service.service_code);
  if(service.service_code==="university_guidance"){
   const degreeField=$("service-fields").querySelector('[data-key="degree_level"]');
@@ -265,64 +260,39 @@ function renderForm(service){
   if(installmentCountField)installmentCountField.addEventListener("change",()=>loadFees(service.id,service.service_code));
  }
  if(service.service_code==="student_registration"){
-  const stageField=$("service-fields").querySelector('[data-key="education_stage"]');
-  const gradeField=$("service-fields").querySelector('[data-key="education_grade"]');
-  const refreshFees=()=>loadFees(service.id, service.service_code);
   const existingFileField=$("service-fields").querySelector('[data-key="has_existing_file"]');
-  if(existingFileField)existingFileField.addEventListener("change",refreshFees);
-  const gradeOptions=gradeField?Array.from(gradeField.options).slice(1).map(o=>({label:o.textContent,value:o.value})):[];
-  const gradesByStage={
-   early_childhood:["الحضانة","تمهيدي 1 KG1","تمهيدي 2 KG2","تمهيدي 3 KG3"],
-   primary:["الأول الابتدائي","الثاني الابتدائي","الثالث الابتدائي","الرابع الابتدائي","الخامس الابتدائي","السادس الابتدائي"],
-   middle:["الأول المتوسط","الثاني المتوسط","الثالث المتوسط"],
-   secondary:["الأول الثانوي","الثاني الثانوي","الثالث الثانوي"]
-  };
-  const syncGradeOptions=()=>{
-   if(!stageField||!gradeField)return;
-   const allowed=gradesByStage[stageField.value]||[];
-   const previous=gradeField.value;
-   gradeField.innerHTML='<option value="">اختر…</option>'+gradeOptions.filter(o=>allowed.includes(o.value)).map(o=>'<option value="'+esc(o.value)+'">'+esc(o.label)+'</option>').join("");
-   gradeField.value=allowed.includes(previous)?previous:"";
-  };
-  if(stageField)stageField.addEventListener("change",()=>{syncGradeOptions();$("service-fields").querySelector('[data-key="tuition_period"]')?.dispatchEvent(new Event("change"));refreshFees()});
-  if(gradeField)gradeField.addEventListener("change",refreshFees);
-  syncGradeOptions();
+  if(existingFileField)existingFileField.addEventListener("change",()=>loadFees(service.id,service.service_code));
+  const gradeField=$("service-fields").querySelector('[data-key="education_grade"]');
+  if(gradeField)gradeField.addEventListener("change",()=>loadFees(service.id,service.service_code));
  }
 }
 async function loadFees(serviceId, serviceCode){
  const box=$("service-fees");
  const field=k=>$("service-fields").querySelector('[data-key="'+k+'"]')?.value||"";
+ const selectedLabel=k=>$("service-fields").querySelector('[data-key="'+k+'"]')?.selectedOptions?.[0]?.textContent||"";
  const money=n=>Number(n).toLocaleString("en-US")+" ريال";
  const rows=[];
  if(serviceCode==="student_registration"){
-  const stage=field("education_stage"),grade=field("education_grade"),period=field("tuition_period")||"annual";
-  if(field("has_existing_file")==="no")rows.push(["فتح الملف والتسجيل",100,"مرة واحدة للمستجدين فقط"]);
-  if(stage==="early_childhood"){
-   rows.push(["رسوم الزي والكتب",100,"سنويًا"]);
-   if(grade){const nursery=["الحضانة","تمهيدي 1 KG1"].includes(grade);rows.push(["الرسوم الدراسية — "+grade,period==="term"?(nursery?1050:900):(nursery?2100:1800),period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
-  }else{
-   const fees={primary:{term:750,annual:1500},middle:{term:900,annual:1800},secondary:{term:1050,annual:2100}};
-   if(fees[stage]&&grade){
-    const gradeThree=stage==="secondary"&&grade==="الثالث الثانوي";
-    const amount=gradeThree?(period==="term"?1500:3000):(fees[stage][period]||fees[stage].annual);
-    rows.push(["الرسوم الدراسية — "+grade,amount,period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);
-    rows.push(["تحديد المستوى",200,"حسب الحاجة فقط"],["معادلة الشهادة أو الأعمار",200,"حسب الحاجة فقط"]);
-   }
-  }
+  if(field("has_existing_file")==="no")rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",100,"مرة واحدة"]);
+  rows.push(["رسوم الكتب والمقررات الدراسية",100,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",200,"رسوم إدارية"],["الرسوم الدراسية للطفولة المبكرة والتأسيس",1800,"سنويًا"]);
+ }else if(serviceCode==="program_application"){
+  rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",100,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",200,"رسوم إدارية"]);
+  const grade=selectedLabel("program_interest");
+  const amount=grade.includes("الإبتدائي")?1200:grade.includes("المتوسط")?1500:grade.includes("الأول الثانوي")?1800:grade.includes("الثاني الثانوي")?2000:grade.includes("الثالث الثانوي")?2400:0;
+  if(amount)rows.push(["الرسوم الدراسية — "+grade,amount,"سنويًا"]);
  }else if(serviceCode==="university_guidance"){
-  if(field("has_existing_file")==="no")rows.push(["فتح الملف",100,"مرة واحدة للمستجدين فقط"]);
-  rows.push(["تحديد المستوى",200,"حسب الحاجة فقط"],["معادلة الشهادة أو الأعمار",200,"حسب الحاجة فقط"]);
-  const degree=field("degree_level"),period=field("tuition_period")||"annual";
-  if(degree){const graduate=["masters","doctorate","postgraduate_studies","other_graduate"].includes(degree);rows.push([graduate?"الدراسات العليا والماجستير":"الدبلوم والدبلوم العالي والبكالوريوس",graduate?(period==="term"?1000:3000):(period==="term"?900:2700),period==="term"?"للفصل الدراسي":"للسنة الدراسية"]);}
- }else if(serviceCode==="activity_join"){
-  if(field("has_existing_file")==="no")rows.push(["فتح الملف",50,"مرة واحدة للمستفيد الجديد فقط"],["الاشتراك في المركز التعليمي",150,"شهريًا"]);
-  else if(field("has_existing_file")==="yes")rows.push(["الاشتراك في المركز التعليمي",150,"شهريًا"]);
- }else if(["program_application","course_registration"].includes(serviceCode)){
-  if(field("has_existing_file")==="no")rows.push(["فتح الملف",50,"مرة واحدة للمستفيد"],["الاشتراك التعليمي أو التدريبي",150,"شهريًا"]);
-  else if(field("has_existing_file")==="yes")rows.push(["الاشتراك التعليمي أو التدريبي",150,"شهريًا"]);
+  rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",200,"رسوم إدارية"],["رسوم الكتب والمقررات الدراسية",200,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",300,"رسوم إدارية"]);
+  const degree=field("degree_level");
+  if(degree){const graduate=["masters","doctorate","postgraduate_studies","other_graduate"].includes(degree);rows.push([graduate?"مستوى الدراسات العليا":"مستوى الدراسات الجامعية",graduate?3000:2700,"سنويًا"]);}
+  else rows.push(["مستوى الدراسات الجامعية",2700,"سنويًا"],["مستوى الدراسات العليا",3000,"سنويًا"]);
+ }else if(serviceCode==="employment_training"){
+  rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",150,"رسوم إدارية"],["رسوم المنهج والمستلزمات التدريبية",150,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",200,"رسوم إدارية"],["الرسوم التدريبية المهنية",1800,"سنويًا"],["الرسوم التدريبية التقنية",2100,"سنويًا"]);
+ }else if(serviceCode==="general_service"){
+  rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",50,"رسوم إدارية"],["الرسوم التعليمية لثلاثة مسارات متنوعة",150,"شهريًا"],["الرسوم التعليمية لخمسة مسارات متنوعة",250,"شهريًا"]);
  }
- box.innerHTML="<strong>الرسوم المعتمدة</strong>"+(rows.length?rows.map(x=>'<div class="fee-row"><span>'+esc(x[0])+'<small style="display:block;color:var(--muted)">'+esc(x[2])+'</small></span><strong>'+money(x[1])+'</strong></div>').join(""):"<div style='color:var(--muted);margin-top:5px'>لا توجد رسوم معتمدة لهذا الاختيار.</div>")+"<small style='display:block;color:var(--muted);margin-top:8px'>لا تُعرض أو تُحصّل أي رسوم أخرى غير البنود المعتمدة.</small>";
+ box.innerHTML="<strong>الرسوم المعتمدة</strong>"+(rows.length?rows.map(x=>'<div class="fee-row"><span>'+esc(x[0])+'<small style="display:block;color:var(--muted)">'+esc(x[2])+'</small></span><strong>'+money(x[1])+'</strong></div>').join(""):"<div style='color:var(--muted);margin-top:5px'>لا توجد رسوم معتمدة لهذا الاختيار.</div>");
 }
+
 async function loadServices(){
  try{
   const response=await fetch("/api/education/services",{cache:"no-store"});
@@ -358,15 +328,29 @@ $("serviceForm").addEventListener("submit",async e=>{
   const selectedService=services.find(s=>s.service_code===serviceCode);
   const consentText=selectedService?.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.";
   if(serviceCode==="student_registration"){
-   const stageField=$("service-fields").querySelector('[data-key="education_stage"]');
-   const stageLabel=stageField?.selectedOptions?.[0]?.textContent||"";
-   data.requested_program=[stageLabel,data.education_grade].filter(Boolean).join(" — ");
-   if(data.tuition_period){data.payment_plan=data.tuition_period==="annual"?"annual":"monthly_installments";data.notes=[data.notes,"الفترة الدراسية: "+(data.tuition_period==="annual"?"سنوية":"فصل دراسي"),data.tuition_period==="term"&&data.installment_count?"عدد الدفعات: "+data.installment_count:""].filter(Boolean).join(" — ");}
+   const stageLabel=$("service-fields").querySelector('[data-key="education_stage"]')?.selectedOptions?.[0]?.textContent||"";
+   const gradeField=$("service-fields").querySelector('[data-key="education_grade"]');
+   const gradeLabel=gradeField?.selectedOptions?.[0]?.textContent||"";
+   const gradeMap={listen:"الحضانة",kindergarten:"الحضانة",prep1:"تمهيدي 1 KG1",prep2:"تمهيدي 2 KG2",prep3:"تمهيدي 3 KG3"};
+   data.education_stage="early_childhood";
+   data.education_grade=gradeMap[data.education_grade]||data.education_grade;
+   data.curriculum_track="saudi_curriculum";data.curriculum_country="المملكة العربية السعودية";data.curriculum_reference="غير مطلوب وفق التوجيه";
+   data.tuition_period="annual";data.payment_plan="annual";
+   data.requested_program=[stageLabel,gradeLabel].filter(Boolean).join(" — ");
    const response=await fetch("/api/education/registrations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,consent_given:true,consent_text:consentText})});
    const result=await response.json().catch(()=>({}));
    if(!response.ok)throw new Error(({CONSENT_REQUIRED:"يجب الموافقة قبل الإرسال.",CONSENT_TEXT_MISMATCH:"نص الموافقة تغيّر. أغلق الاستمارة وافتحها مجددًا ثم وافق على النص الحالي.",INVALID_REGISTRATION_FIELDS:"يرجى إدخال اسم الطالب والجنس ووسيلة تواصل صحيحة.",INVALID_EDUCATION_GRADE:"اختر مرحلة دراسية وصفًا متوافقين.",INVALID_CURRICULUM_TRACK:"اختر مسار المنهج والدولة أو المنهج المطلوب.",DATABASE_NOT_CONFIGURED:"خدمة التسجيل المستقلة غير مهيأة بعد."})[result.error]||"تعذر إرسال طلب التسجيل. حاول مرة أخرى.");
    requestNumber=result.registration?.registration_number||result.registration?.id||"";
   }else{
+   if(serviceCode==="program_application"){
+    const grade=$("service-fields").querySelector('[data-key="program_interest"]')?.selectedOptions?.[0]?.textContent||"";
+    data.program_interest="school_tutoring";data.program_category="school_tutoring";
+    data.curriculum_track="saudi_curriculum";data.curriculum_country="المملكة العربية السعودية";data.curriculum_reference="غير مطلوب وفق التوجيه";
+    data.notes=[data.notes,"المرحلة التعليمية المطلوبة: "+grade].filter(Boolean).join(" — ");
+   }
+   if(serviceCode==="university_guidance"){
+    data.study_period="online_flexible";data.curriculum_track="saudi_curriculum";data.curriculum_country="المملكة العربية السعودية";data.curriculum_reference="غير مطلوب وفق التوجيه";data.tuition_period="annual";
+   }
    const response=await fetch("/api/education/service-requests",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,service_code:serviceCode,consent_given:true,consent_text:consentText})});
    const result=await response.json().catch(()=>({}));
    if(!response.ok)throw new Error(({
