@@ -1,8 +1,9 @@
-const CACHE_NAME = "dar-alirtiqaa-v1.1.8";
+const CACHE_NAME = "dar-alirtiqaa-v1.1.9";
 const ANNOUNCEMENT_SCRIPT = "/education-announcement.js?v=20261021-2";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./education-identity.js?v=20261127",
   "./businesses.html",
   "./operations-templates.html",
   "./education-announcement.html",
@@ -68,7 +69,7 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  if (url.search || !appShellUrls.has(url.href)) return;
+  if ((url.search && url.pathname !== "/education-identity.js") || !appShellUrls.has(url.href)) return;
   event.respondWith(caches.open(CACHE_NAME).then(async cache => {
     const cached = await cache.match(request);
     if (cached) return cached;

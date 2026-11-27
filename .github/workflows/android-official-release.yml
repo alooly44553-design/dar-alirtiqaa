@@ -86,7 +86,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p www
-          cp *.html app.webmanifest logo.svg icon.svg sw.js www/
+          cp *.html education-identity.js app.webmanifest logo.svg icon.svg sw.js www/
           for dir in ads assets lib projects; do
             if [[ -d "$dir" ]]; then cp -R "$dir" www/; fi
           done
