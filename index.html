@@ -179,7 +179,7 @@ function commonFields(isStudent){
 function renderForm(service){
  const formNames={student_registration:"الطفولة المبكرة والتأسيس",program_application:"التعليم الأساسي والعام",university_guidance:"التعليم الجامعي والدراسات العليا",employment_training:"التدريب المهني والتقني",general_service:"خدمات تعليمية وتربوية متنوعة"};
  $("service-form-title").textContent=(formNames[service.service_code]||service.service_name)+" — "+service.registration_method_label;
- $("service-form-description").textContent=service.description||"أدخل البيانات بدقة؛ الطلبات تُراجع من الإدارة.";
+ $("service-form-description").textContent=service.service_code==="program_application"?"طلب الالتحاق ببرامج تعليمية وتدريبية وثقافية ومهنية وتقنية متنوعة؛ جميع البرامج تُقدَّم عن بُعد فقط، مع خيارات زمنية مرنة.":(service.description||"أدخل البيانات بدقة؛ الطلبات تُراجع من الإدارة.");
  const consentText=service.consent_text||"أوافق على مراجعة الطلب والتواصل معي بشأنه.";
  const mergedFields=new Map(commonFields(service.service_code==="student_registration").map(f=>[f.key,f]));
  (service.form_fields||[]).forEach(f=>{
@@ -202,7 +202,7 @@ function renderForm(service){
   mergedFields.set("education_grade",{key:"education_grade",type:"select",label:"الصف الدراسي",required:true,options:[{label:"الاستماع",value:"listen"},{label:"الروضة",value:"kindergarten"},{label:"التمهيدي ١",value:"prep1"},{label:"التمهيدي ٢",value:"prep2"},{label:"التمهيدي ٣",value:"prep3"}]});
  }
  if(service.service_code==="program_application"){
-  ["curriculum_track","curriculum_country","curriculum_reference","program_category"].forEach(k=>mergedFields.delete(k));
+  ["curriculum_track","curriculum_country","curriculum_reference","program_category","study_period"].forEach(k=>mergedFields.delete(k));
   mergedFields.set("applicant_name",{key:"applicant_name",type:"text",label:"الإسم الرباعي للطالب / ـة",required:true});
   mergedFields.set("gender",{key:"gender",type:"select",label:"النوع",required:true,options:[{label:"طالب",value:"male"},{label:"طالبة",value:"female"}]});
   mergedFields.set("date_of_birth",{key:"date_of_birth",type:"date",label:"تاريخ الميلاد"});
@@ -290,9 +290,13 @@ async function loadFees(serviceId, serviceCode){
  }else if(serviceCode==="program_application"){
   if(field("has_existing_file")==="no")rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",100,"رسوم إدارية"]);
   rows.push(["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",200,"رسوم إدارية"]);
-  const grade=selectedLabel("program_interest");
-  const amount=grade.includes("الإبتدائي")?1200:grade.includes("المتوسط")?1500:grade.includes("الأول الثانوي")?1800:grade.includes("الثاني الثانوي")?2000:grade.includes("الثالث الثانوي")?2400:0;
-  if(amount)rows.push(["الرسوم الدراسية — "+grade,amount,"سنويًا"]);
+  rows.push(
+   ["الرسوم الدراسية للمرحلة الابتدائية",1200,"سنويًا"],
+   ["الرسوم الدراسية للمرحلة المتوسطة",1500,"سنويًا"],
+   ["الرسوم الدراسية للصف الأول الثانوي",1800,"سنويًا"],
+   ["الرسوم الدراسية للصف الثاني الثانوي",2000,"سنويًا"],
+   ["الرسوم الدراسية للصف الثالث الثانوي",2400,"سنويًا"]
+  );
  }else if(serviceCode==="university_guidance"){
   if(field("has_existing_file")==="no")rows.push(["رسوم فتح الملف أو التسجيل للمستجدين",200,"رسوم إدارية"]);
   rows.push(["رسوم الكتب والمقررات الدراسية",200,"رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة",300,"رسوم إدارية"]);
