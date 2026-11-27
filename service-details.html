@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#082f57">
+<meta name="description" content="صفحة محتوى وبيانات واستـمارة التسجيل لمجالات منظومة دار الإرتقاء الفكري التعليمية.">
+<title>محتوى المجال التعليمي | منظومة دار الإرتقاء الفكري التعليمية</title>
+<style>
+:root{--navy:#082f57;--blue:#0d5c91;--gold:#c89b2c;--ink:#122033;--muted:#64748b;--bg:#f4f7fb;--line:#dbe3ee;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;line-height:1.8}
+.container{width:min(1080px,calc(100% - 28px));margin:auto}
+.top{background:linear-gradient(125deg,#061f3a,#0d5c91);color:white;padding:22px 0 28px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-weight:900}.brand small{display:block;color:#f4d47a;font-size:12px}
+.back{color:#fff;text-decoration:none;border:1px solid #ffffff55;border-radius:11px;padding:7px 13px;font-weight:800}
+.hero{padding:26px 0 4px}.eyebrow{color:#f4d47a;font-weight:900;font-size:13px}
+h1{font-size:clamp(27px,5vw,42px);line-height:1.35;margin:5px 0 8px}.intro{max-width:850px;color:#e3eef9;margin:0}
+main{padding:28px 0 50px}.section{background:white;border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:17px;box-shadow:0 12px 35px #082f570c}
+h2{font-size:21px;margin:0 0 12px;color:var(--navy)}h3{font-size:17px;margin:0 0 7px;color:var(--navy)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panel{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:15px}
+ul{margin:6px 0 0;padding-right:22px}li{margin:4px 0}
+.muted{color:var(--muted)}.pending{color:#785b13;background:#fff8e6;border:1px solid #ead9ad;border-radius:10px;padding:9px 12px;display:inline-block;font-weight:700}
+.fees{display:grid;gap:8px}.fee{display:flex;justify-content:space-between;gap:14px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#fff}.fee strong{white-space:nowrap;color:var(--navy)}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+.form-frame{width:100%;min-height:950px;border:0;border-radius:14px;background:#fff}
+.form-wrap{border:1px solid var(--line);border-radius:15px;overflow:hidden;background:white}
+footer{background:#061f3a;color:#d8e8f8;padding:20px 0;text-align:center;font-size:13px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.section{padding:16px}.fee{align-items:flex-start}.form-frame{min-height:1150px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="container">
+<div class="topline"><div class="brand">منظومة دار الإرتقاء الفكري التعليمية<small>لتعليم الجاليات</small></div><a class="back" href="./#pathways">العودة إلى المجالات التعليمية</a></div>
+<div class="hero"><div class="eyebrow">اسم المحتوى</div><h1 id="page-title">جارٍ تحميل المجال…</h1><p class="intro" id="page-intro"></p></div>
+</div></header>
+<main class="container">
+<section class="section"><h2>التعريف</h2><p id="definition"></p><h2 style="margin-top:18px">نبذة عن المحتوى</h2><p id="overview"></p></section>
+<section class="section grid">
+<div class="panel"><h2>أهداف المحتوى</h2><ul id="objectives"></ul></div>
+<div class="panel"><h2>الفئات المستهدفة</h2><div id="audience"></div></div>
+</section>
+<section class="section"><h2>الرسوم الدراسية</h2><div id="fees" class="fees"></div><p class="note">تُعرض الرسوم وفق القيم المعتمدة للمجال، ويُبيّن الوصف إن كانت الرسوم سنوية أو شهرية أو إدارية.</p></section>
+<section class="section grid">
+<div class="panel"><h2>المتطلبات الإدارية والتعليمية</h2><div id="requirements"></div></div>
+<div class="panel"><h2>نوع التعليم</h2><div id="learning-type"></div><h2 style="margin-top:18px">أوقات الدوام</h2><div id="schedule"></div></div>
+</section>
+<section class="section"><h2>استمارة التسجيل</h2><p class="muted">أدخل البيانات المطلوبة في الاستمارة الخاصة بهذا المجال. يُرسل الطلب للمراجعة الإدارية، ولا يعني استلامه القبول النهائي.</p><div class="form-wrap"><iframe id="registration-form" class="form-frame" title="استمارة التسجيل الخاصة بالمجال" loading="lazy"></iframe></div></section>
+</main>
+<footer>منظومة دار الإرتقاء الفكري التعليمية — صفحة مستقلة للمجال المختار</footer>
+<script>
+const attachmentList=[
+"صورة إثبات ولي الأمر أو الجواز — صورة شخصية",
+"صورة إثبات الطالب / ـة أو الجواز — تعبئة الاستمارة",
+"صورة آخر شهادة دراسية — صورة الإيصال",
+"صورة شهادة الميلاد أو تبليغ الولادة أو كرت التطعيم"
+];
+const pending='<span class="pending">بانتظار التحقق والاعتماد</span>';
+const fields={
+student_registration:{
+title:"الطفولة المبكرة والتأسيس",icon:"👶",
+intro:"برامج تأسيس مبكر تنمّي اللغة والمفاهيم والمهارات الأساسية من خلال أنشطة تعليمية مناسبة للعمر واحتياجات المتعلم.",
+definition:"مجال تعليمي مخصص لمرحلة الطفولة المبكرة والتأسيس، ويشمل الاستماع والروضة والمرحلة التمهيدية وفق خيارات الاستمارة.",
+overview:"رياض الأطفال والتمهيدي، وتنمية الاستعداد للتعلم واللغة والأعداد والمهارات المناسبة للمرحلة.",
+objectives:["تنمية اللغة والمفاهيم الأساسية.","تنمية الاستعداد للتعلم والمهارات المناسبة للعمر."],
+audience:pending,
+fees:[["رسوم فتح الملف أو التسجيل للمستجدين","100 ريال","مرة واحدة"],["رسوم الكتب والمقررات الدراسية","100 ريال","رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة","200 ريال","رسوم إدارية"],["الرسوم الدراسية للطفولة المبكرة والتأسيس","1,800 ريال","سنويًا"]],
+requirements:"المرفقات المطلوبة:",
+attachments:true,
+learning:"بحسب البرنامج التعليمي المتاح؛ تفاصيل نمط تقديم كل برنامج "+pending,
+schedule:pending
+},
+program_application:{
+title:"التعليم الأساسي والعام",icon:"📚",
+intro:"طلب الالتحاق ببرامج تعليمية وتدريبية وثقافية ومهنية وتقنية متنوعة؛ جميع البرامج تُقدَّم عن بُعد فقط، مع خيارات زمنية مرنة.",
+definition:"مجال التعليم الأساسي والعام للمراحل الابتدائية والمتوسطة والثانوية، مع متابعة المواد الدراسية والواجبات والتقويم والتقوية وسد الفجوات التعليمية والاستعداد للاختبارات.",
+overview:"يتضمن متابعة تعليمية للمراحل الأساسية والعامة، ودعمًا للمواد الدراسية والواجبات والتقييم والتقوية بحسب الصف الدراسي المطلوب.",
+objectives:["متابعة المواد الدراسية والواجبات والتقويم.","التقوية وسد الفجوات التعليمية.","دعم الاستعداد للاختبارات."],
+audience:pending,
+fees:[["رسوم فتح الملف أو التسجيل للمستجدين","100 ريال","رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة","200 ريال","رسوم إدارية"],["الرسوم الدراسية للمرحلة الابتدائية","1,200 ريال","سنويًا"],["الرسوم الدراسية للمرحلة المتوسطة","1,500 ريال","سنويًا"],["الرسوم الدراسية للصف الأول الثانوي","1,800 ريال","سنويًا"],["الرسوم الدراسية للصف الثاني الثانوي","2,000 ريال","سنويًا"],["الرسوم الدراسية للصف الثالث الثانوي","2,400 ريال","سنويًا"]],
+requirements:"المرفقات المطلوبة:",
+attachments:true,
+learning:"عن بُعد فقط، مع خيارات زمنية مرنة.",
+schedule:"خيارات زمنية مرنة؛ المواعيد التفصيلية "+pending
+},
+university_guidance:{
+title:"التعليم الجامعي والدراسات العليا",icon:"🎓",
+intro:"مساندة تعليمية وأكاديمية للمسارات الجامعية والعليا، تشمل تنظيم خطة التعلم والبحث والكتابة الأكاديمية، وفق البرامج والمتطلبات المتاحة والجهات المختصة.",
+definition:"مجال مساندة التعليم الجامعي والدراسات العليا، وفق البرامج المتاحة ومتطلبات الجهات المختصة.",
+overview:"يشمل التوجيه والمساندة الأكاديمية للمسارات الجامعية والعليا، وتنظيم خطة التعلم والبحث والكتابة الأكاديمية.",
+objectives:["تنظيم خطة التعلم للمسارات الجامعية والعليا.","مساندة البحث والكتابة الأكاديمية.","تقديم المساندة وفق البرامج والمتطلبات المتاحة والجهات المختصة."],
+audience:"خريجو التعليم العام، والراغبون بالالتحاق بالجامعة، والطلاب الجامعيون، والباحثون، والراغبون بالدراسات العليا، والمهنيون والبالغون.",
+fees:[["رسوم فتح الملف أو التسجيل للمستجدين","200 ريال","رسوم إدارية"],["رسوم الكتب والمقررات الدراسية","200 ريال","رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة","300 ريال","رسوم إدارية"],["الدبلوم / الدبلوم العالي / البكالوريوس","2,700 ريال","سنويًا"],["الدراسات العليا","3,000 ريال","سنويًا"]],
+requirements:"المرفقات المطلوبة:",
+attachments:true,
+learning:"وفق البرامج المتاحة ومتطلبات الجهات المختصة؛ نمط تقديم كل برنامج "+pending,
+schedule:pending
+},
+employment_training:{
+title:"التدريب المهني والتقني",icon:"🛠️",
+intro:"مسارات تدريبية تطبيقية ومهنية وتقنية لتنمية المهارات والاستعداد العملي، وفق البرامج المتاحة ومتطلبات كل مجال.",
+definition:"مجال للمسارات التدريبية التطبيقية والمهنية والتقنية، وفق البرامج المتاحة ومتطلبات كل مجال.",
+overview:"يركز على تنمية المهارات المهنية والتقنية والتطبيقية والاستعداد العملي.",
+objectives:["تنمية المهارات المهنية والتقنية والتطبيقية.","تعزيز الاستعداد العملي وفق البرامج المتاحة."],
+audience:pending,
+fees:[["رسوم فتح الملف أو التسجيل للمستجدين","150 ريال","رسوم إدارية"],["رسوم المنهج والمستلزمات التدريبية","150 ريال","رسوم إدارية"],["رسوم تحديد المستوى التعليمي أو معادلة الشهادة","200 ريال","رسوم إدارية"],["الرسوم التدريبية المهنية","1,800 ريال","سنويًا"],["الرسوم التدريبية التقنية","2,100 ريال","سنويًا"]],
+requirements:pending,
+attachments:false,
+learning:"وفق البرامج التدريبية المتاحة ومتطلبات كل مجال.",
+schedule:pending
+},
+general_service:{
+title:"خدمات تعليمية وتربوية متنوعة",icon:"✨",
+intro:"خدمات تعليمية وتربوية متنوعة تشمل القرآن الكريم والدراسات الإسلامية واللغة العربية واللغات والإرشاد الأكاديمي والمهارات الرقمية والبرمجة والتطوير التربوي، ومجالات علمية ومهنية وثقافية متعددة.",
+definition:"مسارات تعليمية وتربوية ومهارية متنوعة، وفق نطاق البرامج المتاحة ومتطلبات الجهات المختصة.",
+overview:"تشمل القرآن الكريم والدراسات الإسلامية والعربية واللغات والإرشاد والمهارات الرقمية والبرمجة وإعداد المعلمين والتطوير التربوي والتعلم المستمر، وتمتد إلى العلوم والرياضيات والصحية والهندسية والأعمال والقانون والإنسانيات والفنون والإعلام والزراعة والبيئة والسياحة والبحث العلمي.",
+objectives:["إتاحة مسارات تعليمية وتربوية ومهارية متنوعة.","دعم تعلم القرآن والدراسات الإسلامية والعربية واللغات.","تنمية المهارات الرقمية والبرمجة والتطوير التربوي.","تغطية المجالات العلمية والثقافية والمهنية المذكورة ضمن البرامج المتاحة."],
+audience:pending,
+fees:[["رسوم فتح الملف أو التسجيل للمستجدين","50 ريال","رسوم إدارية"],["الرسوم التعليمية لثلاثة مسارات متنوعة","150 ريال","شهريًا"],["الرسوم التعليمية لخمسة مسارات متنوعة","250 ريال","شهريًا"]],
+requirements:pending,
+attachments:false,
+learning:"إلكتروني وعن بُعد بحسب البرامج المتاحة.",
+schedule:pending
+}
+};
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function list(items){return "<ul>"+items.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>";}
+const code=new URLSearchParams(location.search).get("service");
+const data=fields[code];
+if(!data){document.getElementById("page-title").textContent="المجال غير محدد";document.getElementById("page-intro").textContent="ارجع إلى المجالات التعليمية واختر المجال المطلوب.";document.getElementById("registration-form").remove();}
+else{
+document.title=data.title+" | منظومة دار الإرتقاء الفكري التعليمية";
+document.getElementById("page-title").textContent=data.icon+" "+data.title;
+document.getElementById("page-intro").textContent=data.intro;
+document.getElementById("definition").textContent=data.definition;
+document.getElementById("overview").textContent=data.overview;
+document.getElementById("objectives").innerHTML=list(data.objectives);
+document.getElementById("audience").innerHTML=data.audience.startsWith("<")?data.audience:esc(data.audience);
+document.getElementById("fees").innerHTML=data.fees.map(x=>'<div class="fee"><span>'+esc(x[0])+'<small class="muted" style="display:block">'+esc(x[2])+'</small></span><strong>'+esc(x[1])+'</strong></div>').join("");
+let req=data.requirements;
+if(data.attachments)req+='<ul>'+attachmentList.map(x=>"<li>"+esc(x)+"</li>").join("")+'</ul><p class="note">تُسلَّم المرفقات مع الاستمارة والإيصال؛ رفع الملفات إلكترونيًا غير متاح حاليًا.</p><p>المتطلبات الإدارية والتعليمية التفصيلية: '+pending+'</p>';
+document.getElementById("requirements").innerHTML=req.startsWith("<")?req:esc(req);
+document.getElementById("learning-type").innerHTML=data.learning;
+document.getElementById("schedule").innerHTML=data.schedule;
+document.getElementById("registration-form").src="./?service="+encodeURIComponent(code)+"&embed=1#services";
+}
+const frame=document.getElementById("registration-form");
+frame.addEventListener("load",()=>{
+try{
+ const doc=frame.contentDocument;
+ const resize=()=>{frame.style.height=Math.max(950,doc.documentElement.scrollHeight+20)+"px";};
+ if("ResizeObserver" in window){new ResizeObserver(resize).observe(doc.documentElement);}
+ resize();
+}catch(_){}
+});
+</script>
+</body>
+</html>

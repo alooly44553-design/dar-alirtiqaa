@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", "notes", "curriculum_track", "curriculum_country", "curriculum_reference", "has_existing_file", "tuition_period", "installment_count", ...fieldsByKey.keys()]);
+    const allowedKeys = new Set(["applicant_name", "applicant_phone", "applicant_email", "notes", "curriculum_track", "curriculum_country", "curriculum_reference", "has_existing_file", "tuition_period", "installment_count", "gender", "date_of_birth", "nationality", "identity_type", "identity_number", "guardian_name", "guardian_relationship", "guardian_phone", "address", ...fieldsByKey.keys()]);
     const payload = {};
     for (const key of allowedKeys) {
       if (!(key in body)) continue;
@@ -59,6 +59,18 @@ export default async function handler(req, res) {
         const v = cleanText(typeof value === "string" ? value : "", 254);
         if (!validEmail(v)) return sendJson(res, 400, { error: "INVALID_EMAIL" });
         if (v) payload[key] = v;
+        continue;
+      }
+      if (key === "guardian_phone") {
+        const v = cleanText(typeof value === "string" ? value : "", 30);
+        if (v && !validPhone(v)) return sendJson(res, 400, { error: "INVALID_PHONE" });
+        if (v) payload[key] = v;
+        continue;
+      }
+      if (key === "gender") {
+        const v = cleanText(typeof value === "string" ? value : "", 10);
+        if (!["male", "female"].includes(v)) return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
+        payload[key] = v;
         continue;
       }
       if (field?.type === "number") {
@@ -84,27 +96,19 @@ export default async function handler(req, res) {
       payload[key] = v;
     }
 
-    const curriculumTrack = payload.curriculum_track;
-    const curriculumCountry = cleanText(payload.curriculum_country, 100);
-    const curriculumReference = cleanText(payload.curriculum_reference, 200);
-    if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
-        !curriculumReference ||
-        (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2)) {
-      return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
-    }
-    payload.curriculum_country = curriculumTrack === "saudi_curriculum"
-      ? "المملكة العربية السعودية"
-      : curriculumCountry;
-    payload.curriculum_reference = curriculumReference;
-    if (serviceCode === "university_guidance") {
-      const tuitionPeriod = cleanText(payload.tuition_period, 10);
-      const installmentCount = cleanText(payload.installment_count, 1);
-      if (!["term", "annual"].includes(tuitionPeriod) ||
-          (tuitionPeriod === "term" && !["2", "3"].includes(installmentCount))) {
+    if (serviceCode !== "university_guidance") {
+      const curriculumTrack = payload.curriculum_track;
+      const curriculumCountry = cleanText(payload.curriculum_country, 100);
+      const curriculumReference = cleanText(payload.curriculum_reference, 200);
+      if (!["saudi_curriculum", "multi_country_curriculum"].includes(curriculumTrack) ||
+          !curriculumReference ||
+          (curriculumTrack === "multi_country_curriculum" && curriculumCountry.length < 2)) {
         return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
       }
-      payload.tuition_period = tuitionPeriod;
-      payload.installment_count = installmentCount;
+      payload.curriculum_country = curriculumTrack === "saudi_curriculum"
+        ? "المملكة العربية السعودية"
+        : curriculumCountry;
+      payload.curriculum_reference = curriculumReference;
     }
     if (["program_application", "course_registration", "activity_join"].includes(serviceCode)) {
       if (!["yes", "no"].includes(payload.has_existing_file)) {
@@ -114,6 +118,8 @@ export default async function handler(req, res) {
 
     for (const field of configuredFields) {
       if (!field?.required || typeof field.key !== "string") continue;
+      if (serviceCode === "university_guidance" &&
+          ["country_interest", "academic_system", "budget_range", "notes", "study_period"].includes(field.key)) continue;
       const value = payload[field.key];
       if (value === undefined || value === null || value === "") {
         return sendJson(res, 400, { error: "INVALID_SERVICE_FIELDS" });
